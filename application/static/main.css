@@ -1,0 +1,108 @@
+body {
+    background-image: -webkit-linear-gradient(0deg,#d9afd9 0%,#5a2170 0%,#a1c4fd 0%,#c2e9fb 100%);
+}
+
+.bs-stepper .step-trigger {
+    display: -ms-inline-flexbox;
+    display: inline-flex;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    -ms-flex-align: center;
+    align-items: center;
+    -ms-flex-pack: center;
+    justify-content: center;
+    padding: 20px;
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.5;
+    color: #6c757d;
+    text-align: center;
+    text-decoration: none;
+    white-space: nowrap;
+    vertical-align: middle;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    background-color: transparent;
+    border: none;
+    border-radius: .25rem;
+}
+
+.bs-stepper-header {
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-align: center;
+    align-items: center
+}
+
+.bs-stepper .line,
+.bs-stepper-line {
+    -ms-flex: 1 0 32px;
+    flex: 1 0 32px;
+    min-width: 1px;
+    min-height: 1px;
+    margin: auto;
+    background-color: rgba(0, 0, 0, .12)
+}
+
+.bs-stepper-content {
+    padding: 5%;
+}
+
+.bs-stepper-circle {
+    display: -ms-inline-flexbox;
+    display: inline-flex;
+    -ms-flex-line-pack: center;
+    align-content: center;
+    -ms-flex-pack: center;
+    justify-content: center;
+    width: 2em;
+    height: 2em;
+    padding: .5em 0;
+    margin: .25rem;
+    line-height: 1em;
+    color: #fff;
+    background-color: #6c757d;
+    border-radius: 1em
+}
+
+.active .bs-stepper-circle {
+    background-color: #007bff
+}
+
+progress {
+    width: 0;
+    min-width: 100%;
+    height: 10%;
+}
+
+.tab {
+    text-align: center;
+}
+
+/* Style the buttons inside the tab */
+.tab button {
+    width: 40%;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    transition: 0.3s;
+    font-size: 17px;
+}
+
+/* Change background color of buttons on hover */
+.tab button:hover {
+    background-color: #ddd;
+}
+
+/* Create an active/current tablink class */
+.tab button.active {
+    background-color: #ccc;
+}
+
+/* Style the tab content */
+.tabcontent {
+    display: none;
+    /* padding: 6px 12px; */
+}

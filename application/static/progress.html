@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block additional_scripts %}
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.1.1/socket.io.min.js"></script>
+<script src="{{ url_for('static', filename='application.js') }}"></script>
+{% endblock %}
+{% block content %}
+<h2>Dataset progress</h2>
+<progress id="progress" value="0" max="100"></progress>
+<label for="progress" id="progress_label"></label>
+<p id="pinned"></p>
+<div id="logs" style="background-color: #eee;"></div>
+<br>
+<a id="next_link" class="btn btn-primary" style="float:right;visibility:hidden;" href="{{ next_url }}">Next</a> 
+{% endblock %}

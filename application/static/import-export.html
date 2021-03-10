@@ -1,0 +1,65 @@
+{% extends "simplebase.html" %}
+{% block content %}
+<div class="tab">
+<button class="tablinks active" onclick="openPane(event, 'import')">Import</button>
+<button class="tablinks" onclick="openPane(event, 'export')">Export</button>
+</div>
+<br>
+
+<div id="import" class="tabcontent" style="display: block;">
+<h3>Upload dataset</h3>
+<form method="POST" action="/upload-dataset" enctype="multipart/form-data">
+    <div class="form-group">
+        <label for="name">Name</label>
+        <input type="text" id="name" name="name" required>
+    </div>
+    <div class="form-group">
+        <label for="dataset">Dataset (.zip)</label>
+        <input type="file" id="dataset" name="dataset" required>
+    </div>
+    <input type="submit" class="btn btn-primary">
+</form>
+
+<hr>
+<h3>Upload model</h3>
+<form method="POST" action="/upload-model" enctype="multipart/form-data">
+    <div class="form-group">
+        <label for="name">Name</label>
+        <input type="text" id="name" name="name" required> 
+    </div>
+    <div class="form-group">
+        <label for="model">Model (.pt)</label>
+        <input type="file" id="model" name="model" required> 
+    </div>
+    <input type="submit" class="btn btn-primary">
+</form>
+
+</div>
+
+<div id="export" class="tabcontent">
+<h3>Export dataset</h3>
+<form method="POST" action="/download-dataset" enctype="multipart/form-data">
+    <div class="form-group">
+        <select class="form-control" id="dataset" name="dataset">
+            {% for dataset in datasets %}
+                <option value="{{dataset}}">{{dataset}}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <input type="submit" class="btn btn-primary">
+</form>
+
+<hr>
+<h3>Export model</h3>
+<form method="POST" action="/download-model" enctype="multipart/form-data">
+    <div class="form-group">
+        <select class="form-control" id="model" name="model">
+            {% for model in models %}
+                <option value="{{model}}">{{model}}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <input type="submit" class="btn btn-primary">
+</form>
+</div>
+{% endblock %}

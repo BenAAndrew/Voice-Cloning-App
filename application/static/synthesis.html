@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block content %}
+<form method="POST" action="/synthesis" enctype="multipart/form-data" id="synthesis">
+    {% if graph %}
+        <img src={{graph}}>
+        <audio controls>
+            <source src="{{audio}}" type="audio/wav">
+        </audio>
+        <div style="text-align: center; font-size: 20px;">
+            {% for word, options in alertnative_words.items() %}
+                {% if options %}
+                    <select onchange="updateText('{{word}}')" id="{{word}}">
+                        <option> {{ word }}</option>
+                        {% for option in options %}
+                            <option>{{ option }}</option>
+                        {% endfor %}
+                    </select>
+                {% else %}
+                    {{word}}
+                {% endif %}
+            {% endfor %}
+        </div>
+    {% endif %}
+    <div class="form-group">
+        <label for="text">Text</label>
+        <textarea class="form-control" rows="2" name="text" id="text" required>{{text}}</textarea>
+    </div>
+    <input type="submit" class="btn btn-primary">
+</form>
+<script>
+function updateText(word){
+    current_text = document.getElementById("text").value;
+    new_text = current_text.replace(word, document.getElementById(word).value);
+    document.getElementById("text").value = new_text;
+    document.getElementById("synthesis").submit();
+}
+</script>
+{% endblock %}

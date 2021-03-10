@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block additional_scripts %}
+<script src="{{ url_for('static', filename='pane.js') }}"></script>
+{% endblock %}
+{% block content %}
+<form method="POST" action="/" enctype="multipart/form-data">
+    <p>Don't have text/audio yet: <a href="/datasource">Convert a kindle book to data source</a></p>
+    {% if datasets %}
+        <div class="tab">
+            <button class="tablinks active" onclick="openPane(event, 'new')">New dataset</button>
+            <button class="tablinks" onclick="openPane(event, 'extend')">Extend existing dataset</button>
+        </div>
+        <br>
+
+        <div id="new" class="tabcontent" style="display: block;">
+            <div class="form-group">
+                <label for="name">Name</label>
+                <input type="text" id="name" name="name"> 
+            </div>
+        </div>
+        
+        <div id="extend" class="tabcontent">
+            <div class="form-group">
+                <select class="form-control" id="path" name="path">
+                    {% for dataset in datasets %}
+                        <option value="{{dataset}}">{{dataset}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+    {% else %}
+        <div class="form-group">
+            <label for="name">Name</label>
+            <input type="text" id="name" name="name" required> 
+        </div>
+    {% endif %}
+
+    <div class="form-group">
+        <label for="text_file">Text file</label>
+        <input type="file" id="text_file" name="text_file" required> 
+    </div>
+    <div class="form-group">
+        <label for="audio_file">Audio file</label>
+        <input type="file" id="audio_file" name="audio_file" required> 
+    </div>
+    <input type="submit" class="btn btn-primary">
+</form>
+{% endblock %}

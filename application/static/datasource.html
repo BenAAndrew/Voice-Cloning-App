@@ -1,0 +1,38 @@
+{% extends "simplebase.html" %}
+{% block content %}
+<h2>Using kindle/audible as data sources</h2>
+<p>Audible & kindle are a great source for gathering audio & text data needed for voice cloning.<br>
+To build a data source, firstly purchase a matching audible & kindle book (typically referred to <a href="https://www.amazon.co.uk/gp/feature.html?ie=UTF8&docId=1000812303">whispersync</a> on amazon)</p>
+
+<h3>Audible to audio</h3>
+<p>To convert an audible audio book to an audio file (.mp3) I use <a href="https://github.com/audiamus/AaxAudioConverter">AaxAudioConverter</a>. Here are the steps to install and use:<br>
+<ol>
+    <li>Download the <a href="https://www.microsoft.com/en-gb/p/audiobooks-from-audible/9wzdncrfj1cr">Windows Audible app</a> from the Microsoft store</li>
+    <li>Open the audible app and download the audiobook you wish to convert</li>
+    <li>Download <a href="https://github.com/audiamus/AaxAudioConverter/releases/download/v1.16/AaxAudioConverter-1.16-Setup.exe">AaxAudioConverter</a></li>
+    <li>Run the application and click "Add" in the top left
+        <img src="{{ url_for('static', filename='images/aax_step2.png') }}">
+    </li>
+    <li>Select the audiobook you downloaded in the audible app</li>
+    <li>Select "MP3" as the export format and "Single file per AAX file". Then click convert
+        <img src="{{ url_for('static', filename='images/aax_step6.png') }}">
+    </li>
+</ol>
+
+<h2>Kindle to text</h2>
+<p>To convert a kindle book to text file (.txt) I developed an extension found in the dataset folder of this project. Here are the steps to install and use:</p>
+<ol>
+    <li>Go to chrome://extensions/ in chrome</li>
+    <li>Click on "Load unpacked" in the top left and select the "extension" folder in the dataset directory
+        <img src="{{ url_for('static', filename='images/step2.png') }}">
+    </li>
+    <li>Open the first page of the book you want to scrape in the <a href="https://read.amazon.co.uk/">amazon cloud reader</a></li>
+    <li>Open the extension & click "Scrape book". Wait for the reader to scan through all the pages
+        <img src="{{ url_for('static', filename='images/step4.png') }}">
+    </li>
+    <li>When the scanner has reached the last page, press "Export book". This will download the text fill needed for step 1
+        <img src="{{ url_for('static', filename='images/step5.png') }}">
+    </li>
+</ol>
+
+{% endblock %}

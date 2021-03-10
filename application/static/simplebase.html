@@ -1,0 +1,29 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
+        <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
+        <script src="{{ url_for('static', filename='pane.js') }}"></script>
+        <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='favicon/favicon-32x32.png') }}">
+        <link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='favicon/favicon-16x16.png') }}">
+        <title>Voice Cloning</title>
+        <script>
+            let message = "{{ message }}";
+            if(message)
+                alert(message);
+        </script>
+    </head>
+    <body>
+        <div class="container flex-grow-1 flex-shrink-0 py-5">
+            <div class="mb-5 p-4 bg-white shadow-sm">
+                <a href="/">Back</a>
+                <h3 class="text-center">Voice Cloning</h3><br>
+                <div class="bs-stepper-content">
+                    {% block content %}{% endblock %}
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

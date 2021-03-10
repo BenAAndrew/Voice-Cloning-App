@@ -1,0 +1,17 @@
+pydub==0.24.1
+librosa==0.6.0
+numpy==1.16.4
+inflect==0.2.5
+Unidecode==1.0.22
+tacotron2-model==0.2.4
+Flask==1.1.2
+Flask-SocketIO==5.0.1
+matplotlib==2.1.0
+IPython==7.16.1
+webrtcvad==2.0.10
+sox==1.4.1
+omegaconf==2.0.6
+numba==0.48
+scipy==1.0.0
+pillow==8.1.0
+webrtcvad==2.0.10

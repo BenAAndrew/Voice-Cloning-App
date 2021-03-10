@@ -1,0 +1,17 @@
+__pycache__/
+.ipynb_checkpoints/
+.vscode
+.ipynb_checkpoints/
+.pytest_cache/
+
+*.log
+*.mp3
+*.csv
+*.pt
+*.wav
+latest_silero_models.yml
+
+test_samples/
+research/timelapse/
+data/
+results/

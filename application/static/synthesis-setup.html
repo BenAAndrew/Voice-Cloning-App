@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block content %}
+<form method="POST" action="/synthesis-setup" enctype="multipart/form-data">
+    <div class="form-group">
+        <h5>Dataset path</h5>
+        <select class="form-control" id="path" name="path" required>
+            {% for model in models %}
+                <option value="{{model}}">{{model}}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <br>
+    <div class="form-group">
+        <h5>Waveglow model</h5>
+        <input type="file" id="waveglow" name="waveglow" {% if not waveglow_models %}required{% endif %}>
+    </div>
+    {% if waveglow_models %}
+        <div class="form-group">
+            Or
+            <select class="form-control" id="existing_waveglow" name="existing_waveglow">
+                {% for model in waveglow_models %}
+                    <option value="{{model}}">{{model}}</option>
+                {% endfor %}
+            </select>
+        </div>
+    {% endif %}
+    <input type="submit" class="btn btn-primary">
+</form>
+{% endblock %}

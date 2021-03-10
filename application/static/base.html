@@ -1,0 +1,44 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
+        <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
+        <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='favicon/favicon-32x32.png') }}">
+        <link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='favicon/favicon-16x16.png') }}">
+        <title>Voice Cloning</title>
+        {% block additional_scripts %}
+        {% endblock %}
+    </head>
+    <body>
+        <div class="container flex-grow-1 flex-shrink-0 py-5">
+            <div class="mb-5 p-4 bg-white shadow-sm">
+                <div class="row">
+                    <a href="/import-export" class="btn btn-info" style="float: left; margin-left: 0.5rem;">Import/Export</a>
+                    <a href="https://voice-sharing-hub.herokuapp.com/" class="btn btn-info" style="float: left; margin-left: 0.5rem;">Voice Sharing Hub</a>
+                </div>
+                <h3 class="text-center">Voice Cloning</h3>
+                <div class="bs-stepper linear">
+                    <div class="bs-stepper-header" role="tablist">
+                        {% for key, value in urls.items() %}
+                        <div class="step {% if path == key %} active {% endif %}">
+                            <a class="step-trigger" role="tab" href="{{ key }}">
+                                <span class="bs-stepper-circle">{{ loop.index }}</span>
+                                <span>{{ value }}</span>
+                            </a>
+                        </div>
+                        {% if not loop.last %}
+                            <div class="bs-stepper-line"></div>
+                        {% endif %}
+                        {% endfor %}
+                    </div>
+                    <div class="bs-stepper-content">
+                        {% block content %}
+                        {% endblock %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
