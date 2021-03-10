@@ -1,4 +1,4 @@
-# AI Voice Synthesis
+# Voice Cloning App
 A Python/Pytorch project for easily synthesising human voices.
 
 ![Preview](preview.png "Preview")
