@@ -21,9 +21,9 @@ After installing & running the app should open in your browser at http://localho
 
 ### Windows
 1. Clone this repository
-2. Run `Installer.exe`
+2. Right click `install.ps1` and select "Run with powershell"
 3. Click next through the CUDA installer (leave default values)
-4. Run `App.exe`
+4. Run `python main.py` from cmd
 
 ### Manual Install (Linux/ Windows)
 1. Clone this repository
