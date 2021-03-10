@@ -9,4 +9,4 @@ With trained model weights we can now implement the TTS app for our generated vo
 - **audio_output_path (optional)**: Path to save generated audio to
 
 ## How to run
-`python synthesize.py -m checkpoint_500000 -w waveglow_256channels_universal_v5.pt -t "Hello everyone, how are you?" -g graph.png -a audio.wav
+`python synthesize.py -m checkpoint_500000 -w waveglow_256channels_universal_v5.pt -t "Hello everyone, how are you?" -g graph.png -a audio.wav`

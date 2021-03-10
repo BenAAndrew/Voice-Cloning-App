@@ -3,12 +3,6 @@ A Python/Pytorch project for easily synthesising human voices.
 
 ![Preview](preview.png "Preview")
 
-## Quick Start Steps
-1. [**Install**](#Install)
-2. [**Building the dataset**](dataset/dataset.md)
-4. [**Training**](training/training.md)
-5. [**Synthesis**](synthesis/synthesis.md)
-
 ## Install
 
 **This project requires an NVIDIA GPU for training which can support version 440.33+ and at least 4GB GPU memory**
@@ -54,3 +48,8 @@ After installing & running the app should open in your browser at http://localho
 1. Clone this repository
 2. Run `install_cpu_only.ps1` by right clicking and selecting "Run with Powershell"
 3. Run `python main.py`
+
+## Manual Guides
+1. [Building the dataset](dataset/dataset.md)
+2. [Training](training/training.md)
+3. [Synthesis](synthesis/synthesis.md)
