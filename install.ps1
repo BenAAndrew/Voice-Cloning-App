@@ -15,16 +15,6 @@ function Check-Installed {
     return -Not ($output -like "*is not recognized*" -or $output -like "*was not found*")
 }
 
-# <# Pull submodules #>
-# if (Test-Path -Path ".git"){
-#     $git = cmd.exe /c git submodule update --init
-#     if ($git -like "'fatal'"){
-#         Error "Failed to pull submodules. Do you have git installed & a network conenction?"
-#     }
-# } else {
-#     Error "You must clone this repository, not download as zip"
-# }
-
 <# CUDA install #>
 if (-Not (Check-Installed "nvcc")){
     Write-Host "Downloading CUDA 10.2..."
@@ -32,9 +22,6 @@ if (-Not (Check-Installed "nvcc")){
     Write-Host "Installing CUDA 10.2"
     Start-Process -Wait -FilePath "cuda-10.2.exe"
     Remove-Item -Path cuda-10.2.exe
-    if(-Not (Check-Installed "nvcc")){
-        Error "CUDA did not install successfully"
-    } 
     Write-Host "Installed CUDA 10.2"
 } else {
     Write-Host "CUDA already installed"
@@ -47,16 +34,9 @@ if (-Not (Check-Installed "python")){
     Write-Host "Installing Python 3.8"
     $pyInstallOutput = cmd.exe /c python-3.8.7.exe /quiet InstallAllUsers=1 PrependPath=1 Include_test=0
     Remove-Item -Path python-3.8.7.exe
-    if(-Not (Check-Installed "python")){
-        Error "Python did not install successfully"
-    }
     Write-Host "Installed Python 3.8"
 } else {
     Write-Host "Python already installed"
-}
-
-if(-Not (Check-Installed "pip")){
-    Error "pip has not been installed successfully"
 }
 
 <# Pytorch install #>
@@ -79,11 +59,9 @@ if (-Not (Check-Installed "ffmpeg")){
     Invoke-WebRequest -Uri "https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip" -OutFile "ffmpeg.zip"
     Write-Host "Installing FFMPEG..."
     Expand-Archive -Path ffmpeg.zip -DestinationPath C:\
+    Rename-Item C:\ffmpeg-4.3.2-2021-02-27-essentials_build C:\ffmpeg
     [Environment]::SetEnvironmentVariable("Path", $env:Path + ";C:\ffmpeg\bin", "User")
     Remove-Item -Path ffmpeg.zip
-    if(-Not (Check-Installed "ffmpeg")){
-        Error "FFMPEG did not install successfully"
-    }
     Write-Host "Installed FFMPEG" 
 } else {
     Write-Host "FFMPEG installed"
