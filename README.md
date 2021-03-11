@@ -5,6 +5,8 @@ A Python/Pytorch project for easily synthesising human voices.
 
 ## Install
 
+Windows Install Demo: https://www.youtube.com/watch?v=ccvjGKiPenQ 
+
 **This project requires an NVIDIA GPU for training which can support version 440.33+ and at least 4GB GPU memory**
 
 After installing & running the app should open in your browser at http://localhost:5000/

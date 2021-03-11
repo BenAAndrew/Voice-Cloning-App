@@ -12,7 +12,6 @@ webrtcvad==2.0.10
 sox==1.4.1
 omegaconf==2.0.6
 numba==0.48
-scipy==1.0.0
 pillow==8.1.0
 webrtcvad==2.0.10
 nltk==3.5
