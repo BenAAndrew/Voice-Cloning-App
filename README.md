@@ -12,7 +12,7 @@ A Python/Pytorch project for easily synthesising human voices.
 - Windows & Linux support
 
 ## System Requirements
-- Windows on linux operating system
+- Windows or Linux operating system
 - NVIDIA GPU with at least 4GB of memory
 
 ## Video guide
