@@ -26,5 +26,5 @@ A Python/Pytorch project for easily synthesising human voices.
 3. [Synthesis](synthesis/synthesis.md)
 
 ## Future Improvements
-- Use pretrained weights for transfer learning
+- Test pretrained weights for transfer learning
 - Add support for alternative models

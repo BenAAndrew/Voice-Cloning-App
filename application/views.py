@@ -127,15 +127,24 @@ def get_dataset_duration():
 def train_post():
     dataset_name = request.form["path"]
     epochs = request.form["epochs"]
+
     metadata_path = os.path.join(paths["datasets"], dataset_name, METADATA_FILE)
     audio_folder = os.path.join(paths["datasets"], dataset_name, AUDIO_FOLDER)
     checkpoint_folder = os.path.join(paths["models"], dataset_name)
+
+    if request.files.get("pretrained_model"):
+        os.makedirs(checkpoint_folder, exist_ok=True)
+        checkpoint_path = os.path.join(checkpoint_folder, "pretrained.pt")
+        request.files["pretrained_model"].save(checkpoint_path)
+    else:
+        checkpoint_path = None
 
     start_progress_thread(
         train,
         metadata_path=metadata_path,
         dataset_directory=audio_folder,
         output_directory=checkpoint_folder,
+        checkpoint_path=checkpoint_path,
         epochs=int(epochs),
     )
 

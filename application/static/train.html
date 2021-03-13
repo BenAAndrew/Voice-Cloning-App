@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block content %}
-<form method="POST" action="/train">
+<form method="POST" action="/train" enctype="multipart/form-data">
     <div class="form-group">
         <label for="path">Dataset path</label>
         <select class="form-control" id="path" name="path" onchange="showDatasetInfo()" required>
@@ -8,6 +8,10 @@
                 <option value="{{dataset}}">{{dataset}}</option>
             {% endfor %}
         </select>
+    </div>
+    <div class="form-group">
+        <label for="pretrained_model">Pretrained model (optional)</label>
+        <input type="file" id="pretrained_model" name="pretrained_model"> 
     </div>
     <div class="form-group">
         <input type="range" id="epochs" name="epochs" step="500" min="1000" max="12000" value="5000" onchange="showEpochsLabel()">
