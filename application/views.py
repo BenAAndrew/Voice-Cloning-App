@@ -33,6 +33,15 @@ waveglow_model = None
 inflect_engine = inflect.engine()
 
 
+@app.errorhandler(Exception)
+def handle_bad_request(e):
+    error = {
+        "type": e.__class__.__name__,
+        "text": str(e)
+    }
+    return render_template("error.html", error=error)
+
+
 @app.context_processor
 def inject_data():
     return {

@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Voice Cloning</title>
+        <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='error.css') }}" />
+    </head>
+    <body>
+        <div id="notfound">
+            <div class="notfound">
+                <h1>Oops! An error Occured</h1>
+                <p>Please share the following error in an issue at <a href="https://github.com/BenAAndrew/Voice-Cloning-App">https://github.com/BenAAndrew/Voice-Cloning-App</a></p>
+                <p class="error">
+                    <b>Type</b>: {{ error.type }}<br>
+                    <b>Text</b>: {{ error.text }}
+                </p>
+                <a href="/" class="back">Go To Homepage</a>
+            </div>
+        </div>
+    </body>
+    <!-- This templates was made by Colorlib (https://colorlib.com) -->
+</html>
