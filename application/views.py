@@ -4,8 +4,6 @@ import re
 import inflect
 import io
 import zipfile
-import pathlib
-from pathlib import Path
 
 sys.path.append("synthesis/waveglow/")
 
@@ -194,10 +192,24 @@ def upload_dataset():
     os.makedirs(audio_folder, exist_ok=False)
 
     with zipfile.ZipFile(dataset, mode="r") as z:
-        for name in z.namelist():
-            data = z.read(name)
-            with open(os.path.join(dataset_directory, Path(name)), "wb") as f:
-                f.write(data)
+        files_list = z.namelist()
+        if "metadata.csv" not in files_list:
+            render_template("import-export.html", message=f"Dataset missing metadata.csv")
+        if "wavs" not in files_list:
+            render_template("import-export.html", message=f"Dataset missing wavs folder")
+
+        # Save metadata
+        with open(os.path.join(dataset_directory, "metadata.csv"), "wb") as f:
+            data = z.read("metadata.csv")
+            f.write(data)
+        
+        # Save wavs
+        for name in files_list:
+            if name.endswith(".wav"):
+                data = z.read(name)
+                path = os.path.join(dataset_directory, "wavs", name.split("/")[1])
+                with open(path, "wb") as f:
+                    f.write(data)
 
     return render_template("import-export.html", message=f"Successfully uploaded {dataset_name} dataset")
 
