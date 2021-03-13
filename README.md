@@ -24,3 +24,7 @@ A Python/Pytorch project for easily synthesising human voices.
 1. [Building the dataset](dataset/dataset.md)
 2. [Training](training/training.md)
 3. [Synthesis](synthesis/synthesis.md)
+
+## Future Improvements
+- Use pretrained weights for transfer learning
+- Add support for alternative models
