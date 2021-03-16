@@ -1,18 +1,6 @@
-#notfound {
-  position: relative;
-  height: 100vh;
-}
-
-#notfound .notfound {
-  position: absolute;
-  left: 50%;
-  top: 20%;
-  -webkit-transform: translate(-50%, -50%);
-      -ms-transform: translate(-50%, -50%);
-          transform: translate(-50%, -50%);
-}
-
 .notfound {
+  margin: auto;
+  width: 50%;
   max-width: 767px;
   width: 100%;
   line-height: 1.4;

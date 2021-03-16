@@ -4,6 +4,7 @@ import re
 import inflect
 import io
 import zipfile
+import traceback
 
 sys.path.append("synthesis/waveglow/")
 
@@ -35,10 +36,7 @@ inflect_engine = inflect.engine()
 
 @app.errorhandler(Exception)
 def handle_bad_request(e):
-    error = {
-        "type": e.__class__.__name__,
-        "text": str(e)
-    }
+    error = {"type": e.__class__.__name__, "text": str(e), "full": traceback.format_exc()}
     return render_template("error.html", error=error)
 
 
@@ -220,7 +218,7 @@ def upload_dataset():
         with open(os.path.join(dataset_directory, "metadata.csv"), "wb") as f:
             data = z.read("metadata.csv")
             f.write(data)
-        
+
         # Save wavs
         for name in files_list:
             if name.endswith(".wav"):
