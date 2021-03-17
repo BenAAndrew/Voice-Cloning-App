@@ -163,9 +163,9 @@ def align(audio_path, script_path, aligned_path, logging=logging):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Force align speech data with a transcript.")
-    parser.add_argument("--audio", type=str, help="Path to speech audio file")
+    parser.add_argument("--audio_path", type=str, help="Path to speech audio file")
     parser.add_argument("--script", type=str, help="Path to original transcript (plain text or .script file)")
     parser.add_argument("--aligned", type=str, help="Path to aligned file")
     args = parser.parse_args()
 
-    align(args.audio, args.script, args.aligned)
+    align(args.audio_path, args.script, args.aligned)
