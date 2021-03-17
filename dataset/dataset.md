@@ -26,7 +26,7 @@ Whilst LibriVox is open source, it's quality is generally less consistent. Howev
 ## Force align text and audio
 Once we have the text and audio of an audiobook, we need to align the two. To do this you can run the `align.py` script in 'forced_alignment'
 
-``` python forced_alignment/align.py --audio book.wav --script book.txt --aligned aligned.json ```
+``` python forced_alignment/align.py --audio_path book.wav --script book.txt --aligned aligned.json ```
 
 ## Generate clips
 
