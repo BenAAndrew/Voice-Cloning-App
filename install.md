@@ -7,7 +7,7 @@ After installing & running the app should open in your browser at http://localho
 1. Clone this repository
 2. Right click `install.ps1` and select "Run with powershell"
 3. Click next through the CUDA installer (leave default values)
-4. Run latest executable from builds
+4. Download and Run latest executable from [Releases](https://github.com/BenAAndrew/Voice-Cloning-App/releases)
 
 ### Linux
 1. Clone this repository
