@@ -32,3 +32,13 @@ A Python/Pytorch project for easily synthesising human voices.
 ## Future Improvements
 - Test pretrained weights for transfer learning
 - Add support for alternative models
+- Improved batch size estimation
+
+## Acknowledgements
+This project uses a reworked version of [Tacotron2](https://github.com/NVIDIA/tacotron2) & [Waveglow](https://github.com/NVIDIA/waveglow). All rights for belong to NVIDIA and follow the requirements of their BSD-3 licence.
+
+Thank you to Dr. John Bustard at Queen's University Belfast for his support throughout the project.
+
+Also a big thanks to the members of the [VocalSynthesis subreddit](https://www.reddit.com/r/VocalSynthesis/) for their feedback.
+
+Finally thank you to [vinamramunot-tech](https://github.com/vinamramunot-tech) for getting involved and contributing to the project

@@ -5,6 +5,7 @@ import inflect
 import io
 import zipfile
 import traceback
+import torch
 
 sys.path.append("synthesis/waveglow/")
 
@@ -16,7 +17,7 @@ from training.checkpoint import get_latest_checkpoint
 from synthesis.synthesize import load_model, load_waveglow, synthesize
 from synthesis.synonyms import get_alternative_word_suggestions
 
-from flask import Flask, request, render_template, redirect, url_for, send_file
+from flask import Flask, request, render_template, redirect, url_for, send_file, send_file
 
 
 URLS = {"/": "Build dataset", "/train": "Train", "/synthesis-setup": "Synthesis"}
@@ -48,6 +49,7 @@ def inject_data():
         "datasets": os.listdir(paths["datasets"]),
         "waveglow_models": os.listdir(paths["waveglow"]),
         "models": os.listdir(paths["models"]),
+        "cuda_enabled": torch.cuda.is_available()
     }
 
 
@@ -170,6 +172,19 @@ def synthesis_setup_post():
     return redirect("/synthesis")
 
 
+@app.route('/data/results/<path:path>')
+def get_result_file(path):
+    filename = path.split("/")[-1]
+    mimetype = "image/png" if filename.endswith("png") else "audio/wav"
+
+    with open(os.path.join(paths["results"], path), 'rb') as f:
+        return send_file(
+            io.BytesIO(f.read()),
+            attachment_filename=filename,
+            mimetype=mimetype,
+            as_attachment=True
+        )
+
 @app.route("/synthesis", methods=["POST"])
 def synthesis_post():
     global model, waveglow_model
@@ -182,14 +197,16 @@ def synthesis_post():
     os.makedirs(results_folder)
     graph_path = os.path.join(results_folder, GRAPH_FILE)
     audio_path = os.path.join(results_folder, RESULTS_FILE)
+    graph_web_path = graph_path.replace("\\", "/")
+    audio_web_path = audio_path.replace("\\", "/")
 
     synthesize(model, waveglow_model, text, inflect_engine, graph_path, audio_path)
     return render_template(
         "synthesis.html",
         text=text.strip(),
         alertnative_words=get_alternative_word_suggestions(audio_path, text),
-        graph=graph_path.replace("application", ""),
-        audio=audio_path.replace("application", ""),
+        graph=graph_web_path,
+        audio=audio_web_path,
     )
 
 

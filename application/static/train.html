@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% block content %}
+{% if cuda_enabled %}
 <form method="POST" action="/train" enctype="multipart/form-data">
     <div class="form-group">
         <label for="path">Dataset path</label>
@@ -75,4 +76,13 @@
     </script>
     <input type="submit" class="btn btn-primary">
 </form>
+{% else %}
+<h3>Training is not available</h3>
+<p>CUDA has not be installed on your system. Possible reasons:</p>
+<ul>
+    <li>Your CUDA install was not successful (check by ruinning 'nvcc --version')</li>
+    <li>You are not using the correct CUDA version for this build</li>
+    <li>You have installed pytorch cpu only (shows as torch+cpu in 'pip list')</li>
+</ul>
+{% endif %}
 {% endblock %}

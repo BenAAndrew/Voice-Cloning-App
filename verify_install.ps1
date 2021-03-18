@@ -12,23 +12,23 @@ if(Check-Installed "nvcc --version"){
     Write-Host "CUDA: FAIL"
 }
 
-if(Check-Installed "python --version"){
-    Write-Host "Python: PASS"
-} else {
-    Write-Host "Python: FAIL"
-}
+# if(Check-Installed "python --version"){
+#     Write-Host "Python: PASS"
+# } else {
+#     Write-Host "Python: FAIL"
+# }
 
-if(Check-Installed "pip --version"){
-    Write-Host "pip: PASS"
-} else {
-    Write-Host "pip: FAIL"
-}
+# if(Check-Installed "pip --version"){
+#     Write-Host "pip: PASS"
+# } else {
+#     Write-Host "pip: FAIL"
+# }
 
-if(Check-Installed 'python -c "import torch"'){
-    Write-Host "pytorch: PASS"
-} else {
-    Write-Host "pytorch: FAIL"
-}
+# if(Check-Installed 'python -c "import torch"'){
+#     Write-Host "pytorch: PASS"
+# } else {
+#     Write-Host "pytorch: FAIL"
+# }
 
 if(Check-Installed "ffmpeg -version"){
     Write-Host "FFMPEG: PASS"

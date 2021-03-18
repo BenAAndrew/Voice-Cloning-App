@@ -3,27 +3,27 @@
 
 After installing & running the app should open in your browser at http://localhost:5000/
 
-### Docker
+### Windows
 1. Clone this repository
-2. Run `docker build -t voice-cloning:latest .`
-3. Run `docker run -d -p 5000:5000 voice-cloning`
+2. Right click `install.ps1` and select "Run with powershell"
+3. Click next through the CUDA installer (leave default values)
+4. Run latest executable from builds
 
 ### Linux
 1. Clone this repository
 2. Run `./install.sh` from the root of the repository
 3. Run `python main.py`
 
-### Windows
+### Docker
 1. Clone this repository
-2. Right click `install.ps1` and select "Run with powershell"
-3. Click next through the CUDA installer (leave default values)
-4. Run `python main.py` from cmd
+2. Run `docker build -t voice-cloning:latest .`
+3. Run `docker run -d -p 5000:5000 voice-cloning`
 
 ### Manual Install (Linux/ Windows)
 1. Clone this repository
-2. Install [CUDA](https://developer.nvidia.com/cuda-zone) (version 10.1+)
+2. Install [CUDA](https://developer.nvidia.com/cuda-zone) (version 10.2+)
 3. Install [Python](https://www.python.org/) (version 3.4-3.8)
-4. Install [Pytorch](https://pytorch.org/)
+4. Install [Pytorch](https://pytorch.org/) (ensure cuda version matches your install)
 5. Run `pip install -r requirements.txt`
 5. Run `python main.py`
 

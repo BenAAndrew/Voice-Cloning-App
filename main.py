@@ -1,7 +1,7 @@
 import os
 import logging
 import webbrowser
-
+from engineio.async_drivers import threading
 from flask_socketio import SocketIO
 from flask import Flask
 
@@ -11,8 +11,7 @@ def load_paths():
         "datasets": os.path.join("data", "datasets"),
         "models": os.path.join("data", "models"),
         "waveglow": os.path.join("data", "waveglow"),
-        "static": os.path.join("application", "static"),
-        "results": os.path.join("application", "static", "results"),
+        "results": os.path.join("data", "results"),
     }
     for path in paths.values():
         os.makedirs(path, exist_ok=True)
@@ -20,7 +19,8 @@ def load_paths():
 
 
 paths = load_paths()
-app = Flask(__name__, template_folder=paths["static"], static_folder=paths["static"])
+static = os.path.join("application", "static")
+app = Flask(__name__, template_folder=static, static_folder=static)
 socketio = SocketIO(app, async_mode="threading", logger=True, engineio_logger=True, debug=True)
 from application.views import *
 
