@@ -1,11 +1,14 @@
 import os
+import sys
 import json
 import logging
 import argparse
 from pydub import AudioSegment
 
-from dataset.forced_alignment.search import FuzzySearch
-from dataset.forced_alignment.audio import DEFAULT_RATE, read_frames_from_file, vad_split
+sys.path.append(".")
+
+from search import FuzzySearch
+from audio import DEFAULT_RATE, read_frames_from_file, vad_split
 from dataset.transcribe import stt
 
 
