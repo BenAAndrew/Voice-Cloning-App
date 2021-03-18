@@ -9,14 +9,12 @@ Flask==1.1.2
 Flask-SocketIO==5.0.1
 matplotlib==3.3.4
 IPython==7.16.1
-webrtcvad==2.0.10
-sox==1.4.1
 soundfile==0.10.3.post1
 omegaconf==2.0.6
 numba==0.48
-pillow==8.1.0
 webrtcvad==2.0.10
 nltk==3.5
+requests==2.25.1
 torch===1.7.1+cpu
 torchvision===0.8.2+cpu
 torchaudio===0.7.2
