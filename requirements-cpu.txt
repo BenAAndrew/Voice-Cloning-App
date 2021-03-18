@@ -17,6 +17,6 @@ numba==0.48
 pillow==8.1.0
 webrtcvad==2.0.10
 nltk==3.5
-torch===1.7.1
-torchvision===0.8.2
+torch===1.7.1+cpu
+torchvision===0.8.2+cpu
 torchaudio===0.7.2

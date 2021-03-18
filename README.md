@@ -14,6 +14,7 @@ A Python/Pytorch project for easily synthesising human voices.
 ## System Requirements
 - Windows or Linux operating system
 - NVIDIA GPU with at least 4GB of memory
+- Up-to-date NVIDIA driver (version 450.36+)
 
 ## Video guide
 

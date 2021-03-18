@@ -19,3 +19,4 @@ build/
 dist/
 main.spec
 ffmpeg/
+main.exe
