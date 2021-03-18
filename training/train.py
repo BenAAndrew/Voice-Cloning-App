@@ -33,7 +33,9 @@ def train(
     os.makedirs(output_directory, exist_ok=True)
 
     available_memory_gb, batch_size, learning_rate = get_parameters()
-    logging.info(f"Setting batch size to {batch_size}, learning rate to {learning_rate}. ({available_memory_gb}GB GPU memory free)")
+    logging.info(
+        f"Setting batch size to {batch_size}, learning rate to {learning_rate}. ({available_memory_gb}GB GPU memory free)"
+    )
 
     # Hyperparams
     train_size = 0.8
