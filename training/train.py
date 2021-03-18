@@ -13,10 +13,10 @@ sys.path.append("../")
 import torch
 from torch.utils.data import DataLoader
 
-from training.dataset import VoiceDataset
-from training.checkpoint import load_checkpoint, save_checkpoint, get_latest_checkpoint
-from training.validate import validate
-from training.utils import get_parameters, check_space
+from dataset import VoiceDataset
+from checkpoint import load_checkpoint, save_checkpoint, get_latest_checkpoint
+from validate import validate
+from utils import get_parameters, check_space
 from tacotron2_model import Tacotron2, TextMelCollate, Tacotron2Loss
 
 

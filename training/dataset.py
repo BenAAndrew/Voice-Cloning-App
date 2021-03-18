@@ -7,7 +7,7 @@ from scipy.io.wavfile import read
 import inflect
 from unidecode import unidecode
 
-from training.clean_text import clean_text
+from clean_text import clean_text
 
 
 def load_wav_to_torch(full_path):
