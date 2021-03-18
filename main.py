@@ -4,7 +4,8 @@ import webbrowser
 from engineio.async_drivers import threading
 from flask_socketio import SocketIO
 from flask import Flask
-from check_ffmpeg import check_ffmpeg
+
+from application.check_ffmpeg import check_ffmpeg
 
 
 def load_paths():
