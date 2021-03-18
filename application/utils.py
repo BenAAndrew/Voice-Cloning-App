@@ -46,7 +46,9 @@ def background_task(func, **kwargs):
         socketio.sleep(5)
         func(logging=logger, **kwargs)
     except Exception as e:
-        socketio.emit("error", {"text": str(e)}, namespace="/voice")
+        socketio.emit(
+            "error", {"type": e.__class__.__name__, "text": str(e), "full": traceback.format_exc()}, namespace="/voice"
+        )
         exception = True
         print(e)
 

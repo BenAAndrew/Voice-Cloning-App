@@ -33,7 +33,7 @@ $(document).ready(function(){
     });
 
     socket.on('error', function(msg) {
-        console.log(msg.text);
+        console.log(msg);
         alert(msg.text);
         window.history.back();
     });
