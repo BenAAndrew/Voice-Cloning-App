@@ -3,7 +3,7 @@ With trained model weights we can now implement the TTS app for our generated vo
 
 ## Arguments
 - **model_path**: The path to your generated model
-- **waveglow_model_path**: The path to your waveglow model ([default found here](https://github.com/BenAAndrew/Voice-Cloning-Assets/raw/main/waveglow_256channels_universal_v5.pt))
+- **waveglow_model_path**: The path to your waveglow model ([default found here](https://drive.google.com/file/d/1rpK8CzAAirq9sWZhe9nlfvxMF1dRgFbF/view))
 - **text**: Text you wish to synthesize
 - **graph_output_path (optional)**: Path to save alignment graph to
 - **audio_output_path (optional)**: Path to save generated audio to
