@@ -24,6 +24,8 @@ A Python/Pytorch project for easily synthesising human voices.
 
 **https://voice-sharing-hub.herokuapp.com/**
 
+## [FAQ's](faqs.md)
+
 ## Manual Guides
 1. [Installation](install.md)
 1. [Building the dataset](dataset/dataset.md)
