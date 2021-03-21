@@ -6,6 +6,7 @@ import IPython.display as ipd
 from tacotron2_model import Tacotron2
 import torch
 import numpy as np
+import glow
 
 import matplotlib
 
