@@ -69,7 +69,7 @@ def get_page(endpoint):
     if endpoint == "synthesis" and not model:
         return redirect("/synthesis-setup")
 
-    return ender_template(f"{endpoint}.html")
+    return render_template(f"{endpoint}.html")
 
 
 @app.route("/", methods=["POST"])
