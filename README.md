@@ -19,7 +19,7 @@ A Python/Pytorch project for easily synthesising human voices.
 
 ## Video guide
 
-**https://www.youtube.com/watch?v=ccvjGKiPenQ&list=PLk5I7EvFL13GjBIDorh5yE1SaPGRG-i2l**
+**https://www.youtube.com/playlist?list=PLk5I7EvFL13GjBIDorh5yE1SaPGRG-i2l**
 
 ## Voice Sharing Hub
 
