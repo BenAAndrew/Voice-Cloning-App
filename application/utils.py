@@ -2,10 +2,14 @@ import logging
 from threading import Thread
 import os
 from datetime import datetime
+import requests
 
 from main import socketio
 from dataset.clip_generator import clip_generator, extend_dataset
 from dataset.forced_alignment.align import align
+
+
+LOGGING_URL = "https://voice-cloning-app-logging.herokuapp.com/"
 
 
 class SocketIOHandler(logging.Handler):
@@ -40,15 +44,24 @@ def extend_existing_dataset(text_path, audio_path, forced_alignment_path, output
     extend_dataset(audio_path, forced_alignment_path, output_path, label_path, prefix, logging=logging)
 
 
+def send_error_log(error):
+    try:
+        response = requests.post(LOGGING_URL, data=error)
+        if response.status_code != 201:
+            print("error logging recieved invalid response")
+    except:
+        print("error logging failed")
+
+
 def background_task(func, **kwargs):
     exception = False
     try:
         socketio.sleep(5)
         func(logging=logger, **kwargs)
     except Exception as e:
-        socketio.emit(
-            "error", {"type": e.__class__.__name__, "text": str(e), "full": traceback.format_exc()}, namespace="/voice"
-        )
+        error = {"type": e.__class__.__name__, "text": str(e), "stacktrace": traceback.format_exc()}
+        send_error_log(error)
+        socketio.emit("error", error, namespace="/voice")
         exception = True
         print(e)
 

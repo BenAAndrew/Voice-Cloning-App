@@ -4,11 +4,13 @@ import argparse
 TARGET_SAMPLE_RATE = 22050
 TARGET_BITRATE = "32k"
 
+
 def compress_audio(input_path, output_path):
     command = (
         f"ffmpeg -i {input_path} -acodec libmp3lame -b:a {TARGET_BITRATE} -ac 1 -ar {TARGET_SAMPLE_RATE} {output_path}"
     )
     call(command.split(" "))
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

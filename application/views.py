@@ -10,7 +10,14 @@ import torch
 sys.path.append("synthesis/waveglow/")
 
 from main import app, paths
-from application.utils import start_progress_thread, get_next_url, create_dataset, extend_existing_dataset, get_prefix
+from application.utils import (
+    start_progress_thread,
+    get_next_url,
+    create_dataset,
+    extend_existing_dataset,
+    get_prefix,
+    send_error_log,
+)
 from dataset.analysis import get_total_audio_duration
 from training.train import train
 from training.checkpoint import get_latest_checkpoint
@@ -37,7 +44,8 @@ inflect_engine = inflect.engine()
 
 @app.errorhandler(Exception)
 def handle_bad_request(e):
-    error = {"type": e.__class__.__name__, "text": str(e), "full": traceback.format_exc()}
+    error = {"type": e.__class__.__name__, "text": str(e), "stacktrace": traceback.format_exc()}
+    send_error_log(error)
     return render_template("error.html", error=error)
 
 
@@ -61,7 +69,7 @@ def get_page(endpoint):
     if endpoint == "synthesis" and not model:
         return redirect("/synthesis-setup")
 
-    return render_template(f"{endpoint}.html")
+    return ender_template(f"{endpoint}.html")
 
 
 @app.route("/", methods=["POST"])
