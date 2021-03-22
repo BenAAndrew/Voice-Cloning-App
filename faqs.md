@@ -12,4 +12,4 @@ No. Training will automatically continue from the latest checkpoint so you can s
 
 ## "How much data do I need to make a good voice?"
 
-For this model I would recommend at least 2 hours of data and 4000 epochs. Every dataset is different and will produce different results so the "Quality Estimate" is a very rough guess. Using a pretrained model for transfer learning may improve results as well.
+For this model I would recommend at least 2 hours of data and 4000 epochs. Every dataset is different and will produce different results so the scoring on the training page is a very rough guess. Using a pretrained model for transfer learning may improve results as well.
