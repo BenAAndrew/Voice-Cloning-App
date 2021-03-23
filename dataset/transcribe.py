@@ -1,6 +1,10 @@
 import torch
 from glob import glob
 
+import torchaudio
+import omegaconf
+import soundfile
+
 model, device, decoder, read_batch, split_into_batches, prepare_model_input = None, None, None, None, None, None
 
 

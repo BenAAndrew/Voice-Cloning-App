@@ -6,10 +6,10 @@ import IPython.display as ipd
 from tacotron2_model import Tacotron2
 import torch
 import numpy as np
-import sys
+import glow
+
 import matplotlib
 
-sys.path.append("synthesis/")
 matplotlib.use("Agg")
 
 from training.clean_text import clean_text

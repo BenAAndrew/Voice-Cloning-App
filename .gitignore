@@ -14,4 +14,9 @@ latest_silero_models.yml
 test_samples/
 research/timelapse/
 data/
-results/
+
+build/
+dist/
+main.spec
+ffmpeg/
+main.exe

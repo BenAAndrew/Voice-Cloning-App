@@ -14,7 +14,7 @@ import torch
 from torch.utils.data import DataLoader
 
 from training.dataset import VoiceDataset
-from training.checkpoint import load_checkpoint, save_checkpoint, get_latest_checkpoint
+from training.checkpoint import load_checkpoint, save_checkpoint, get_latest_checkpoint, warm_start_model
 from training.validate import validate
 from training.utils import get_parameters, check_space
 from tacotron2_model import Tacotron2, TextMelCollate, Tacotron2Loss
@@ -26,6 +26,7 @@ def train(
     output_directory,
     find_checkpoint=True,
     checkpoint_path=None,
+    transfer_learning_path=None,
     epochs=8000,
     logging=logging,
 ):
@@ -33,7 +34,9 @@ def train(
     os.makedirs(output_directory, exist_ok=True)
 
     available_memory_gb, batch_size, learning_rate = get_parameters()
-    logging.info(f"Setting batch size to {batch_size}, learning rate to {learning_rate}. ({available_memory_gb}GB GPU memory free)")
+    logging.info(
+        f"Setting batch size to {batch_size}, learning rate to {learning_rate}. ({available_memory_gb}GB GPU memory free)"
+    )
 
     # Hyperparams
     train_size = 0.8
@@ -87,7 +90,7 @@ def train(
     iteration = 0
     epoch_offset = 0
 
-    if find_checkpoint and not checkpoint_path:
+    if find_checkpoint and not checkpoint_path and not transfer_learning_path:
         checkpoint_path = get_latest_checkpoint(output_directory)
 
     if checkpoint_path:
@@ -95,6 +98,9 @@ def train(
         iteration += 1
         epoch_offset = max(0, int(iteration / len(train_loader)))
         logging.info("Loaded checkpoint '{}' from iteration {}".format(checkpoint_path, iteration))
+    elif transfer_learning_path:
+        model = warm_start_model(transfer_learning_path, model)
+        logging.info("Loaded transfer learning model '{}'".format(transfer_learning_path))
 
     # check_space((len(train_loader) * epochs - epoch_offset) // iters_per_checkpoint)
 

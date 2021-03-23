@@ -3,25 +3,29 @@ A Python/Pytorch project for easily synthesising human voices.
 
 ![Preview](preview.png "Preview")
 
+## System Requirements
+- **Windows or Linux operating system**
+- **NVIDIA GPU with at least 4GB of memory**
+- **Up-to-date NVIDIA driver (version 450.36+)**
+
 ## Key features
 - Automatic dataset generation
+- Easy train start/stop
 - Support for kindle & audible as data sources
 - Data importing/exporting
 - Simplified training & synthesis
 - Word replacement suggestion
 - Windows & Linux support
 
-## System Requirements
-- Windows or Linux operating system
-- NVIDIA GPU with at least 4GB of memory
-
 ## Video guide
 
-**https://www.youtube.com/watch?v=ccvjGKiPenQ&list=PLk5I7EvFL13GjBIDorh5yE1SaPGRG-i2l**
+**https://www.youtube.com/playlist?list=PLk5I7EvFL13GjBIDorh5yE1SaPGRG-i2l**
 
 ## Voice Sharing Hub
 
 **https://voice-sharing-hub.herokuapp.com/**
+
+## [FAQ's](faqs.md)
 
 ## Manual Guides
 1. [Installation](install.md)
@@ -32,3 +36,13 @@ A Python/Pytorch project for easily synthesising human voices.
 ## Future Improvements
 - Test pretrained weights for transfer learning
 - Add support for alternative models
+- Improved batch size estimation
+
+## Acknowledgements
+This project uses a reworked version of [Tacotron2](https://github.com/NVIDIA/tacotron2) & [Waveglow](https://github.com/NVIDIA/waveglow). All rights for belong to NVIDIA and follow the requirements of their BSD-3 licence.
+
+Thank you to Dr. John Bustard at Queen's University Belfast for his support throughout the project.
+
+Also a big thanks to the members of the [VocalSynthesis subreddit](https://www.reddit.com/r/VocalSynthesis/) for their feedback.
+
+Finally thank you to [vinamramunot-tech](https://github.com/vinamramunot-tech) for getting involved and contributing to the project

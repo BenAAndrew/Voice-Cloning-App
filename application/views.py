@@ -5,18 +5,26 @@ import inflect
 import io
 import zipfile
 import traceback
+import torch
 
 sys.path.append("synthesis/waveglow/")
 
 from main import app, paths
-from application.utils import start_progress_thread, get_next_url, create_dataset, extend_existing_dataset, get_prefix
+from application.utils import (
+    start_progress_thread,
+    get_next_url,
+    create_dataset,
+    extend_existing_dataset,
+    get_prefix,
+    send_error_log,
+)
 from dataset.analysis import get_total_audio_duration
 from training.train import train
 from training.checkpoint import get_latest_checkpoint
 from synthesis.synthesize import load_model, load_waveglow, synthesize
 from synthesis.synonyms import get_alternative_word_suggestions
 
-from flask import Flask, request, render_template, redirect, url_for, send_file
+from flask import Flask, request, render_template, redirect, url_for, send_file, send_file
 
 
 URLS = {"/": "Build dataset", "/train": "Train", "/synthesis-setup": "Synthesis"}
@@ -36,7 +44,8 @@ inflect_engine = inflect.engine()
 
 @app.errorhandler(Exception)
 def handle_bad_request(e):
-    error = {"type": e.__class__.__name__, "text": str(e), "full": traceback.format_exc()}
+    error = {"type": e.__class__.__name__, "text": str(e), "stacktrace": traceback.format_exc()}
+    send_error_log(error)
     return render_template("error.html", error=error)
 
 
@@ -48,6 +57,7 @@ def inject_data():
         "datasets": os.listdir(paths["datasets"]),
         "waveglow_models": os.listdir(paths["waveglow"]),
         "models": os.listdir(paths["models"]),
+        "cuda_enabled": torch.cuda.is_available(),
     }
 
 
@@ -129,20 +139,21 @@ def train_post():
     metadata_path = os.path.join(paths["datasets"], dataset_name, METADATA_FILE)
     audio_folder = os.path.join(paths["datasets"], dataset_name, AUDIO_FOLDER)
     checkpoint_folder = os.path.join(paths["models"], dataset_name)
+    pretrained_folder = os.path.join(paths["pretrained"], dataset_name)
 
     if request.files.get("pretrained_model"):
-        os.makedirs(checkpoint_folder, exist_ok=True)
-        checkpoint_path = os.path.join(checkpoint_folder, "pretrained.pt")
-        request.files["pretrained_model"].save(checkpoint_path)
+        os.makedirs(pretrained_folder, exist_ok=True)
+        transfer_learning_path = os.path.join(pretrained_folder, "pretrained.pt")
+        request.files["pretrained_model"].save(transfer_learning_path)
     else:
-        checkpoint_path = None
+        transfer_learning_path = None
 
     start_progress_thread(
         train,
         metadata_path=metadata_path,
         dataset_directory=audio_folder,
         output_directory=checkpoint_folder,
-        checkpoint_path=checkpoint_path,
+        transfer_learning_path=transfer_learning_path,
         epochs=int(epochs),
     )
 
@@ -170,6 +181,15 @@ def synthesis_setup_post():
     return redirect("/synthesis")
 
 
+@app.route("/data/results/<path:path>")
+def get_result_file(path):
+    filename = path.split("/")[-1]
+    mimetype = "image/png" if filename.endswith("png") else "audio/wav"
+
+    with open(os.path.join(paths["results"], path), "rb") as f:
+        return send_file(io.BytesIO(f.read()), attachment_filename=filename, mimetype=mimetype, as_attachment=True)
+
+
 @app.route("/synthesis", methods=["POST"])
 def synthesis_post():
     global model, waveglow_model
@@ -182,14 +202,16 @@ def synthesis_post():
     os.makedirs(results_folder)
     graph_path = os.path.join(results_folder, GRAPH_FILE)
     audio_path = os.path.join(results_folder, RESULTS_FILE)
+    graph_web_path = graph_path.replace("\\", "/")
+    audio_web_path = audio_path.replace("\\", "/")
 
     synthesize(model, waveglow_model, text, inflect_engine, graph_path, audio_path)
     return render_template(
         "synthesis.html",
         text=text.strip(),
         alertnative_words=get_alternative_word_suggestions(audio_path, text),
-        graph=graph_path.replace("application", ""),
-        audio=audio_path.replace("application", ""),
+        graph=graph_web_path,
+        audio=audio_web_path,
     )
 
 

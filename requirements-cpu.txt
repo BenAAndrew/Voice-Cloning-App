@@ -12,9 +12,9 @@ IPython==7.16.1
 soundfile==0.10.3.post1
 omegaconf==2.0.6
 numba==0.48
-webrtcvad==2.0.10.post2
+webrtcvad==2.0.10
 nltk==3.5
 requests==2.25.1
-torch===1.7.1
-torchvision===0.8.2
+torch===1.7.1+cpu
+torchvision===0.8.2+cpu
 torchaudio===0.7.2
