@@ -8,6 +8,7 @@ Once we have a dataset that has been preprocessed, we can begin training the voi
 - find_checkpoint (optional): Whether to automatically continue training from the latest checkpoint (if found)
 - checkpoint_path: The path to a specific checkpoint to start training from
 - epochs: Number of epochs to rub training for
+- batch_size (optional): Batch size/ memory usage. Calculated automatically if not given
 
 ## How to run
 `python train.py -m dataset/metadata.csv -d dataset/wavs -o dataset/checkpoints `

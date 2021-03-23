@@ -16,8 +16,11 @@ from torch.utils.data import DataLoader
 from training.dataset import VoiceDataset
 from training.checkpoint import load_checkpoint, save_checkpoint, get_latest_checkpoint, warm_start_model
 from training.validate import validate
-from training.utils import get_parameters, check_space
+from training.utils import get_available_memory, get_batch_size, get_learning_rate, check_space
 from tacotron2_model import Tacotron2, TextMelCollate, Tacotron2Loss
+
+
+MINIMUM_MEMORY_GB = 4
 
 
 def train(
@@ -28,12 +31,21 @@ def train(
     checkpoint_path=None,
     transfer_learning_path=None,
     epochs=8000,
+    batch_size=None,
     logging=logging,
 ):
     assert torch.cuda.is_available(), "You do not have Torch with CUDA installed. Please check CUDA & Pytorch install"
     os.makedirs(output_directory, exist_ok=True)
 
-    available_memory_gb, batch_size, learning_rate = get_parameters()
+    available_memory_gb = get_available_memory()
+    assert (
+        available_memory_gb >= MINIMUM_MEMORY_GB
+    ), f"Required GPU with at least {MINIMUM_MEMORY_GB}GB memory. (only {available_memory_gb}GB available)"
+
+    if not batch_size:
+        batch_size = get_batch_size(available_memory_gb)
+
+    learning_rate = get_learning_rate(batch_size)
     logging.info(
         f"Setting batch size to {batch_size}, learning rate to {learning_rate}. ({available_memory_gb}GB GPU memory free)"
     )
@@ -102,7 +114,8 @@ def train(
         model = warm_start_model(transfer_learning_path, model)
         logging.info("Loaded transfer learning model '{}'".format(transfer_learning_path))
 
-    # check_space((len(train_loader) * epochs - epoch_offset) // iters_per_checkpoint)
+    num_iterations = len(train_loader) * epochs - epoch_offset
+    check_space(num_iterations // iters_per_checkpoint)
 
     model.train()
     for epoch in range(epoch_offset, epochs):
@@ -155,6 +168,7 @@ if __name__ == "__main__":
     parser.add_argument("-l", "--find_checkpoint", default=True, type=str, help="load checkpoint if one exists")
     parser.add_argument("-c", "--checkpoint_path", required=False, type=str, help="checkpoint path")
     parser.add_argument("-e", "--epochs", default=8000, type=int, help="num epochs")
+    parser.add_argument("-b", "--batch_size", required=False, type=int, help="batch size")
 
     args = parser.parse_args()
 
@@ -170,4 +184,5 @@ if __name__ == "__main__":
         args.find_checkpoint,
         args.checkpoint_path,
         args.epochs,
+        args.batch_size,
     )
