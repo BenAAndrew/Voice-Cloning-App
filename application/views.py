@@ -21,6 +21,7 @@ from application.utils import (
 from dataset.analysis import get_total_audio_duration
 from training.train import train
 from training.checkpoint import get_latest_checkpoint
+from training.utils import get_available_memory, get_batch_size
 from synthesis.synthesize import load_model, load_waveglow, synthesize
 from synthesis.synonyms import get_alternative_word_suggestions
 
@@ -57,7 +58,6 @@ def inject_data():
         "datasets": os.listdir(paths["datasets"]),
         "waveglow_models": os.listdir(paths["waveglow"]),
         "models": os.listdir(paths["models"]),
-        "cuda_enabled": torch.cuda.is_available(),
     }
 
 
@@ -70,6 +70,19 @@ def get_page(endpoint):
         return redirect("/synthesis-setup")
 
     return render_template(f"{endpoint}.html")
+
+
+@app.route("/train", methods=["GET"])
+def get_train():
+    cuda_enabled = torch.cuda.is_available()
+
+    if cuda_enabled:
+        available_memory_gb = get_available_memory()
+        batch_size = get_batch_size(available_memory_gb)
+    else:
+        batch_size = None
+
+    return render_template("train.html", cuda_enabled=cuda_enabled, batch_size=batch_size)
 
 
 @app.route("/", methods=["POST"])
