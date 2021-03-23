@@ -24,9 +24,9 @@ def load_checkpoint(checkpoint_path, model, optimizer):
     return model, optimizer, iteration
 
 
-def warm_start_model(checkpoint_path, model, ignore_layers=['embedding.weight']):
-    checkpoint_dict = torch.load(checkpoint_path, map_location='cpu')
-    model_dict = checkpoint_dict['state_dict']
+def warm_start_model(checkpoint_path, model, ignore_layers=["embedding.weight"]):
+    checkpoint_dict = torch.load(checkpoint_path, map_location="cpu")
+    model_dict = checkpoint_dict["state_dict"]
     if ignore_layers:
         model_dict = {k: v for k, v in model_dict.items() if k not in ignore_layers}
         dummy_dict = model.state_dict()
