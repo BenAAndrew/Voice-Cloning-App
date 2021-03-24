@@ -12,7 +12,7 @@ IPython==7.16.1
 soundfile==0.10.3.post1
 omegaconf==2.0.6
 numba==0.48
-webrtcvad-wheels==2.0.10.post2
+webrtcvad==2.0.10
 nltk==3.5
 requests==2.25.1
 torch===1.7.1
