@@ -34,7 +34,9 @@ $(document).ready(function(){
 
     socket.on('error', function(msg) {
         console.log(msg);
-        alert(msg.text);
-        window.history.back();
+        var r = confirm(msg.text);
+        if (r == true) {
+            window.history.back();
+        }
     });
 });
