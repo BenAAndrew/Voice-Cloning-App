@@ -140,8 +140,8 @@ def create_dataset_post():
 @app.route("/dataset-duration", methods=["GET"])
 def get_dataset_duration():
     dataset = request.values["dataset"]
-    duration = get_total_audio_duration(os.path.join(paths["datasets"], dataset, "metadata.csv"))
-    return str(duration)
+    duration, total_clips = get_total_audio_duration(os.path.join(paths["datasets"], dataset, "metadata.csv"))
+    return {"duration": duration, "total_clips": total_clips}
 
 
 @app.route("/train", methods=["POST"])

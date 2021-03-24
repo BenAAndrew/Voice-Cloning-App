@@ -33,7 +33,7 @@ def get_clip_lengths(metadata_file):
 
 def get_total_audio_duration(metadata_file):
     clip_lengths = get_clip_lengths(metadata_file)
-    return int(sum(clip_lengths) / 1000)
+    return int(sum(clip_lengths) / 1000), len(clip_lengths)
 
 
 if __name__ == "__main__":
