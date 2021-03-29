@@ -22,7 +22,7 @@ fi
 sudo apt-get install -y ffmpeg
 
 # Install Dependencies
-pip3 install -r requirements.txt
+python3.8 -m pip install -r requirements.txt
 echo "Successfully installed python packages"
 echo "Install complete"
 
