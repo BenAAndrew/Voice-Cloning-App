@@ -7,13 +7,13 @@ then
 fi
 
 # Install python
-if ! command -v python3 &> /dev/null
+if ! python3 --version 2>&1 | grep '3.8';
 then
     echo "Installing Python 3.8"
     sudo apt-get install -y software-properties-common
     sudo add-apt-repository -y ppa:deadsnakes/ppa
-    sudo apt-get update
-    sudo apt-get install -y python3.8
+    sudo apt-get update --fix-missing
+    sudo apt-get install -y python3.8 python3-pip
 else
     echo "Python installed"
 fi
@@ -22,7 +22,7 @@ fi
 sudo apt-get install -y ffmpeg
 
 # Install Dependencies
-pip install -r requirements.txt
+pip3 install -r requirements.txt
 echo "Successfully installed python packages"
 echo "Install complete"
 
