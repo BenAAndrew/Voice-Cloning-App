@@ -26,5 +26,3 @@ sudo apt-get install -y ffmpeg
 python3.8 -m pip install -r requirements.txt
 echo "Successfully installed python packages"
 echo "Install complete"
-
-fi
