@@ -9,7 +9,7 @@ Download and Run latest executable from [Releases](https://github.com/BenAAndrew
 ### Linux
 1. Clone this repository
 2. Run `./install.sh` from the root of the repository
-3. Run `python main.py`
+3. Run `python3.8 main.py`
 
 ### Docker
 1. Clone this repository
