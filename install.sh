@@ -13,7 +13,7 @@ then
     sudo apt-get install -y software-properties-common
     sudo add-apt-repository -y ppa:deadsnakes/ppa
     sudo apt-get update --fix-missing
-    sudo apt-get install -y python3.8 python3.8-distutils
+    sudo apt-get install -y python3.8 python3.8-distutils python3-dev
     sudo python3.8 -m easy_install pip
 else
     echo "Python installed"
