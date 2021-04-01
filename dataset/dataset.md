@@ -24,17 +24,9 @@ Then extract the text using the chrome extension in the 'extension' folder. Step
 Whilst LibriVox is open source, it's quality is generally less consistent. However, if you find a book with audio and text you can use it just the same as the audible method.
 
 ## Force align text and audio
-Once we have the text and audio of an audiobook, we need to align the two. To do this you can run the `align.py` script in 'forced_alignment'
+Once we have the text and audio of an audiobook, we need to align the two and produce snippets of speech with labels. To do this you can run `clip_generator.py`.
 
-``` python forced_alignment/align.py --audio_path book.wav --script book.txt --aligned aligned.json ```
-
-## Generate clips
-
-Using `clip_generator.py` we can take the JSON from forced alignment and the audio to produce snippets of speech with labels.
-
-Example usage:
-
-``` python clip_generator.py --audio_path book.wav --forced_alignment_path align.json --output_path wavs --label_path metadata.csv ```
+``` python clip_generator.py --audio_path book.wav --script book.txt --output_path wavs --label_path metadata.csv ```
 
 ## Optional: Analyse dataset
 

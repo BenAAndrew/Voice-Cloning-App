@@ -2,7 +2,6 @@ import wave
 import collections
 
 from webrtcvad import Vad
-from pydub import AudioSegment
 
 DEFAULT_RATE = 16000
 DEFAULT_CHANNELS = 1
@@ -32,12 +31,7 @@ def read_frames(wav_file, frame_duration_ms=30, yield_remainder=False):
 
 
 def read_frames_from_file(audio_path, audio_format=DEFAULT_FORMAT, frame_duration_ms=30, yield_remainder=False):
-    convert_audio = AudioSegment.from_file(audio_path)
-    convert_audio = convert_audio.set_frame_rate(DEFAULT_RATE)
-    convert_audio = convert_audio.set_channels(DEFAULT_CHANNELS)
-    convert_audio.export("temp.wav", format="wav")
-    audio = wave.open("temp.wav", "r")
-
+    audio = wave.open(audio_path, 'r')
     for frame in read_frames(audio, frame_duration_ms=frame_duration_ms, yield_remainder=yield_remainder):
         yield frame
 

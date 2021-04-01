@@ -25,11 +25,3 @@ def transcribe(path):
     output = model(data)
     for example in output:
         return decoder(example.cpu())
-
-
-def stt(audio, sample):
-    time_start, time_end = sample
-    snippet = audio[int(time_start) : int(time_end)]
-    snippet.export("temp.wav", format="wav")
-    transcript = transcribe("temp.wav")
-    return " ".join(transcript.split())

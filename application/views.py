@@ -15,7 +15,7 @@ from application.utils import (
     get_next_url,
     create_dataset,
     extend_existing_dataset,
-    get_prefix,
+    get_suffix,
     send_error_log,
 )
 from dataset.analysis import get_total_audio_duration
@@ -113,10 +113,10 @@ def create_dataset_post():
         )
     else:
         output_folder = os.path.join(paths["datasets"], request.form["path"])
-        prefix = get_prefix()
-        text_path = os.path.join(output_folder, f"text_{prefix}.txt")
-        audio_path = os.path.join(output_folder, f"audio_{prefix}.mp3")
-        forced_alignment_path = os.path.join(output_folder, f"align_{prefix}.json")
+        suffix = get_suffix()
+        text_path = os.path.join(output_folder, f"text-{suffix}.txt")
+        audio_path = os.path.join(output_folder, f"audio-{suffix}.mp3")
+        forced_alignment_path = os.path.join(output_folder, f"align-{suffix}.json")
 
         request.files["text_file"].save(text_path)
         request.files["audio_file"].save(audio_path)
@@ -131,7 +131,7 @@ def create_dataset_post():
             forced_alignment_path=forced_alignment_path,
             output_path=existing_output_path,
             label_path=existing_label_path,
-            prefix=prefix,
+            suffix=suffix,
         )
 
     return render_template("progress.html", next_url=get_next_url(URLS, request.path))
