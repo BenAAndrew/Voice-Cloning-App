@@ -1,11 +1,4 @@
 version: 2
-
-dependencies:
-  pre:
-    - sudo apt-get install -y ffmpeg libsndfile1
-    - pip install -r requirements.txt
-    - pip install pytest==6.2.2
-
 jobs:
   build:
     docker:
@@ -15,6 +8,15 @@ jobs:
 
     steps:
       - checkout
+      - run:
+          name: Install os libraries
+          command: sudo apt-get install -y ffmpeg libsndfile1
+      - run:
+          name: Install dependencies
+          command: pip install -r requirements.txt
+      - run:
+          name: Install pytest
+          command: pip install pytest==6.2.2
       - run:
           name: Tests
           command: pytest -k "not test_synthesis"
