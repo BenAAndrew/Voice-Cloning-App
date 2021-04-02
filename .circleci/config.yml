@@ -11,12 +11,21 @@ jobs:
       - run:
           name: Install os libraries
           command: sudo apt-get install -y ffmpeg libsndfile1
+      - run: sudo chown -R circleci:circleci /usr/local/bin
+      - run: sudo chown -R circleci:circleci /usr/local/lib/python3.8/site-packages
+      - restore_cache:  
+          key: deps9-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
       - run:
-          name: Install dependencies
-          command: pip install -r requirements.txt
-      - run:
-          name: Install pytest
-          command: pip install pytest==6.2.2
+          command: |
+            sudo pip install pipenv
+            pipenv install
+            pipenv install pytest==6.2.2
+      - save_cache:
+          key: deps9-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
+          paths:
+            - ".venv"
+            - "/usr/local/bin"
+            - "/usr/local/lib/python3.8/site-packages"
       - run:
           name: Tests
           command: pytest -k "not test_synthesis"
