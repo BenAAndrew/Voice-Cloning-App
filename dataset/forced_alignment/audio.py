@@ -31,7 +31,7 @@ def read_frames(wav_file, frame_duration_ms=30, yield_remainder=False):
 
 
 def read_frames_from_file(audio_path, audio_format=DEFAULT_FORMAT, frame_duration_ms=30, yield_remainder=False):
-    audio = wave.open(audio_path, 'r')
+    audio = wave.open(audio_path, "r")
     for frame in read_frames(audio, frame_duration_ms=frame_duration_ms, yield_remainder=yield_remainder):
         yield frame
 

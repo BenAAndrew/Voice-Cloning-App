@@ -4,16 +4,33 @@ from datetime import datetime
 from pydub import AudioSegment
 import os
 
-devnull = open(os.devnull, 'w')
+devnull = open(os.devnull, "w")
 TARGET_SAMPLE_RATE = 22050
 TARGET_BITRATE = "32k"
 
 
-def convert_audio(input_path): 
+def convert_audio(input_path):
     current_filename, filetype = Path(input_path).name.split(".")
-    output_path = input_path.replace(current_filename, current_filename+"-converted")
+    output_path = input_path.replace(current_filename, current_filename + "-converted")
     output_path = output_path.replace(filetype, "wav")
-    call(["ffmpeg", "-i", input_path, "-b:a", TARGET_BITRATE, "-ac", "1", "-map", "a", "-ar", str(TARGET_SAMPLE_RATE), output_path])
+    call(
+        [
+            "ffmpeg",
+            "-i",
+            input_path,
+            "-b:a",
+            TARGET_BITRATE,
+            "-ac",
+            "1",
+            "-map",
+            "a",
+            "-ar",
+            str(TARGET_SAMPLE_RATE),
+            output_path,
+        ],
+        stdout=devnull,
+        stderr=devnull,
+    )
     return output_path
 
 
@@ -25,11 +42,15 @@ def change_sample_rate(input_path, new_sample_rate):
 
 
 def cut_audio(input_path, start, end, output_folder):
-    start_timestamp = datetime.fromtimestamp(start/1000).strftime('%H:%M:%S.%f')
+    start_timestamp = datetime.fromtimestamp(start / 1000).strftime("%H:%M:%S.%f")
     duration = (end - start) / 1000
     output_name = f"{start}_{end}.wav"
     output_path = os.path.join(output_folder, output_name)
-    call(["ffmpeg", "-ss", start_timestamp, "-t", str(duration), "-i", input_path, output_path], stdout=devnull, stderr=devnull)
+    call(
+        ["ffmpeg", "-ss", start_timestamp, "-t", str(duration), "-i", input_path, output_path],
+        stdout=devnull,
+        stderr=devnull,
+    )
     return output_name
 
 

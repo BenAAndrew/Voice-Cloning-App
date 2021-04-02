@@ -6,12 +6,7 @@ import json
 import uuid
 import shutil
 from pathlib import Path
-
 from pydub import AudioSegment
-
-import sys
-sys.path.append(os.path.abspath("../"))
-print(sys.path)
 
 from dataset.forced_alignment.align import get_segments, process_segments, split_match
 from dataset.forced_alignment.search import FuzzySearch
@@ -31,7 +26,6 @@ def clip_generator(
     max_length=10.0,
     silence_padding=0.1,
     min_confidence=0.85,
-    sample_rate=22050,
 ):
     assert not os.path.isdir(output_path), "Output directory already exists"
     os.makedirs(output_path, exist_ok=False)
@@ -42,7 +36,7 @@ def clip_generator(
     logging.info(f"Loading script from {script_path}...")
     with open(script_path, "r", encoding="utf-8") as script_file:
         clean_text = script_file.read().lower()
-    
+
     logging.info("Searching text for matching fragments...")
     search = FuzzySearch(clean_text)
 
@@ -68,7 +62,7 @@ def clip_generator(
     clip_lengths = []
     for fragment in matched_segments:
         if (
-            fragment["transcript"] 
+            fragment["transcript"]
             and fragment["sws"] >= min_confidence
             and "match-start" in fragment
             and "match-end" in fragment
@@ -164,7 +158,6 @@ if __name__ == "__main__":
     parser.add_argument("--max_length", help="Maximum snippet length", type=float, default=10.0)
     parser.add_argument("--silence_padding", help="Silence padding on the end of the clip", type=int, default=0.1)
     parser.add_argument("--min_confidence", help="Minimum clip confidendence", type=float, default=0.85)
-    parser.add_argument("--sample_rate", help="Audio sample rate", type=int, default=22050)
     args = parser.parse_args()
 
     clip_lengths = clip_generator(**vars(args))

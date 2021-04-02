@@ -1,9 +1,6 @@
 import os
 import logging
 
-import sys
-sys.path.append( os.path.abspath("../../"))
-
 from dataset.forced_alignment.audio import DEFAULT_RATE, read_frames_from_file, vad_split
 from dataset.audio_processing import cut_audio
 from dataset.transcribe import transcribe
@@ -68,7 +65,15 @@ def process_segments(audio_path, output_path, segments, min_length, max_length, 
             clip_path = os.path.join(output_path, name)
             transcript = transcribe(clip_path)
             if transcript:
-                samples.append({"index": index, "start": time_start, "end": time_end, "name": name, "transcript": transcript.strip()})
+                samples.append(
+                    {
+                        "index": index,
+                        "start": time_start,
+                        "end": time_end,
+                        "name": name,
+                        "transcript": transcript.strip(),
+                    }
+                )
                 index += 1
 
         logging.info(f"Progress - {i+1}/{total}")

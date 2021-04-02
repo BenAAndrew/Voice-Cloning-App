@@ -6,10 +6,6 @@ import logging
 
 logging.getLogger().setLevel(logging.INFO)
 
-import sys
-
-sys.path.append("../")
-
 import torch
 from torch.utils.data import DataLoader
 
