@@ -1,4 +1,4 @@
-version: 2
+version: 2.1
 jobs:
   build:
     docker:
@@ -9,14 +9,14 @@ jobs:
     steps:
       - checkout
       - run:
-          name: install os libraries
+          name: Install os libraries
           command: sudo apt-get install -y ffmpeg libsndfile1
       - python/load-cache
       - python/install-deps
       - run:
-          name: install pytest
+          name: Install pytest
           command: pip install pytest==6.2.2
       - python/save-cache
       - run:
-          name: tests
+          name: Tests
           command: pytest -k "not test_synthesis"
