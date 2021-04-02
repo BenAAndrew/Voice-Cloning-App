@@ -1,30 +1,27 @@
 import shutil
 import inflect
+from unittest import mock
 
 from training.utils import check_space, CHECKPOINT_SIZE_MB
 from training.clean_text import clean_text
 
 
-def test_check_space_failure():
-    _, _, free = shutil.disk_usage("/")
-    free_mb = free // (2 ** 20)
-    num_checkpoints = (free_mb // CHECKPOINT_SIZE_MB) + 1
-    assert free_mb < CHECKPOINT_SIZE_MB * num_checkpoints
+@mock.patch('shutil.disk_usage')
+def test_check_space_failure(disk_usage):
+    disk_usage.return_value = None, None, (CHECKPOINT_SIZE_MB) * (2 ** 20)
     exception = False
     try:
-        check_space(num_checkpoints)
+        check_space(2)
     except Exception as e:
         exception = True
         assert type(e) == AssertionError
-    assert exception
+    assert exception, "Insufficent space should throw an exception"
 
 
-def test_check_space_success():
-    _, _, free = shutil.disk_usage("/")
-    free_mb = free // (2 ** 20)
-    num_checkpoints = (free_mb // CHECKPOINT_SIZE_MB) - 1
-    assert free_mb > CHECKPOINT_SIZE_MB * num_checkpoints
-    check_space(num_checkpoints)
+@mock.patch('shutil.disk_usage')
+def test_check_space_success(disk_usage):
+    disk_usage.return_value = None, None, (CHECKPOINT_SIZE_MB + 1) * (2 ** 20)
+    assert check_space(1) is None, "Sufficent space should not throw an exception"
 
 
 def test_clean_text():

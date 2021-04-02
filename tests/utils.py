@@ -4,7 +4,7 @@ import shutil
 
 class TestClass:
     test_directory = "test"
-    test_samples = "test_samples"
+    test_samples = os.path.join("tests", "files")
 
     def setup_class(self):
         if os.path.isdir(self.test_directory):
