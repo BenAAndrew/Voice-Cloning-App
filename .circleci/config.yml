@@ -1,0 +1,22 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: circleci/python:3.8
+
+    working_directory: ~/repo
+
+    steps:
+      - checkout
+      - run:
+          name: Install os libraries
+          command: sudo apt-get install -y ffmpeg libsndfile1
+      - run:
+          name: Install dependencies
+          command: pip install -r requirements.txt
+      - run:
+          name: Install pytest
+          command: pip install pytest==6.2.2
+      - run:
+          name: Tests
+          command: pytest -k "not test_synthesis"
