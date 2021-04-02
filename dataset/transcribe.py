@@ -1,5 +1,6 @@
 import torch
 from glob import glob
+import os
 
 import torchaudio
 import omegaconf
@@ -10,6 +11,7 @@ model, device, decoder, read_batch, split_into_batches, prepare_model_input = No
 
 def transcribe(path):
     global model, device, decoder, read_batch, split_into_batches, prepare_model_input
+    assert os.path.isfile(path), f"{path} not found. Cannot transcribe"
 
     if not model:
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
