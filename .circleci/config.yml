@@ -2,7 +2,12 @@ version: 2
 jobs:
   build:
     docker:
-      - image: circleci/python:3.8.6  # primary container for the build job
+      - image: circleci/python:3.8.6
         auth:
           username: mydockerhub-user
-          password: $DOCKERHUB_PASSWORD  # context / project UI env-var reference
+          password: $DOCKERHUB_PASSWORD
+
+workflows:
+  main:
+    jobs:
+      - build
