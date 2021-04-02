@@ -9,14 +9,14 @@ jobs:
     steps:
       - checkout
       - run:
-          name: install soundfile
-          command: sudo apt-get install libsndfile1
-      - run:
-          name: install dependencies
-          command: pip install -r requirements.txt
+          name: install os libraries
+          command: sudo apt-get install -y ffmpeg libsndfile1
+      - python/load-cache
+      - python/install-deps
       - run:
           name: install pytest
           command: pip install pytest==6.2.2
+      - python/save-cache
       - run:
           name: tests
           command: pytest -k "not test_synthesis"
