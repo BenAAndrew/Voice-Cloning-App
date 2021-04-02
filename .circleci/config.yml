@@ -10,12 +10,12 @@ jobs:
       - checkout
       - python/load-cache
       - run:
-          command: pip install numpy
+          command: pip install numpy==1.16.4
           name: Install numpy
       - python/install-deps
       - python/save-cache
       - run:
-          command: pip install pytest
+          command: pip install pytest==6.2.2
           name: Install pytest
       - run:
           command: pytest -k "not test_synthesis"
