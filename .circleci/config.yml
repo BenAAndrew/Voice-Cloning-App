@@ -9,6 +9,9 @@ jobs:
     steps:
       - checkout
       - run:
+          name: install soundfile
+          command: sudo apt-get install libsndfile1
+      - run:
           name: install dependencies
           command: pip install -r requirements.txt
       - run:

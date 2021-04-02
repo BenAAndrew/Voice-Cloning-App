@@ -19,8 +19,8 @@ else
     echo "Python installed"
 fi
 
-# Install ffmpeg
-sudo apt-get install -y ffmpeg
+# Install ffmpeg & soundfile
+sudo apt-get install -y ffmpeg libsndfile1
 
 # Install Dependencies
 python3.8 -m pip install -r requirements.txt
