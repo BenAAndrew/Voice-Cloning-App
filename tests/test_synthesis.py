@@ -3,29 +3,31 @@ import inflect
 
 from synthesis.synthesize import load_model, load_waveglow, synthesize
 from dataset.transcribe import transcribe
-from tests.utils import TestClass, text_similarity
 
 
-class TestSynthesis(TestClass):
-    def setup_class(self):
-        super().setup_class(self)
-        self.model_path = os.path.join(self.test_samples, "tacotron2_statedict.pt")
-        self.waveglow_path = os.path.join(self.test_samples, "waveglow_256channels_universal_v5.pt")
-        self.graph_path = os.path.join(self.test_directory, "graph.png")
-        self.audio_path = os.path.join(self.test_directory, "synthesized_audio.wav")
+def text_similarity(a, b):
+    return 1 - (len(set(a.split(" ")) - set(b.split(" "))) / len(a.split(" ")))
 
-    def test_synthesize(self):
-        model = load_model(self.model_path)
-        assert model
 
-        waveglow = load_waveglow(self.waveglow_path)
-        assert waveglow
+def test_synthesize():
+    model_path = os.path.join("files", "tacotron2_statedict.pt")
+    waveglow_path = os.path.join("files", "waveglow_256channels_universal_v5.pt")
+    graph_path = "graph.png"
+    audio_path = "synthesized_audio.wav"
 
-        text = "hello everybody my name is david attenborough"
-        inflect_engine = inflect.engine()
+    model = load_model(model_path)
+    assert model
 
-        synthesize(model, waveglow, text, inflect_engine, graph=self.graph_path, audio=self.audio_path)
+    waveglow = load_waveglow(waveglow_path)
+    assert waveglow
 
-        assert text_similarity(text, transcribe(self.audio_path)) > 0.5
-        assert os.path.isfile(self.graph_path)
-        assert os.path.isfile(self.audio_path)
+    text = "hello everybody my name is david attenborough"
+    inflect_engine = inflect.engine()
+    synthesize(model, waveglow, text, inflect_engine, graph=graph_path, audio=audio_path)
+
+    assert text_similarity(text, transcribe(audio_path)) > 0.5
+    assert os.path.isfile(graph_path)
+    assert os.path.isfile(audio_path)
+
+    os.remove(graph_path)
+    os.remove(audio_path)
