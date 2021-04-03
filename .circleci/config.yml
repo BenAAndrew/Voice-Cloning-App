@@ -8,15 +8,24 @@ jobs:
 
     steps:
       - checkout
+      - run: sudo chown -R circleci:circleci /usr/local/bin
+      - run: sudo chown -R circleci:circleci /usr/local/lib/python3.8/site-packages
       - run:
           name: Install os libraries
           command: sudo apt-get install -y ffmpeg libsndfile1
+      - restore_cache:
+          key: deps-{{ .Environment.CACHE_VERSION }}
       - run:
           name: Install dependencies
-          command: pip install -r requirements.txt
+          command: sudo pip install -r requirements.txt
       - run:
           name: Install pytest
-          command: pip install pytest==6.2.2
+          command: sudo pip install pytest==6.2.2
+      - save_cache:
+          key: deps-{{ .Environment.CACHE_VERSION }}
+          paths:
+            - "/usr/local/bin"
+            - "/usr/local/lib/python3.8/site-packages"
       - run:
           name: Tests
           command: pytest -k "not test_synthesis"

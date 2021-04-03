@@ -8,11 +8,10 @@ import shutil
 from pathlib import Path
 from pydub import AudioSegment
 
-from dataset.forced_alignment.align import get_segments, process_segments, split_match
+import dataset.forced_alignment.align as align
 from dataset.forced_alignment.search import FuzzySearch
 from dataset.forced_alignment.audio import DEFAULT_RATE
 from dataset.audio_processing import change_sample_rate, add_silence
-from dataset.transcribe import transcribe
 
 
 def clip_generator(
@@ -45,14 +44,14 @@ def clip_generator(
 
     # Produce segments
     logging.info("Fetching segments...")
-    segments = get_segments(new_audio_path, output_path)
+    segments = align.get_segments(new_audio_path, output_path)
 
     # Match with text
     logging.info("Matching segments...")
     min_length_ms = min_length * 1000
     max_length_ms = max_length * 1000
-    processed_segments = process_segments(audio_path, output_path, segments, min_length_ms, max_length_ms, logging)
-    matched_segments = split_match(processed_segments, search)
+    processed_segments = align.process_segments(audio_path, output_path, segments, min_length_ms, max_length_ms, logging)
+    matched_segments = align.split_match(processed_segments, search)
     matched_segments = list(filter(lambda f: f is not None, matched_segments))
     logging.info(f"Matched {len(matched_segments)} segments")
 
