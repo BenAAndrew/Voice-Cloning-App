@@ -8,6 +8,8 @@ jobs:
 
     steps:
       - checkout
+      - run: sudo chown -R circleci:circleci /usr/local/bin
+      - run: sudo chown -R circleci:circleci /usr/local/lib/python3.6/site-packages
       - run:
           name: Install os libraries
           command: sudo apt-get install -y ffmpeg libsndfile1
@@ -22,6 +24,7 @@ jobs:
       - save_cache:
           key: deps-{{ .Environment.CACHE_VERSION }}
           paths:
+            - "/usr/local/bin"
             - "/usr/local/lib/python3.8/site-packages"
       - run:
           name: Tests
