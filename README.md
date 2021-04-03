@@ -47,4 +47,4 @@ Thank you to Dr. John Bustard at Queen's University Belfast for his support thro
 
 Also a big thanks to the members of the [VocalSynthesis subreddit](https://www.reddit.com/r/VocalSynthesis/) for their feedback.
 
-Finally thank you to [vinamramunot-tech](https://github.com/vinamramunot-tech) for getting involved and contributing to the project
+Finally thank you to everyone raising issues and contributing to the project.
