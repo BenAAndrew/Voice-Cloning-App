@@ -17,10 +17,10 @@ jobs:
           key: deps-{{ .Environment.CACHE_VERSION }}
       - run:
           name: Install dependencies
-          command: pip install -r requirements.txt
+          command: sudo pip install -r requirements.txt
       - run:
           name: Install pytest
-          command: pip install pytest==6.2.2
+          command: sudo pip install pytest==6.2.2
       - save_cache:
           key: deps-{{ .Environment.CACHE_VERSION }}
           paths:
