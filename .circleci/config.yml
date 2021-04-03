@@ -12,7 +12,7 @@ jobs:
           name: Install os libraries
           command: sudo apt-get install -y ffmpeg libsndfile1
       - restore_cache:
-          key: deps
+          key: deps-{{ .Environment.CACHE_VERSION }}
       - run:
           name: Install dependencies
           command: pip install -r requirements.txt
@@ -20,7 +20,7 @@ jobs:
           name: Install pytest
           command: pip install pytest==6.2.2
       - save_cache:
-          key: deps
+          key: deps-{{ .Environment.CACHE_VERSION }}
           paths:
             - "/usr/local/lib/python3.8/site-packages"
       - run:
