@@ -22,7 +22,6 @@ jobs:
       - save_cache:
           key: deps9-{{ .Branch }}
           paths:
-            - "/usr/local/bin"
             - "/usr/local/lib/python3.8/site-packages"
       - run:
           name: Tests
