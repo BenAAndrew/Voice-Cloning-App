@@ -28,4 +28,4 @@ jobs:
             - "/usr/local/lib/python3.8/site-packages"
       - run:
           name: Tests
-          command: pytest -k "test_dataset"
+          command: pytest -k "not test_synthesis"
