@@ -210,7 +210,7 @@ def synthesis_post():
     text = request.form["text"]
     folder_name = re.sub(r"[^A-Za-z0-9 ]+", "", text)
     folder_name = folder_name.replace(" ", "_")
-    folder_name += f"_{get_prefix()}"
+    folder_name += f"_{get_suffix()}"
     results_folder = os.path.join(paths["results"], folder_name)
     os.makedirs(results_folder)
     graph_path = os.path.join(results_folder, GRAPH_FILE)
