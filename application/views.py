@@ -18,7 +18,7 @@ from application.utils import (
     get_suffix,
     send_error_log,
 )
-from dataset.analysis import get_total_audio_duration
+from dataset.analysis import get_total_audio_duration, validate_dataset
 from training.train import train
 from training.checkpoint import get_latest_checkpoint
 from training.utils import get_available_memory, get_batch_size
@@ -140,8 +140,12 @@ def create_dataset_post():
 @app.route("/dataset-duration", methods=["GET"])
 def get_dataset_duration():
     dataset = request.values["dataset"]
-    duration, total_clips = get_total_audio_duration(os.path.join(paths["datasets"], dataset, "metadata.csv"))
-    return {"duration": duration, "total_clips": total_clips}
+    dataset_error = validate_dataset(os.path.join(paths["datasets"], dataset), metadata_file=METADATA_FILE, audio_folder=AUDIO_FOLDER)
+    if not dataset_error:
+        duration, total_clips = get_total_audio_duration(os.path.join(paths["datasets"], dataset, METADATA_FILE))
+        return {"duration": duration, "total_clips": total_clips}
+    else:
+        return {"error": dataset_error}
 
 
 @app.route("/train", methods=["POST"])

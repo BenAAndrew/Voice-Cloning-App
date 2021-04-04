@@ -75,15 +75,21 @@ function showDatasetInfo(){
     xmlhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
             j = JSON.parse(this.response);
-            duration = j.duration;
-            document.getElementById("duration").value = duration;
-            total_clips = j.total_clips;
-            document.getElementById("total_clips").value = total_clips;
-            hours = Math.floor(duration / 60 / 60);
-            minutes = Math.floor(duration / 60) - (hours * 60);
-            text = hours+" hours, "+minutes+" minutes";
-            text += addSuggestion(duration, low_dataset_threshold, medium_dataset_threshold, high_dataset_threshold);
-            document.getElementById("dataset_label").innerHTML = text;
+            if(j.error){
+                document.getElementById("duration").value = 0;
+                document.getElementById("total_clips").value = 0;
+                document.getElementById("dataset_label").innerHTML = "WARNING: "+j.error;
+            } else {
+                duration = j.duration;
+                document.getElementById("duration").value = duration;
+                total_clips = j.total_clips;
+                document.getElementById("total_clips").value = total_clips;
+                hours = Math.floor(duration / 60 / 60);
+                minutes = Math.floor(duration / 60) - (hours * 60);
+                text = hours+" hours, "+minutes+" minutes";
+                text += addSuggestion(duration, low_dataset_threshold, medium_dataset_threshold, high_dataset_threshold);
+                document.getElementById("dataset_label").innerHTML = text;
+            }
             estimateTime();
         }
     };
