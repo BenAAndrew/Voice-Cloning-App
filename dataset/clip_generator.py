@@ -81,6 +81,8 @@ def clip_generator(
             os.remove(os.path.join(output_path, filename))
     os.remove(new_audio_path)
 
+    assert result_fragments, "No audio clips could be generated"
+
     # Produce alignment file
     logging.info(f"Produced {len(result_fragments)} final fragments")
     with open(forced_alignment_path, "w", encoding="utf-8") as result_file:
