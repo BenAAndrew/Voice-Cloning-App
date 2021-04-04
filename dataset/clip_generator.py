@@ -50,7 +50,9 @@ def clip_generator(
     logging.info("Matching segments...")
     min_length_ms = min_length * 1000
     max_length_ms = max_length * 1000
-    processed_segments = align.process_segments(audio_path, output_path, segments, min_length_ms, max_length_ms, logging)
+    processed_segments = align.process_segments(
+        audio_path, output_path, segments, min_length_ms, max_length_ms, logging
+    )
     matched_segments = align.split_match(processed_segments, search)
     matched_segments = list(filter(lambda f: f is not None, matched_segments))
     logging.info(f"Matched {len(matched_segments)} segments")

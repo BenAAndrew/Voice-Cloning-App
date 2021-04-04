@@ -52,37 +52,18 @@ def handle_bad_request(e):
 
 @app.context_processor
 def inject_data():
-    return {
-        "urls": URLS,
-        "path": request.path,
-        "datasets": os.listdir(paths["datasets"]),
-        "waveglow_models": os.listdir(paths["waveglow"]),
-        "models": os.listdir(paths["models"]),
-    }
+    return {"urls": URLS, "path": request.path}
 
 
-@app.route("/", methods=["GET"], defaults={"endpoint": "index"})
-@app.route("/<endpoint>", methods=["GET"])
-def get_page(endpoint):
-    # Redirect if trying to synthesize before selecting a model
-    global model
-    if endpoint == "synthesis" and not model:
-        return redirect("/synthesis-setup")
-
-    return render_template(f"{endpoint}.html")
+# Dataset
+@app.route("/", methods=["GET"])
+def get_create_dataset():
+    return render_template("index.html", datasets=os.listdir(paths["datasets"]))
 
 
-@app.route("/train", methods=["GET"])
-def get_train():
-    cuda_enabled = torch.cuda.is_available()
-
-    if cuda_enabled:
-        available_memory_gb = get_available_memory()
-        batch_size = get_batch_size(available_memory_gb)
-    else:
-        batch_size = None
-
-    return render_template("train.html", cuda_enabled=cuda_enabled, batch_size=batch_size)
+@app.route("/datasource", methods=["GET"])
+def get_datasource():
+    return render_template("datasource.html")
 
 
 @app.route("/", methods=["POST"])
@@ -140,12 +121,30 @@ def create_dataset_post():
 @app.route("/dataset-duration", methods=["GET"])
 def get_dataset_duration():
     dataset = request.values["dataset"]
-    dataset_error = validate_dataset(os.path.join(paths["datasets"], dataset), metadata_file=METADATA_FILE, audio_folder=AUDIO_FOLDER)
+    dataset_error = validate_dataset(
+        os.path.join(paths["datasets"], dataset), metadata_file=METADATA_FILE, audio_folder=AUDIO_FOLDER
+    )
     if not dataset_error:
         duration, total_clips = get_total_audio_duration(os.path.join(paths["datasets"], dataset, METADATA_FILE))
         return {"duration": duration, "total_clips": total_clips}
     else:
         return {"error": dataset_error}
+
+
+# Training
+@app.route("/train", methods=["GET"])
+def get_train():
+    cuda_enabled = torch.cuda.is_available()
+
+    if cuda_enabled:
+        available_memory_gb = get_available_memory()
+        batch_size = get_batch_size(available_memory_gb)
+    else:
+        batch_size = None
+
+    return render_template(
+        "train.html", cuda_enabled=cuda_enabled, batch_size=batch_size, datasets=os.listdir(paths["datasets"])
+    )
 
 
 @app.route("/train", methods=["POST"])
@@ -175,6 +174,14 @@ def train_post():
     )
 
     return render_template("progress.html", next_url=get_next_url(URLS, request.path))
+
+
+# Synthesis
+@app.route("/synthesis-setup", methods=["GET"])
+def get_synthesis_setup():
+    return render_template(
+        "synthesis-setup.html", waveglow_models=os.listdir(paths["waveglow"]), models=os.listdir(paths["models"])
+    )
 
 
 @app.route("/synthesis-setup", methods=["POST"])
@@ -210,6 +217,8 @@ def get_result_file(path):
 @app.route("/synthesis", methods=["POST"])
 def synthesis_post():
     global model, waveglow_model
+    if not model:
+        return redirect("/synthesis-setup")
 
     text = request.form["text"]
     folder_name = re.sub(r"[^A-Za-z0-9 ]+", "", text)
@@ -232,6 +241,7 @@ def synthesis_post():
     )
 
 
+# Import-export
 @app.route("/import-export", methods=["GET"])
 def import_export():
     return render_template("import-export.html")
