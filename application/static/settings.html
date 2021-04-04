@@ -1,0 +1,39 @@
+{% extends "simplebase.html" %}
+{% block content %}
+<h3>Send logs</h3>
+<form method="POST" action="/update-config">
+    <div class="form-group">
+        <select class="form-control" id="send_logs" name="send_logs" required>
+            <option value="True" {% if send_logs %} selected {% endif %}>Yes, I would like to send error logs</option>
+            <option value="False" {% if not send_logs %} selected {% endif %}>No, I would not like to send error logs</option>
+        </select>
+    </div>
+    <input type="submit" class="btn btn-primary">
+</form>
+<hr>
+
+<h3>Delete dataset</h3>
+<form method="POST" action="/delete-dataset">
+    <div class="form-group">
+        <select class="form-control" id="dataset" name="dataset" required>
+            {% for dataset in datasets %}
+                <option value="{{dataset}}">{{dataset}}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <input type="submit" class="btn btn-primary">
+</form>
+<hr>
+
+<h3>Delete model</h3>
+<form method="POST" action="/delete-model">
+    <div class="form-group">
+        <select class="form-control" id="model" name="model" required>
+            {% for model in models %}
+                <option value="{{model}}">{{model}}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <input type="submit" class="btn btn-primary">
+</form>
+{% endblock %}

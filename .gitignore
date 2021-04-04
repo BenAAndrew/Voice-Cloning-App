@@ -8,9 +8,9 @@ latest_silero_models.yml
 test_samples/
 research/timelapse/
 data/
+ffmpeg/
+config.ini
 
 build/
 dist/
 main.spec
-ffmpeg/
-main.exe

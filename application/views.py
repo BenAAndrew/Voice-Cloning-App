@@ -17,6 +17,9 @@ from application.utils import (
     extend_existing_dataset,
     get_suffix,
     send_error_log,
+    update_config,
+    can_send_logs,
+    delete_folder
 )
 from dataset.analysis import get_total_audio_duration, validate_dataset
 from training.train import train
@@ -323,3 +326,29 @@ def download_model():
     model_path = get_latest_checkpoint(os.path.join(paths["models"], model_name))
 
     return send_file(model_path, as_attachment=True, attachment_filename=f'{model_name.replace(" ", "_")}.pt')
+
+
+# Settings
+@app.route("/settings", methods=["GET"])
+def get_settings():
+    print(can_send_logs())
+    return render_template("settings.html", send_logs=can_send_logs(), datasets=os.listdir(paths["datasets"]), models=os.listdir(paths["models"]))
+
+
+@app.route("/update-config", methods=["POST"])
+def update_config_post():
+    send_logs = request.values["send_logs"]
+    update_config({"send_logs": send_logs})
+    return redirect("/settings")
+
+
+@app.route("/delete-dataset", methods=["POST"])
+def delete_dataset_post():
+    delete_folder(os.path.join(paths["datasets"], request.values["dataset"]))
+    return redirect("/settings")
+
+
+@app.route("/delete-model", methods=["POST"])
+def delete_model_post():
+    delete_folder(os.path.join(paths["models"], request.values["model"]))
+    return redirect("/settings")

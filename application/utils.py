@@ -4,6 +4,8 @@ import os
 from datetime import datetime
 import requests
 import traceback
+import configparser
+import shutil
 
 from main import socketio
 from dataset.audio_processing import convert_audio
@@ -47,13 +49,36 @@ def extend_existing_dataset(text_path, audio_path, forced_alignment_path, output
     extend_dataset(converted_audio, text_path, forced_alignment_path, output_path, label_path, suffix, logging=logging)
 
 
+def update_config(data):
+    config = configparser.ConfigParser()
+    config['DEFAULT'] = data
+
+    with open('config.ini', 'w') as f:
+        config.write(f)
+
+
+def get_config():
+    config = configparser.ConfigParser()
+    config.read('config.ini')
+    return config['DEFAULT']
+
+
+def can_send_logs():
+    config = get_config()
+    if config.get("send_logs") and config["send_logs"] == "False":
+        return False
+    else:
+        return True
+
+
 def send_error_log(error):
-    try:
-        response = requests.post(LOGGING_URL, data=error)
-        if response.status_code != 201:
-            print("error logging recieved invalid response")
-    except:
-        print("error logging failed")
+    if can_send_logs():
+        try:
+            response = requests.post(LOGGING_URL, data=error)
+            if response.status_code != 201:
+                print("error logging recieved invalid response")
+        except:
+            print("error logging failed")
 
 
 def background_task(func, **kwargs):
@@ -86,3 +111,8 @@ def get_next_url(urls, path):
 
 def get_suffix():
     return datetime.now().strftime("%d-%m-%Y_%H-%M-%S")
+
+
+def delete_folder(path):
+    assert os.path.isdir(path), f"{path} does not exist"
+    shutil.rmtree(path)
