@@ -36,6 +36,14 @@ def get_total_audio_duration(metadata_file):
     return int(sum(clip_lengths) / 1000), len(clip_lengths)
 
 
+def validate_dataset(folder, metadata_file="metadata.csv", audio_folder="wavs"):
+    if not os.path.isfile(os.path.join(folder, "metadata.csv")):
+        return "Missing metadata.csv file"
+    if not os.path.isdir(os.path.join(folder, "wavs")):
+        return "Missing wavs folder"
+    return None
+
+
 if __name__ == "__main__":
     """ Script to analyse dataset """
     parser = argparse.ArgumentParser(description="Analyse dataset")
