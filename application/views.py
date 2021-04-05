@@ -217,31 +217,34 @@ def get_result_file(path):
         return send_file(io.BytesIO(f.read()), attachment_filename=filename, mimetype=mimetype, as_attachment=True)
 
 
-@app.route("/synthesis", methods=["POST"])
+@app.route("/synthesis", methods=["GET", "POST"])
 def synthesis_post():
     global model, waveglow_model
     if not model:
         return redirect("/synthesis-setup")
 
-    text = request.form["text"]
-    folder_name = re.sub(r"[^A-Za-z0-9 ]+", "", text)
-    folder_name = folder_name.replace(" ", "_")
-    folder_name += f"_{get_suffix()}"
-    results_folder = os.path.join(paths["results"], folder_name)
-    os.makedirs(results_folder)
-    graph_path = os.path.join(results_folder, GRAPH_FILE)
-    audio_path = os.path.join(results_folder, RESULTS_FILE)
-    graph_web_path = graph_path.replace("\\", "/")
-    audio_web_path = audio_path.replace("\\", "/")
+    if request.method == "GET":
+        return render_template("synthesis.html")
+    else:
+        text = request.form["text"]
+        folder_name = re.sub(r"[^A-Za-z0-9 ]+", "", text)
+        folder_name = folder_name.replace(" ", "_")
+        folder_name += f"_{get_suffix()}"
+        results_folder = os.path.join(paths["results"], folder_name)
+        os.makedirs(results_folder)
+        graph_path = os.path.join(results_folder, GRAPH_FILE)
+        audio_path = os.path.join(results_folder, RESULTS_FILE)
+        graph_web_path = graph_path.replace("\\", "/")
+        audio_web_path = audio_path.replace("\\", "/")
 
-    synthesize(model, waveglow_model, text, inflect_engine, graph_path, audio_path)
-    return render_template(
-        "synthesis.html",
-        text=text.strip(),
-        alertnative_words=get_alternative_word_suggestions(audio_path, text),
-        graph=graph_web_path,
-        audio=audio_web_path,
-    )
+        synthesize(model, waveglow_model, text, inflect_engine, graph_path, audio_path)
+        return render_template(
+            "synthesis.html",
+            text=text.strip(),
+            alertnative_words=get_alternative_word_suggestions(audio_path, text),
+            graph=graph_web_path,
+            audio=audio_web_path,
+        )
 
 
 # Import-export
