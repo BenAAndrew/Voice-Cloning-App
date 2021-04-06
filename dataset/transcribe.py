@@ -6,7 +6,11 @@ model, device, decoder = None, None, None
 
 
 def load_audio(path):
-    wav, _ = librosa.load(path, sr=16000)
+    try:
+        wav, _ = librosa.load(path, sr=16000)
+    except Exception:
+        raise Exception(f"Cannot load audio file {path}")
+
     max_seqlength = max(len(wav), 12800)
     data = torch.zeros(1, max_seqlength)
     data[0] = torch.tensor(wav)
