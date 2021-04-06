@@ -1,12 +1,16 @@
 import torch
-from glob import glob
 import os
+import librosa
 
-import torchaudio
-import omegaconf
-import soundfile
+model, device, decoder = None, None, None
 
-model, device, decoder, read_batch, split_into_batches, prepare_model_input = None, None, None, None, None, None
+
+def load_audio(path):
+    wav, _ = librosa.load(path, sr=16000)
+    max_seqlength = max(len(wav), 12800)
+    data = torch.zeros(1, max_seqlength)
+    data[0] = torch.tensor(wav)
+    return data
 
 
 def transcribe(path):
@@ -15,15 +19,13 @@ def transcribe(path):
 
     if not model:
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        model, decoder, utils = torch.hub.load(
+        model, decoder, _ = torch.hub.load(
             repo_or_dir="snakers4/silero-models", model="silero_stt", language="en", device=device
         )
-        (read_batch, split_into_batches, _, prepare_model_input) = utils
 
-    audio = glob(path)
-    batches = split_into_batches(audio, batch_size=10)
-    data = prepare_model_input(read_batch(batches[0]), device=device)
-
+    data = load_audio(path)
+    data = data.to(device)
     output = model(data)
+
     for example in output:
         return decoder(example.cpu())
