@@ -2,8 +2,8 @@ import argparse
 from datetime import timedelta
 import os
 import re
-
-from pydub import AudioSegment
+import librosa
+import json
 
 ALLOWED_CHARACTERS_RE = re.compile("[^a-zA-Z ]+")
 
@@ -19,47 +19,59 @@ def get_text(metadata_file):
     return text
 
 
-def get_clip_lengths(metadata_file):
-    durations = []
-    with open(metadata_file, encoding="utf-8") as f:
-        lines = f.readlines()
-        for line in lines:
-            text = line.split(".wav")[0]
-            start, end = text.split("_")
-            duration = int(end) - int(start)
-            durations.append(duration)
-    return durations
+def get_clip_lengths(folder):
+    return [librosa.get_duration(filename=os.path.join(folder, filename)) for filename in os.listdir(folder)]
 
 
-def get_total_audio_duration(metadata_file):
-    clip_lengths = get_clip_lengths(metadata_file)
-    return int(sum(clip_lengths) / 1000), len(clip_lengths)
+def get_total_audio_duration(info_file):
+    with open(info_file) as f:
+        data = json.load(f)
+        return data["total_duration"], data["total_clips"]
 
 
-def validate_dataset(folder, metadata_file="metadata.csv", audio_folder="wavs"):
-    if not os.path.isfile(os.path.join(folder, "metadata.csv")):
-        return "Missing metadata.csv file"
-    if not os.path.isdir(os.path.join(folder, "wavs")):
-        return "Missing wavs folder"
+def save_dataset_info(metadata_file, folder, output_path):
+    clip_lengths = get_clip_lengths(folder)
+    words = get_text(metadata_file)
+    total_duration = sum(clip_lengths)
+    total_words = len(words)
+    total_clips = len(clip_lengths)
+
+    data = {
+        "total_duration": total_duration,
+        "total_clips": len(clip_lengths),
+        "mean_clip_duration": total_duration / len(clip_lengths),
+        "max_clip_duration": max(clip_lengths),
+        "min_clip_duration": min(clip_lengths),
+        "total_words": total_words,
+        "total_distinct_words": len(set(words)),
+        "mean_words_per_clip": total_words / total_clips,
+    }
+
+    with open(output_path, "w") as f:
+        json.dump(data, f, indent=4)
+
+
+def validate_dataset(folder, metadata_file="metadata.csv", audio_folder="wavs", info_file="info.json"):
+    if not os.path.isfile(os.path.join(folder, metadata_file)):
+        return f"Missing {metadata_file} file"
+    if not os.path.isfile(os.path.join(folder, info_file)):
+        return f"Missing {info_file} file"
+    if not os.path.isdir(os.path.join(folder, audio_folder)):
+        return f"Missing {audio_folder} folder"
     return None
 
 
 if __name__ == "__main__":
     """ Script to analyse dataset """
     parser = argparse.ArgumentParser(description="Analyse dataset")
+    parser.add_argument("-w", "--wavs", help="Path to wavs folder", type=str, required=True)
     parser.add_argument("-m", "--metadata", help="Path to metadata file", type=str, required=True)
+    parser.add_argument("-o", "--output_path", help="Path to save JSON file", type=str, required=True)
     args = parser.parse_args()
 
-    clip_lengths = get_clip_lengths(args.metadata)
-    text = get_text(args.metadata)
-    duration = sum(clip_lengths) / 1000
+    save_dataset_info(args.metadata, args.wavs, args.output_path)
 
-    print(f"Total clips: {len(clip_lengths)}")
-    print(f"Total words: {len(text)}")
-    print(f"Total distinct words: {len(set(text))}")
-    print(f"Mean words per clip: {len(text)/len(clip_lengths)}")
-
-    print(f"Total duration: {timedelta(seconds=duration)}")
-    print(f"Mean clip duration {duration/len(clip_lengths)}")
-    print(f"Min clip duration {min(clip_lengths)/1000}")
-    print(f"Max clip duration {max(clip_lengths)/1000}")
+    with open(args.output_path) as f:
+        data = json.load(f)
+        for key, value in data.items():
+            print(key, ":", value)

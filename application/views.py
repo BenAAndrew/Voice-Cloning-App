@@ -19,16 +19,16 @@ from application.utils import (
     send_error_log,
     update_config,
     can_send_logs,
-    delete_folder
+    delete_folder,
 )
-from dataset.analysis import get_total_audio_duration, validate_dataset
+from dataset.analysis import get_total_audio_duration, validate_dataset, save_dataset_info
 from training.train import train
 from training.checkpoint import get_latest_checkpoint
 from training.utils import get_available_memory, get_batch_size
 from synthesis.synthesize import load_model, load_waveglow, synthesize
 from synthesis.synonyms import get_alternative_word_suggestions
 
-from flask import Flask, request, render_template, redirect, url_for, send_file, send_file
+from flask import Flask, request, render_template, redirect, url_for, send_file
 
 
 URLS = {"/": "Build dataset", "/train": "Train", "/synthesis-setup": "Synthesis"}
@@ -37,6 +37,7 @@ AUDIO_FILE = "audio.mp3"
 ALIGNMENT_FILE = "align.json"
 AUDIO_FOLDER = "wavs"
 METADATA_FILE = "metadata.csv"
+INFO_FILE = "info.json"
 CHECKPOINT_FOLDER = "checkpoints"
 GRAPH_FILE = "graph.png"
 RESULTS_FILE = "out.wav"
@@ -83,6 +84,7 @@ def create_dataset_post():
         forced_alignment_path = os.path.join(output_folder, ALIGNMENT_FILE)
         output_path = os.path.join(output_folder, AUDIO_FOLDER)
         label_path = os.path.join(output_folder, METADATA_FILE)
+        info_path = os.path.join(output_folder, INFO_FILE)
 
         request.files["text_file"].save(text_path)
         request.files["audio_file"].save(audio_path)
@@ -94,6 +96,7 @@ def create_dataset_post():
             forced_alignment_path=forced_alignment_path,
             output_path=output_path,
             label_path=label_path,
+            info_path=info_path,
         )
     else:
         output_folder = os.path.join(paths["datasets"], request.form["path"])
@@ -101,6 +104,7 @@ def create_dataset_post():
         text_path = os.path.join(output_folder, f"text-{suffix}.txt")
         audio_path = os.path.join(output_folder, f"audio-{suffix}.mp3")
         forced_alignment_path = os.path.join(output_folder, f"align-{suffix}.json")
+        info_path = os.path.join(output_folder, INFO_FILE)
 
         request.files["text_file"].save(text_path)
         request.files["audio_file"].save(audio_path)
@@ -116,6 +120,7 @@ def create_dataset_post():
             output_path=existing_output_path,
             label_path=existing_label_path,
             suffix=suffix,
+            info_path=info_path,
         )
 
     return render_template("progress.html", next_url=get_next_url(URLS, request.path))
@@ -128,7 +133,7 @@ def get_dataset_duration():
         os.path.join(paths["datasets"], dataset), metadata_file=METADATA_FILE, audio_folder=AUDIO_FOLDER
     )
     if not dataset_error:
-        duration, total_clips = get_total_audio_duration(os.path.join(paths["datasets"], dataset, METADATA_FILE))
+        duration, total_clips = get_total_audio_duration(os.path.join(paths["datasets"], dataset, INFO_FILE))
         return {"duration": duration, "total_clips": total_clips}
     else:
         return {"error": dataset_error}
@@ -259,15 +264,29 @@ def upload_dataset():
     dataset_name = request.values["name"]
     dataset_directory = os.path.join(paths["datasets"], dataset_name)
     audio_folder = os.path.join(dataset_directory, AUDIO_FOLDER)
-    os.makedirs(dataset_directory, exist_ok=False)
-    os.makedirs(audio_folder, exist_ok=False)
+    assert not os.path.isdir(dataset_directory), "Output folder already exists"
 
     with zipfile.ZipFile(dataset, mode="r") as z:
         files_list = z.namelist()
         if "metadata.csv" not in files_list:
-            render_template("import-export.html", message=f"Dataset missing metadata.csv")
-        if "wavs" not in files_list:
-            render_template("import-export.html", message=f"Dataset missing wavs folder")
+            return render_template(
+                "import-export.html",
+                message="Dataset missing metadata.csv. Make sure this file is in the root of the zip file",
+            )
+
+        folders = [x.split("/")[0] for x in files_list if "/" in x]
+        if "wavs" not in folders:
+            return render_template(
+                "import-export.html",
+                message="Dataset missing wavs folder. Make sure this folder is in the root of the zip file",
+            )
+
+        wavs = [x for x in files_list if x.startswith("wavs/") and x.endswith(".wav")]
+        if not wavs:
+            return render_template("import-export.html", message="No wavs found in wavs folder")
+
+        os.makedirs(dataset_directory, exist_ok=False)
+        os.makedirs(audio_folder, exist_ok=False)
 
         # Save metadata
         with open(os.path.join(dataset_directory, "metadata.csv"), "wb") as f:
@@ -275,12 +294,18 @@ def upload_dataset():
             f.write(data)
 
         # Save wavs
-        for name in files_list:
-            if name.endswith(".wav"):
-                data = z.read(name)
-                path = os.path.join(dataset_directory, "wavs", name.split("/")[1])
-                with open(path, "wb") as f:
-                    f.write(data)
+        for wav in wavs:
+            data = z.read(wav)
+            path = os.path.join(dataset_directory, "wavs", wav.split("/")[1])
+            with open(path, "wb") as f:
+                f.write(data)
+
+        # Create info file
+        save_dataset_info(
+            os.path.join(dataset_directory, "metadata.csv"),
+            os.path.join(dataset_directory, "wavs"),
+            os.path.join(dataset_directory, "info.json"),
+        )
 
     return render_template("import-export.html", message=f"Successfully uploaded {dataset_name} dataset")
 
@@ -335,7 +360,12 @@ def download_model():
 @app.route("/settings", methods=["GET"])
 def get_settings():
     print(can_send_logs())
-    return render_template("settings.html", send_logs=can_send_logs(), datasets=os.listdir(paths["datasets"]), models=os.listdir(paths["models"]))
+    return render_template(
+        "settings.html",
+        send_logs=can_send_logs(),
+        datasets=os.listdir(paths["datasets"]),
+        models=os.listdir(paths["models"]),
+    )
 
 
 @app.route("/update-config", methods=["POST"])
