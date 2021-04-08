@@ -13,10 +13,8 @@ def load_audio(path):
     except Exception:
         raise Exception(f"Cannot load audio file {path}")
 
-    max_seqlength = max(len(wav), 12800)
-    data = torch.zeros(1, max_seqlength)
-    data[0] = torch.tensor(wav)
-    return data
+    assert len(wav) > 0, f"{path} wav file is empty"
+    return torch.tensor([wav])
 
 
 def transcribe(path):
