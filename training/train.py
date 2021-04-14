@@ -3,6 +3,9 @@ import random
 import time
 import argparse
 import logging
+import sys
+
+sys.path.append(dirname(dirname(abspath(__file__))))
 
 logging.getLogger().setLevel(logging.INFO)
 
@@ -148,7 +151,6 @@ def train(
                     "Saving model and optimizer state at iteration {} to {}".format(iteration, output_directory)
                 )
                 save_checkpoint(model, optimizer, learning_rate, iteration, output_directory, overwrite_checkpoints)
-                
 
             iteration += 1
 

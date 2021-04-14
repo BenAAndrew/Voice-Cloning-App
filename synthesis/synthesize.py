@@ -7,6 +7,9 @@ from tacotron2_model import Tacotron2
 import torch
 import numpy as np
 import glow
+import sys
+
+sys.path.append(dirname(dirname(abspath(__file__))))
 
 import matplotlib
 

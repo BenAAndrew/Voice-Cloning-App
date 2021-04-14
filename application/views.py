@@ -13,14 +13,14 @@ from main import app, paths
 from application.utils import (
     start_progress_thread,
     get_next_url,
-    create_dataset,
-    extend_existing_dataset,
     get_suffix,
     send_error_log,
     update_config,
     can_send_logs,
     delete_folder,
 )
+from dataset.create_dataset import create_dataset
+from dataset.extend_existing_dataset import extend_existing_dataset
 from dataset.analysis import get_total_audio_duration, validate_dataset, save_dataset_info
 from training.train import train
 from training.checkpoint import get_latest_checkpoint
@@ -180,7 +180,7 @@ def train_post():
         output_directory=checkpoint_folder,
         transfer_learning_path=transfer_learning_path,
         epochs=int(epochs),
-        batch_size=int(batch_size)
+        batch_size=int(batch_size),
     )
 
     return render_template("progress.html", next_url=get_next_url(URLS, request.path))

@@ -36,26 +36,6 @@ logger.addHandler(SocketIOHandler())
 thread = None
 
 
-def create_dataset(text_path, audio_path, forced_alignment_path, output_path, label_path, info_path, logging):
-    logging.info(f"Coverting {audio_path}...")
-    converted_audio = convert_audio(audio_path)
-    clip_generator(converted_audio, text_path, forced_alignment_path, output_path, label_path, logging=logging)
-    logging.info("Getting dataset info...")
-    save_dataset_info(label_path, output_path, info_path)
-
-
-def extend_existing_dataset(
-    text_path, audio_path, forced_alignment_path, output_path, label_path, suffix, info_path, logging
-):
-    assert os.path.isdir(output_path), "Missing existing dataset clips folder"
-    assert os.path.isfile(label_path), "Missing existing dataset metadata file"
-    logging.info(f"Coverting {audio_path}...")
-    converted_audio = convert_audio(audio_path)
-    extend_dataset(converted_audio, text_path, forced_alignment_path, output_path, label_path, suffix, logging=logging)
-    logging.info("Getting dataset info...")
-    save_dataset_info(label_path, output_path, info_path)
-
-
 def update_config(data):
     config = configparser.ConfigParser()
     config["DEFAULT"] = data

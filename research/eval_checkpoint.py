@@ -6,6 +6,7 @@ import logging
 from tqdm import tqdm
 
 import sys
+
 sys.path.append(os.path.abspath("../"))
 
 logging.getLogger().setLevel(logging.INFO)
@@ -55,9 +56,7 @@ def eval_checkpoint(
     collate_fn = TextMelCollate()
 
     # Data loaders
-    val_loader = DataLoader(
-        valset, num_workers=1, sampler=None, batch_size=1, pin_memory=False, collate_fn=collate_fn
-    )
+    val_loader = DataLoader(valset, num_workers=1, sampler=None, batch_size=1, pin_memory=False, collate_fn=collate_fn)
     logging.info("Loaded data")
 
     for checkpoint in os.listdir(checkpoint_folder):
