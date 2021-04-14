@@ -92,20 +92,22 @@ def send_error_log(error):
 
 def background_task(command):
     command.extend(["-v", "logs.log"])
-    popen = subprocess.Popen(command, stdout=subprocess.PIPE)
+    print(command)
+    popen = subprocess.Popen(command, stderr=subprocess.PIPE)
 
     time.sleep(5)
-    line = ""
     with open("logs.log", 'r', encoding='utf-8') as f:
+        line = ""
         while popen.poll() is None:
             line = f.readline().strip()
             if line:
                 logger.info(line)
 
     if popen.returncode != 0:
+        _, err = popen.communicate()
+        socketio.emit("error", {"text": err.decode("utf-8")}, namespace="/voice")
         # error = {"type": e.__class__.__name__, "text": str(e), "stacktrace": traceback.format_exc()}
         # send_error_log(error)
-        socketio.emit("error", {"text": line}, namespace="/voice")
     else:
         socketio.emit("done", {"text": None}, namespace="/voice")
 

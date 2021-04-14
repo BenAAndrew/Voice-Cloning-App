@@ -3,6 +3,8 @@ import random
 import time
 import argparse
 import logging
+import sys
+sys.path.append("C:\\Users\\Ben\\Documents\\Voice-Cloning-App")
 
 logging.getLogger().setLevel(logging.INFO)
 
@@ -28,8 +30,11 @@ def train(
     transfer_learning_path=None,
     epochs=8000,
     batch_size=None,
-    logging=logging,
+    log_name=None,
 ):
+    if log_name:
+        logging.basicConfig(filename=log_name, filemode='w', format='%(message)s', level=logging.INFO)
+
     assert torch.cuda.is_available(), "You do not have Torch with CUDA installed. Please check CUDA & Pytorch install"
     os.makedirs(output_directory, exist_ok=True)
 
@@ -163,8 +168,10 @@ if __name__ == "__main__":
     parser.add_argument("-o", "--output_directory", type=str, help="directory to save checkpoints")
     parser.add_argument("-l", "--find_checkpoint", default=True, type=str, help="load checkpoint if one exists")
     parser.add_argument("-c", "--checkpoint_path", required=False, type=str, help="checkpoint path")
+    parser.add_argument("-t", "--transfer_learning_path", required=False, type=str, help="transfer learning path")
     parser.add_argument("-e", "--epochs", default=8000, type=int, help="num epochs")
     parser.add_argument("-b", "--batch_size", required=False, type=int, help="batch size")
+    parser.add_argument("-v", "--log_name", required=False, type=str, help="logging file")
 
     args = parser.parse_args()
 
@@ -179,6 +186,8 @@ if __name__ == "__main__":
         args.output_directory,
         args.find_checkpoint,
         args.checkpoint_path,
+        args.transfer_learning_path,
         args.epochs,
         args.batch_size,
+        args.log_name
     )

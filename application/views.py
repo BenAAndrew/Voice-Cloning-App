@@ -171,6 +171,7 @@ def get_train():
 def train_post():
     dataset_name = request.form["path"]
     epochs = request.form["epochs"]
+    batch_size = request.form["batch_size"]
 
     metadata_path = os.path.join(paths["datasets"], dataset_name, METADATA_FILE)
     audio_folder = os.path.join(paths["datasets"], dataset_name, AUDIO_FOLDER)
@@ -184,14 +185,30 @@ def train_post():
     else:
         transfer_learning_path = None
 
+    command = [
+        "python", "training\\train.py", 
+        "-m", metadata_path, 
+        "-d", audio_folder, 
+        "-o", checkpoint_folder,
+        "-e", epochs,
+        "-b", batch_size,
+    ]
+
+    if transfer_learning_path:
+        command.extend(["-t", transfer_learning_path])
+
     start_progress_thread(
-        train,
-        metadata_path=metadata_path,
-        dataset_directory=audio_folder,
-        output_directory=checkpoint_folder,
-        transfer_learning_path=transfer_learning_path,
-        epochs=int(epochs),
+        command
     )
+
+    # start_progress_thread(
+    #     train,
+    #     metadata_path=metadata_path,
+    #     dataset_directory=audio_folder,
+    #     output_directory=checkpoint_folder,
+    #     transfer_learning_path=transfer_learning_path,
+    #     epochs=int(epochs),
+    # )
 
     return render_template("progress.html", next_url=get_next_url(URLS, request.path))
 
