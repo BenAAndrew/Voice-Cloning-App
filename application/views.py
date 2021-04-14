@@ -90,14 +90,26 @@ def create_dataset_post():
         request.files["audio_file"].save(audio_path)
 
         start_progress_thread(
-            create_dataset,
-            text_path=text_path,
-            audio_path=audio_path,
-            forced_alignment_path=forced_alignment_path,
-            output_path=output_path,
-            label_path=label_path,
-            info_path=info_path,
+            [
+                "python", "dataset\\generate_dataset.py", 
+                "-t", text_path, 
+                "-a", audio_path, 
+                "-f", forced_alignment_path,
+                "-o", output_path,
+                "-l", label_path,
+                "-i", info_path,
+            ]
         )
+
+        # start_progress_thread(
+        #     create_dataset,
+        #     text_path=text_path,
+        #     audio_path=audio_path,
+        #     forced_alignment_path=forced_alignment_path,
+        #     output_path=output_path,
+        #     label_path=label_path,
+        #     info_path=info_path,
+        # )
     else:
         output_folder = os.path.join(paths["datasets"], request.form["path"])
         suffix = get_suffix()

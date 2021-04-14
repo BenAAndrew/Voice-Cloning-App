@@ -6,6 +6,8 @@ import requests
 import traceback
 import configparser
 import shutil
+import subprocess
+import time
 
 from main import socketio
 from dataset.audio_processing import convert_audio
@@ -88,26 +90,30 @@ def send_error_log(error):
             print("error logging failed")
 
 
-def background_task(func, **kwargs):
-    exception = False
-    try:
-        socketio.sleep(5)
-        func(logging=logger, **kwargs)
-    except Exception as e:
-        error = {"type": e.__class__.__name__, "text": str(e), "stacktrace": traceback.format_exc()}
-        send_error_log(error)
-        socketio.emit("error", error, namespace="/voice")
-        exception = True
-        print(e)
+def background_task(command):
+    command.extend(["-v", "logs.log"])
+    popen = subprocess.Popen(command, stdout=subprocess.PIPE)
 
-    if not exception:
+    time.sleep(5)
+    line = ""
+    with open("logs.log", 'r', encoding='utf-8') as f:
+        while popen.poll() is None:
+            line = f.readline().strip()
+            if line:
+                logger.info(line)
+
+    if popen.returncode != 0:
+        # error = {"type": e.__class__.__name__, "text": str(e), "stacktrace": traceback.format_exc()}
+        # send_error_log(error)
+        socketio.emit("error", {"text": line}, namespace="/voice")
+    else:
         socketio.emit("done", {"text": None}, namespace="/voice")
 
 
-def start_progress_thread(func, **kwargs):
+def start_progress_thread(command):
     global thread
     print("Starting Thread")
-    thread = socketio.start_background_task(background_task, func=func, **kwargs)
+    thread = socketio.start_background_task(background_task, command=command)
 
 
 def get_next_url(urls, path):
