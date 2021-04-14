@@ -63,7 +63,13 @@ def process_segments(audio_path, output_path, segments, min_length, max_length, 
         if time_length >= min_length and time_length <= max_length:
             name = cut_audio(audio_path, int(time_start), int(time_end), output_path)
             clip_path = os.path.join(output_path, name)
-            transcript = transcribe(clip_path)
+
+            try:
+                transcript = transcribe(clip_path)
+            except:
+                logging.info(f"Could not transcribe {clip_path}")
+                transcript = None
+
             if transcript:
                 samples.append(
                     {
