@@ -20,6 +20,7 @@ def extend_existing_dataset(
 ):
     if log_name:
         logging.basicConfig(filename=log_name, filemode="w", format="%(message)s", level=logging.INFO)
+
     assert os.path.isdir(output_path), "Missing existing dataset clips folder"
     assert os.path.isfile(label_path), "Missing existing dataset metadata file"
     logging.info(f"Coverting {audio_path}...")
