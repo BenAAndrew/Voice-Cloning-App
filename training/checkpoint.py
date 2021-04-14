@@ -36,7 +36,8 @@ def warm_start_model(checkpoint_path, model, ignore_layers=["embedding.weight"])
     return model
 
 
-def save_checkpoint(model, optimizer, learning_rate, iteration, filepath):
+def save_checkpoint(model, optimizer, learning_rate, iteration, output_directory, overwrite_checkpoints=True):
+    checkpoint_name = "checkpoint_{}".format(iteration)
     torch.save(
         {
             "iteration": iteration,
@@ -44,5 +45,10 @@ def save_checkpoint(model, optimizer, learning_rate, iteration, filepath):
             "optimizer": optimizer.state_dict(),
             "learning_rate": learning_rate,
         },
-        filepath,
+        os.path.join(output_directory, checkpoint_name),
     )
+
+    if overwrite_checkpoints:
+        for filename in os.listdir(output_directory):
+            if filename != checkpoint_name:
+                os.remove(os.path.join(output_directory, filename))

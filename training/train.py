@@ -26,6 +26,7 @@ def train(
     find_checkpoint=True,
     checkpoint_path=None,
     transfer_learning_path=None,
+    overwrite_checkpoints=True,
     epochs=8000,
     batch_size=None,
     logging=logging,
@@ -87,10 +88,10 @@ def train(
 
     # Data loaders
     train_loader = DataLoader(
-        trainset, num_workers=1, sampler=None, batch_size=batch_size, pin_memory=False, collate_fn=collate_fn
+        trainset, num_workers=0, sampler=None, batch_size=batch_size, pin_memory=False, collate_fn=collate_fn
     )
     val_loader = DataLoader(
-        valset, num_workers=1, sampler=None, batch_size=batch_size, pin_memory=False, collate_fn=collate_fn
+        valset, num_workers=0, sampler=None, batch_size=batch_size, pin_memory=False, collate_fn=collate_fn
     )
     logging.info("Loaded data")
 
@@ -110,8 +111,9 @@ def train(
         model = warm_start_model(transfer_learning_path, model)
         logging.info("Loaded transfer learning model '{}'".format(transfer_learning_path))
 
-    num_iterations = len(train_loader) * epochs - epoch_offset
-    check_space(num_iterations // iters_per_checkpoint)
+    if not overwrite_checkpoints:
+        num_iterations = len(train_loader) * epochs - epoch_offset
+        check_space(num_iterations // iters_per_checkpoint)
 
     model.train()
     for epoch in range(epoch_offset, epochs):
@@ -142,11 +144,11 @@ def train(
 
             if iteration % iters_per_checkpoint == 0:
                 validate(model, val_loader, criterion, iteration)
-                checkpoint_path = os.path.join(output_directory, "checkpoint_{}".format(iteration))
-                save_checkpoint(model, optimizer, learning_rate, iteration, checkpoint_path)
                 logging.info(
-                    "Saving model and optimizer state at iteration {} to {}".format(iteration, checkpoint_path)
+                    "Saving model and optimizer state at iteration {} to {}".format(iteration, output_directory)
                 )
+                save_checkpoint(model, optimizer, learning_rate, iteration, output_directory, overwrite_checkpoints)
+                
 
             iteration += 1
 
