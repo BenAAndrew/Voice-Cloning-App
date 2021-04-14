@@ -16,6 +16,8 @@ from dataset.analysis import save_dataset_info
 
 
 LOGGING_URL = "https://voice-cloning-app-logging.herokuapp.com/"
+LOG_FILENAME = "app.log"
+MAX_PROCESS_START_WAIT = 30
 
 
 class SocketIOHandler(logging.Handler):
@@ -90,13 +92,37 @@ def send_error_log(error):
             print("error logging failed")
 
 
+def handle_process_error(message):
+    error = {"type": "", "text": message, "stacktrace": ""}
+    socketio.emit("error", error, namespace="/voice")
+    send_error_log(error)
+
+
 def background_task(command):
-    command.extend(["-v", "logs.log"])
+    # Remove existing log file
+    if os.path.isfile(LOG_FILENAME):
+        os.remove(LOG_FILENAME)
+
+    command.extend(["-v", LOG_FILENAME])
     print(command)
+    # Start subprocess
     popen = subprocess.Popen(command, stderr=subprocess.PIPE)
 
-    time.sleep(5)
-    with open("logs.log", 'r', encoding='utf-8') as f:
+    # Wait for process to start & create log file
+    for _ in range(MAX_PROCESS_START_WAIT*2):
+        if not os.path.isfile(LOG_FILENAME):
+            time.sleep(0.5)
+
+    if not os.path.isfile(LOG_FILENAME):
+        try:
+            _, err = popen.communicate()
+            error_message = err.decode("utf-8")
+        except:
+            error_message = "Process failed to start and create log file"
+        handle_process_error(error_message)
+
+    # Read & send logs to the frontend
+    with open(LOG_FILENAME, "r", encoding="utf-8") as f:
         line = ""
         while popen.poll() is None:
             line = f.readline().strip()
@@ -104,10 +130,9 @@ def background_task(command):
                 logger.info(line)
 
     if popen.returncode != 0:
+        # Read process error
         _, err = popen.communicate()
-        socketio.emit("error", {"text": err.decode("utf-8")}, namespace="/voice")
-        # error = {"type": e.__class__.__name__, "text": str(e), "stacktrace": traceback.format_exc()}
-        # send_error_log(error)
+        handle_process_error(err.decode("utf-8"))
     else:
         socketio.emit("done", {"text": None}, namespace="/voice")
 

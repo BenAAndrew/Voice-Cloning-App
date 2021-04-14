@@ -100,16 +100,6 @@ def create_dataset_post():
                 "-i", info_path,
             ]
         )
-
-        # start_progress_thread(
-        #     create_dataset,
-        #     text_path=text_path,
-        #     audio_path=audio_path,
-        #     forced_alignment_path=forced_alignment_path,
-        #     output_path=output_path,
-        #     label_path=label_path,
-        #     info_path=info_path,
-        # )
     else:
         output_folder = os.path.join(paths["datasets"], request.form["path"])
         suffix = get_suffix()
@@ -125,14 +115,16 @@ def create_dataset_post():
         existing_label_path = os.path.join(output_folder, METADATA_FILE)
 
         start_progress_thread(
-            extend_existing_dataset,
-            text_path=text_path,
-            audio_path=audio_path,
-            forced_alignment_path=forced_alignment_path,
-            output_path=existing_output_path,
-            label_path=existing_label_path,
-            suffix=suffix,
-            info_path=info_path,
+            [
+                "python", "dataset\\extend_existing_dataset.py", 
+                "-t", text_path, 
+                "-a", audio_path, 
+                "-f", forced_alignment_path,
+                "-o", existing_output_path,
+                "-l", existing_label_path,
+                "-s", suffix,
+                "-i", info_path,
+            ]
         )
 
     return render_template("progress.html", next_url=get_next_url(URLS, request.path))
@@ -197,19 +189,7 @@ def train_post():
     if transfer_learning_path:
         command.extend(["-t", transfer_learning_path])
 
-    start_progress_thread(
-        command
-    )
-
-    # start_progress_thread(
-    #     train,
-    #     metadata_path=metadata_path,
-    #     dataset_directory=audio_folder,
-    #     output_directory=checkpoint_folder,
-    #     transfer_learning_path=transfer_learning_path,
-    #     epochs=int(epochs),
-    # )
-
+    start_progress_thread(command)
     return render_template("progress.html", next_url=get_next_url(URLS, request.path))
 
 
