@@ -3,8 +3,9 @@ import shutil
 import json
 from pathlib import Path
 from unittest import mock
+import json
 
-from dataset.clip_generator import clip_generator
+from dataset.create_dataset import create_dataset
 
 
 expected_clips = {
@@ -12,6 +13,8 @@ expected_clips = {
     "2820_5100.wav": "enabled the commission to conclude",
     "5130_7560.wav": "that five shots may have been fired",
 }
+expected_duration = 7
+expected_total_clips = 3
 
 
 def fake_transcribe(path):
@@ -19,22 +22,24 @@ def fake_transcribe(path):
     return expected_clips[filename]
 
 
-def test_clip_generator():
+def test_create_dataset():
     audio_path = os.path.join("tests", "files", "audio.wav")
-    script_path = os.path.join("tests", "files", "text.txt")
+    converted_audio_path = os.path.join("tests", "files", "audio-converted.wav")
+    text_path = os.path.join("tests", "files", "text.txt")
     forced_alignment_path = "align.json"
     output_directory = "wavs"
     label_path = "metadata.csv"
+    info_path = "info.json"
     min_confidence = 0.85
 
     with mock.patch("dataset.clip_generator.align.transcribe", wraps=fake_transcribe) as mock_transcribe:
-        clip_generator(
+        create_dataset(
+            text_path=text_path,
             audio_path=audio_path,
-            script_path=script_path,
             forced_alignment_path=forced_alignment_path,
             output_path=output_directory,
             label_path=label_path,
-            min_confidence=min_confidence,
+            info_path=info_path,
         )
 
     assert os.listdir(output_directory) == list(expected_clips.keys()), "Unexpected audio clips"
@@ -52,6 +57,13 @@ def test_clip_generator():
             ), "Alignment JSON missing required keys"
             assert segment["sws"] >= min_confidence, "SWS score less than min confidence"
 
+    with open(info_path) as f:
+        data = json.load(f)
+        assert int(data["total_duration"]) == 7
+        assert data["total_clips"] == 3
+
     os.remove(forced_alignment_path)
     shutil.rmtree(output_directory)
     os.remove(label_path)
+    os.remove(info_path)
+    os.remove(converted_audio_path)
