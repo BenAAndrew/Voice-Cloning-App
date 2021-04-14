@@ -2,9 +2,11 @@ import argparse
 import warnings
 import time
 import logging
+
 warnings.filterwarnings("ignore")
 from os.path import dirname, abspath
 import sys
+
 sys.path.append(dirname(dirname(abspath(__file__))))
 
 from dataset.audio_processing import convert_audio
@@ -14,8 +16,8 @@ from dataset.analysis import save_dataset_info
 
 def generate_dataset(text_path, audio_path, forced_alignment_path, output_path, label_path, info_path, log_name):
     if log_name:
-        logging.basicConfig(filename=log_name, filemode='w', format='%(message)s', level=logging.INFO)
-    
+        logging.basicConfig(filename=log_name, filemode="w", format="%(message)s", level=logging.INFO)
+
     logging.info(f"Coverting {audio_path}...")
     converted_audio = convert_audio(audio_path)
     clip_generator(converted_audio, text_path, forced_alignment_path, output_path, label_path, logging)
@@ -34,12 +36,8 @@ if __name__ == "__main__":
     parser.add_argument(
         "-l", "--label_path", help="Path to save snippet labelling text file", type=str, default="metadata.csv"
     )
-    parser.add_argument(
-        "-i", "--info_path", help="Path to save info file", type=str, default="info.json"
-    )
-    parser.add_argument(
-        "-v", "--log_name", help="Path to log file", type=str, default=""
-    )
+    parser.add_argument("-i", "--info_path", help="Path to save info file", type=str, default="info.json")
+    parser.add_argument("-v", "--log_name", help="Path to log file", type=str, default="")
     args = parser.parse_args()
 
     generate_dataset(**vars(args))

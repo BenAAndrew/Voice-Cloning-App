@@ -5,6 +5,7 @@ import argparse
 import logging
 from os.path import dirname, abspath
 import sys
+
 sys.path.append(dirname(dirname(abspath(__file__))))
 
 logging.getLogger().setLevel(logging.INFO)
@@ -34,7 +35,7 @@ def train(
     log_name=None,
 ):
     if log_name:
-        logging.basicConfig(filename=log_name, filemode='w', format='%(message)s', level=logging.INFO)
+        logging.basicConfig(filename=log_name, filemode="w", format="%(message)s", level=logging.INFO)
 
     assert torch.cuda.is_available(), "You do not have Torch with CUDA installed. Please check CUDA & Pytorch install"
     os.makedirs(output_directory, exist_ok=True)
@@ -190,5 +191,5 @@ if __name__ == "__main__":
         args.transfer_learning_path,
         args.epochs,
         args.batch_size,
-        args.log_name
+        args.log_name,
     )

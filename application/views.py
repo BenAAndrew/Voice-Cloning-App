@@ -91,13 +91,20 @@ def create_dataset_post():
 
         start_progress_thread(
             [
-                "python", "dataset\\generate_dataset.py", 
-                "-t", text_path, 
-                "-a", audio_path, 
-                "-f", forced_alignment_path,
-                "-o", output_path,
-                "-l", label_path,
-                "-i", info_path,
+                "python",
+                "dataset\\generate_dataset.py",
+                "-t",
+                text_path,
+                "-a",
+                audio_path,
+                "-f",
+                forced_alignment_path,
+                "-o",
+                output_path,
+                "-l",
+                label_path,
+                "-i",
+                info_path,
             ]
         )
     else:
@@ -116,14 +123,22 @@ def create_dataset_post():
 
         start_progress_thread(
             [
-                "python", "dataset\\extend_existing_dataset.py", 
-                "-t", text_path, 
-                "-a", audio_path, 
-                "-f", forced_alignment_path,
-                "-o", existing_output_path,
-                "-l", existing_label_path,
-                "-s", suffix,
-                "-i", info_path,
+                "python",
+                "dataset\\extend_existing_dataset.py",
+                "-t",
+                text_path,
+                "-a",
+                audio_path,
+                "-f",
+                forced_alignment_path,
+                "-o",
+                existing_output_path,
+                "-l",
+                existing_label_path,
+                "-s",
+                suffix,
+                "-i",
+                info_path,
             ]
         )
 
@@ -178,12 +193,18 @@ def train_post():
         transfer_learning_path = None
 
     command = [
-        "python", "training\\train.py", 
-        "-m", metadata_path, 
-        "-d", audio_folder, 
-        "-o", checkpoint_folder,
-        "-e", epochs,
-        "-b", batch_size,
+        "python",
+        "training\\train.py",
+        "-m",
+        metadata_path,
+        "-d",
+        audio_folder,
+        "-o",
+        checkpoint_folder,
+        "-e",
+        epochs,
+        "-b",
+        batch_size,
     ]
 
     if transfer_learning_path:

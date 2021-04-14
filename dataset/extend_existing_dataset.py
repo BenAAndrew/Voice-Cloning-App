@@ -3,9 +3,11 @@ import time
 import logging
 import os
 import warnings
+
 warnings.filterwarnings("ignore")
 from os.path import dirname, abspath
 import sys
+
 sys.path.append(dirname(dirname(abspath(__file__))))
 
 from dataset.audio_processing import convert_audio
@@ -13,9 +15,11 @@ from dataset.clip_generator import extend_dataset
 from dataset.analysis import save_dataset_info
 
 
-def extend_existing_dataset(text_path, audio_path, forced_alignment_path, output_path, label_path, suffix, info_path, log_name=None):
+def extend_existing_dataset(
+    text_path, audio_path, forced_alignment_path, output_path, label_path, suffix, info_path, log_name=None
+):
     if log_name:
-        logging.basicConfig(filename=log_name, filemode='w', format='%(message)s', level=logging.INFO)
+        logging.basicConfig(filename=log_name, filemode="w", format="%(message)s", level=logging.INFO)
     assert os.path.isdir(output_path), "Missing existing dataset clips folder"
     assert os.path.isfile(label_path), "Missing existing dataset metadata file"
     logging.info(f"Coverting {audio_path}...")
@@ -36,15 +40,9 @@ if __name__ == "__main__":
     parser.add_argument(
         "-l", "--label_path", help="Path to save snippet labelling text file", type=str, default="metadata.csv"
     )
-    parser.add_argument(
-        "-s", "--suffix", help="String suffix for added files", type=str, required=True
-    )
-    parser.add_argument(
-        "-i", "--info_path", help="Path to save info file", type=str, default="info.json"
-    )
-    parser.add_argument(
-        "-v", "--log_name", help="Path to log file", type=str, required=True
-    )
+    parser.add_argument("-s", "--suffix", help="String suffix for added files", type=str, required=True)
+    parser.add_argument("-i", "--info_path", help="Path to save info file", type=str, default="info.json")
+    parser.add_argument("-v", "--log_name", help="Path to log file", type=str, required=True)
     args = parser.parse_args()
 
     extend_existing_dataset(**vars(args))

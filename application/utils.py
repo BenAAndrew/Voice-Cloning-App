@@ -109,7 +109,7 @@ def background_task(command):
     popen = subprocess.Popen(command, stderr=subprocess.PIPE)
 
     # Wait for process to start & create log file
-    for _ in range(MAX_PROCESS_START_WAIT*2):
+    for _ in range(MAX_PROCESS_START_WAIT * 2):
         if not os.path.isfile(LOG_FILENAME):
             time.sleep(0.5)
 
