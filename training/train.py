@@ -3,10 +3,10 @@ import random
 import time
 import argparse
 import logging
+from os.path import dirname, abspath
 import sys
 
 sys.path.append(dirname(dirname(abspath(__file__))))
-
 logging.getLogger().setLevel(logging.INFO)
 
 import torch

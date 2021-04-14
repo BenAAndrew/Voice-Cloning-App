@@ -7,12 +7,11 @@ from tacotron2_model import Tacotron2
 import torch
 import numpy as np
 import glow
+import matplotlib
+from os.path import dirname, abspath
 import sys
 
 sys.path.append(dirname(dirname(abspath(__file__))))
-
-import matplotlib
-
 matplotlib.use("Agg")
 
 from training.clean_text import clean_text
