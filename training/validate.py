@@ -15,3 +15,4 @@ def validate(model, val_loader, criterion, iteration):
 
     model.train()
     print("Validation loss {}: {:9f}  ".format(iteration, val_loss))
+    return val_loss

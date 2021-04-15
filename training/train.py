@@ -20,6 +20,14 @@ from tacotron2_model import Tacotron2, TextMelCollate, Tacotron2Loss
 
 
 MINIMUM_MEMORY_GB = 4
+ITERS_PER_CHECKPOINT = 1000
+TRAIN_SIZE = 0.8
+WEIGHT_DECAY = 1e-6
+GRAD_CLIP_THRESH = 1.0
+EARLY_STOPPING_WINDOW = 10
+EARLY_STOPPING_MIN_DIFFERENCE = 0.0005
+SEED = 1234
+SYMBOLS = "_-!'(),.:;? ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
 
 
 def train(
@@ -32,6 +40,7 @@ def train(
     overwrite_checkpoints=True,
     epochs=8000,
     batch_size=None,
+    early_stopping=True,
     logging=logging,
 ):
     assert torch.cuda.is_available(), "You do not have Torch with CUDA installed. Please check CUDA & Pytorch install"
@@ -50,18 +59,10 @@ def train(
         f"Setting batch size to {batch_size}, learning rate to {learning_rate}. ({available_memory_gb}GB GPU memory free)"
     )
 
-    # Hyperparams
-    train_size = 0.8
-    weight_decay = 1e-6
-    grad_clip_thresh = 1.0
-    iters_per_checkpoint = 1000
-    seed = 1234
-    symbols = "_-!'(),.:;? ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
-
     # Set seed
-    torch.manual_seed(seed)
-    torch.cuda.manual_seed(seed)
-    random.seed(seed)
+    torch.manual_seed(SEED)
+    torch.cuda.manual_seed(SEED)
+    random.seed(SEED)
 
     # Setup GPU
     torch.backends.cudnn.enabled = True
@@ -70,7 +71,7 @@ def train(
     # Load model & optimizer
     logging.info("Loading model...")
     model = Tacotron2().cuda()
-    optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate, weight_decay=weight_decay)
+    optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate, weight_decay=WEIGHT_DECAY)
     criterion = Tacotron2Loss()
     logging.info("Loaded model")
 
@@ -80,13 +81,13 @@ def train(
         filepaths_and_text = [line.strip().split("|") for line in f]
 
     random.shuffle(filepaths_and_text)
-    train_cutoff = int(len(filepaths_and_text) * train_size)
+    train_cutoff = int(len(filepaths_and_text) * TRAIN_SIZE)
     train_files = filepaths_and_text[:train_cutoff]
     test_files = filepaths_and_text[train_cutoff:]
     print(f"{len(train_files)} train files, {len(test_files)} test files")
 
-    trainset = VoiceDataset(train_files, dataset_directory, symbols, seed)
-    valset = VoiceDataset(test_files, dataset_directory, symbols, seed)
+    trainset = VoiceDataset(train_files, dataset_directory, SYMBOLS, SEED)
+    valset = VoiceDataset(test_files, dataset_directory, SYMBOLS, SEED)
     collate_fn = TextMelCollate()
 
     # Data loaders
@@ -114,11 +115,13 @@ def train(
         model = warm_start_model(transfer_learning_path, model)
         logging.info("Loaded transfer learning model '{}'".format(transfer_learning_path))
 
+    # Check available memory
     if not overwrite_checkpoints:
         num_iterations = len(train_loader) * epochs - epoch_offset
-        check_space(num_iterations // iters_per_checkpoint)
+        check_space(num_iterations // ITERS_PER_CHECKPOINT)
 
     model.train()
+    validation_losses = []
     for epoch in range(epoch_offset, epochs):
         print("Epoch: {}".format(epoch))
         logging.info(f"Progress - {epoch}/{epochs}")
@@ -127,6 +130,7 @@ def train(
             for param_group in optimizer.param_groups:
                 param_group["lr"] = learning_rate
 
+            # Backpropogation
             model.zero_grad()
             x, y = model.parse_batch(batch)
             y_pred = model(x)
@@ -135,24 +139,35 @@ def train(
             reduced_loss = loss.item()
             loss.backward()
 
-            grad_norm = torch.nn.utils.clip_grad_norm_(model.parameters(), grad_clip_thresh)
+            grad_norm = torch.nn.utils.clip_grad_norm_(model.parameters(), GRAD_CLIP_THRESH)
             optimizer.step()
 
             duration = time.perf_counter() - start
             logging.info(
-                "Status - [Epoch {}: Iteration {}] Train loss {:.6f} Grad Norm {:.6f} {:.2f}s/it".format(
-                    epoch, iteration, reduced_loss, grad_norm, duration
+                "Status - [Epoch {}: Iteration {}] Train loss {:.6f} {:.2f}s/it".format(
+                    epoch, iteration, reduced_loss, duration
                 )
             )
 
-            if iteration % iters_per_checkpoint == 0:
-                validate(model, val_loader, criterion, iteration)
+            # Validate & save checkpoint
+            if iteration % ITERS_PER_CHECKPOINT == 0:
+                val_loss = validate(model, val_loader, criterion, iteration)
+                validation_losses.append(val_loss)
                 logging.info(
-                    "Saving model and optimizer state at iteration {} to {}".format(iteration, output_directory)
+                    "Saving model and optimizer state at iteration {} to {}. Scored {}".format(iteration, output_directory, val_loss)
                 )
                 save_checkpoint(model, optimizer, learning_rate, iteration, output_directory, overwrite_checkpoints)
 
             iteration += 1
+        
+        # Early Stopping
+        if early_stopping and len(validation_losses) >= EARLY_STOPPING_WINDOW:
+            losses = validation_losses[-EARLY_STOPPING_WINDOW:]
+            difference = max(losses) - min(losses)
+            if difference < EARLY_STOPPING_MIN_DIFFERENCE:
+                logging.info("Stopping training early as loss is no longer decreasing")
+                logging.info(f"Progress - {epoch}/{epoch}")
+                break
 
     validate(model, val_loader, criterion, iteration)
     checkpoint_path = os.path.join(output_directory, "checkpoint_{}".format(iteration))
