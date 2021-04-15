@@ -257,7 +257,9 @@ def synthesis_post():
 # Import-export
 @app.route("/import-export", methods=["GET"])
 def import_export():
-    return render_template("import-export.html")
+    return render_template(
+        "import-export.html", datasets=os.listdir(paths["datasets"]), models=os.listdir(paths["models"])
+    )
 
 
 @app.route("/upload-dataset", methods=["POST"])
@@ -319,9 +321,9 @@ def download_dataset():
     data = io.BytesIO()
 
     with zipfile.ZipFile(data, mode="w") as z:
-        for filename in os.listdir(dataset_directory):
-            if os.path.isfile(os.path.join(dataset_directory, filename)):
-                z.write(os.path.join(dataset_directory, filename), filename)
+        z.write(os.path.join(dataset_directory, METADATA_FILE), METADATA_FILE)
+        if os.path.isfile(os.path.join(dataset_directory, INFO_FILE)):
+            z.write(os.path.join(dataset_directory, INFO_FILE), INFO_FILE)
 
         audio_directory = os.path.join(dataset_directory, AUDIO_FOLDER)
         for audiofile in os.listdir(audio_directory):
