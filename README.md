@@ -42,6 +42,8 @@ A Python/Pytorch app for easily synthesising human voices
 - AMD GPU support
 - Additional language support
 
+## [How to make changes](maintenance.md)
+
 ## Acknowledgements
 This project uses a reworked version of [Tacotron2](https://github.com/NVIDIA/tacotron2) & [Waveglow](https://github.com/NVIDIA/waveglow). All rights for belong to NVIDIA and follow the requirements of their BSD-3 licence.
 
