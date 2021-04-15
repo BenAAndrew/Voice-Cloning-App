@@ -160,6 +160,7 @@ def train_post():
     dataset_name = request.form["path"]
     epochs = request.form["epochs"]
     batch_size = request.form["batch_size"]
+    early_stopping = request.form.get("early_stopping") is not None
 
     metadata_path = os.path.join(paths["datasets"], dataset_name, METADATA_FILE)
     audio_folder = os.path.join(paths["datasets"], dataset_name, AUDIO_FOLDER)
@@ -181,6 +182,7 @@ def train_post():
         transfer_learning_path=transfer_learning_path,
         epochs=int(epochs),
         batch_size=int(batch_size),
+        early_stopping=early_stopping
     )
 
     return render_template("progress.html", next_url=get_next_url(URLS, request.path))
