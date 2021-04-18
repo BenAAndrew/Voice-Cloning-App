@@ -16,3 +16,8 @@ For this model I would recommend at least 2 hours of data and 4000 epochs. Every
 
 ## "Can I generate other languages?"
 Unfortunately this is not currently supported but may be added in the future.
+
+## "Can I make changes to the project?"
+Everyone is welcome to open pull requests and suggest changes by raising an "enhancement" issue.
+
+Please read [How to make changes](maintenance.md) before making a change
