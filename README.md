@@ -27,6 +27,8 @@ A Python/Pytorch app for easily synthesising human voices
 
 **https://voice-sharing-hub.herokuapp.com/**
 
+## [Discord Server](https://discord.gg/wQd7zKCWxT)
+
 ## [FAQ's](faqs.md)
 
 ## Manual Guides
