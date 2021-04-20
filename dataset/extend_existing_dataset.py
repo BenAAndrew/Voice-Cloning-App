@@ -14,6 +14,34 @@ from dataset.analysis import save_dataset_info
 def extend_existing_dataset(
     text_path, audio_path, forced_alignment_path, output_path, label_path, suffix, info_path, logging=logging
 ):
+    """
+    Extends an existing dataset.
+    Converts audio to required format, generates clips & produces required files.
+
+    Parameters
+    ----------
+    text_path : str
+        Path to source text
+    audio_path : str
+        Path to source audio
+    forced_alignment_path : str
+        Path to save alignment JSON to
+    output_path : str
+        Path to save audio clips to
+    label_path : str
+        Path to save label file to
+    suffix : str
+        String suffix to append to filenames
+    info_path : str
+        Path to save info JSON to
+    logging : logging (optional)
+        Logging object to write logs to
+    
+    Raises
+    -------
+    AssertionError
+        If given paths are invalid or clips could not be produced
+    """
     assert os.path.isdir(output_path), "Missing existing dataset clips folder"
     assert os.path.isfile(label_path), "Missing existing dataset metadata file"
     logging.info(f"Coverting {audio_path}...")

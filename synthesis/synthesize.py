@@ -22,6 +22,20 @@ SYMBOL_TO_ID = {s: i for i, s in enumerate(SYMBOLS)}
 
 
 def load_model(model_path):
+    """
+    Loads the Tacotron2 model.
+    Uses GPU if available, otherwise uses CPU.
+
+    Parameters
+    ----------
+    model_path : str
+        Path to tacotron2 model
+    
+    Returns
+    -------
+    Tacotron2
+        Loaded tacotron2 model
+    """
     if torch.cuda.is_available():
         model = Tacotron2().cuda()
         model.load_state_dict(torch.load(model_path)["state_dict"])
@@ -33,6 +47,20 @@ def load_model(model_path):
 
 
 def load_waveglow(waveglow_path):
+    """
+    Loads the Waveglow model.
+    Uses GPU if available, otherwise uses CPU.
+
+    Parameters
+    ----------
+    waveglow_path : str
+        Path to waveglow model
+    
+    Returns
+    -------
+    Torch
+        Loaded waveglow model
+    """
     waveglow = torch.load(waveglow_path)["model"]
     if torch.cuda.is_available():
         waveglow.cuda().eval().half()
@@ -43,12 +71,36 @@ def load_waveglow(waveglow_path):
 
 
 def generate_graph(alignments, filepath):
+    """
+    Generates synthesis alignment graph image.
+
+    Parameters
+    ----------
+    alignments : list
+        Numpy alignment data
+    filepath : str
+        Path to save image to
+    """
     data = alignments.float().data.cpu().numpy()[0].T
     plt.imshow(data, aspect="auto", origin="lower", interpolation="none")
     plt.savefig(filepath)
 
 
 def generate_audio(mel, waveglow, filepath, sample_rate=22050):
+    """
+    Generates synthesised audio file.
+
+    Parameters
+    ----------
+    mel : list
+        Synthesised mel data
+    waveglow : Torch
+        Waveglow model
+    filepath : str
+        Path to save generated audio to
+    sample_rate : int (optional)
+        Sample rate of audio (default is 22050)
+    """
     with torch.no_grad():
         audio = waveglow.infer(mel, sigma=0.666)
 
@@ -59,6 +111,20 @@ def generate_audio(mel, waveglow, filepath, sample_rate=22050):
 
 
 def text_to_sequence(text):
+    """
+    Generates synthesised audio file.
+
+    Parameters
+    ----------
+    mel : list
+        Synthesised mel data
+    waveglow : Torch
+        Waveglow model
+    filepath : str
+        Path to save generated audio to
+    sample_rate : int (optional)
+        Sample rate of audio (default is 22050)
+    """
     sequence = np.array([[SYMBOL_TO_ID[s] for s in text if s in SYMBOL_TO_ID]])
     if torch.cuda.is_available():
         return torch.autograd.Variable(torch.from_numpy(sequence)).cuda().long()
@@ -67,6 +133,25 @@ def text_to_sequence(text):
 
 
 def synthesize(model, waveglow_model, text, inflect_engine, graph=None, audio=None):
+    """
+    Synthesise text for a given model.
+    Produces graph and/or audio file when given.
+
+    Parameters
+    ----------
+    model : Tacotron2
+        Tacotron2 model
+    waveglow_model : Torch
+        Waveglow model
+    text : str
+        Text to synthesize
+    inflect_engine : Inflect
+        Inflect.engine() object
+    graph : str (optional)
+        Path to save alignment graph to
+    audio : str (optional)
+        Path to save audio file to
+    """
     text = clean_text(text, inflect_engine)
     sequence = text_to_sequence(text)
     _, mel_outputs_postnet, _, alignments = model.inference(sequence)

@@ -3,6 +3,8 @@ from collections import Counter
 
 def ngrams(s, size):
     """
+    Credit: https://github.com/mozilla/DSAlign
+
     Lists all appearances of all N-grams of a string from left to right.
     :param s: String to decompose
     :param size: N-gram size
@@ -18,6 +20,17 @@ def ngrams(s, size):
 
 
 class FuzzySearch(object):
+    """
+    Credit: https://github.com/mozilla/DSAlign
+
+    FuzzySearch class to search text file.
+
+    Parameters
+    ----------
+    text : str
+        Text from text file
+    Other optional parameters
+    """
     def __init__(
         self,
         text,

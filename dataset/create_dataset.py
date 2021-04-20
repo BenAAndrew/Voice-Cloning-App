@@ -11,6 +11,32 @@ from dataset.analysis import save_dataset_info
 
 
 def create_dataset(text_path, audio_path, forced_alignment_path, output_path, label_path, info_path, logging=logging):
+    """
+    Generates a dataset.
+    Converts audio to required format, generates clips & produces required files.
+
+    Parameters
+    ----------
+    text_path : str
+        Path to source text
+    audio_path : str
+        Path to source audio
+    forced_alignment_path : str
+        Path to save alignment JSON to
+    output_path : str
+        Path to save audio clips to
+    label_path : str
+        Path to save label file to
+    info_path : str
+        Path to save info JSON to
+    logging : logging (optional)
+        Logging object to write logs to
+    
+    Raises
+    -------
+    AssertionError
+        If given paths are invalid or clips could not be produced
+    """
     logging.info(f"Coverting {audio_path}...")
     converted_audio = convert_audio(audio_path)
     clip_generator(converted_audio, text_path, forced_alignment_path, output_path, label_path, logging)

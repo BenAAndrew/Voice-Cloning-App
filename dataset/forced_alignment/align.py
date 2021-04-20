@@ -15,6 +15,8 @@ audio_vad_padding = 10
 
 def enweight(items, direction=0):
     """
+    Credit: https://github.com/mozilla/DSAlign
+
     Enumerates all entries together with a positional weight value.
     The positional weight progresses quadratically.
     :param items: Items to enumerate
@@ -37,7 +39,22 @@ def enweight(items, direction=0):
         yield item, c * c * (4 - abs(direction) * 3)
 
 
-def get_segments(audio_path, output_path):
+def get_segments(audio_path):
+    """
+    Credit: https://github.com/mozilla/DSAlign  
+
+    Generates segments for an given audio file.
+
+    Parameters
+    ----------
+    audio_path : str
+        Path to audio file (must be converted to a sample rate of 16000)
+
+    Returns
+    -------
+    list
+        List of segments (tuples containing number of frames, start time & end time)
+    """
     model_format = (DEFAULT_RATE, 1, 2)
     frames = read_frames_from_file(audio_path, model_format, audio_vad_frame_length)
     segments = vad_split(
@@ -51,6 +68,30 @@ def get_segments(audio_path, output_path):
 
 
 def process_segments(audio_path, output_path, segments, min_length, max_length, logging=logging):
+    """
+    Generates audio clips and reduces segments to only valid ones.
+    This includes removing segements which are too long, too short or cannot be transcribed.
+
+    Parameters
+    ----------
+    audio_path : str
+        Path to audio file
+    output_path : str
+        Path to save clips to
+    segments : list
+        List of segments produced in get_segments
+    min_length : int
+        Minimum length of a clip (in milliseconds)
+    max_length : int
+        Maximum length of a clip (in milliseconds)
+    logging : logging (optional)
+        Logging object to write progress to
+
+    Returns
+    -------
+    list
+        List of samples (dictionaries containing clip index, start, end, name & transcript)
+    """
     logging.info("Generating segments...")
     samples = []
     total = len(segments)
@@ -87,6 +128,26 @@ def process_segments(audio_path, output_path, segments, min_length, max_length, 
 
 
 def split_match(fragments, search, start=0, end=-1):
+    """
+    Credit: https://github.com/mozilla/DSAlign  
+
+    Matches fragments to text file.
+
+    Parameters
+    ----------
+    fragments : list
+        List of fragments to match
+    search : FuzzySearch
+        Source text object
+    start : int
+        Start index
+    end : int
+        End index
+
+    Yields
+    -------
+    Matching fragments with match start, end & sws (score)
+    """
     n = len(fragments)
     if n < 1:
         return

@@ -11,17 +11,35 @@ from training.clean_text import clean_text
 
 
 def load_wav_to_torch(full_path):
+    """
+    Credit: https://github.com/NVIDIA/tacotron2
+
+    Loads wav file to FloatTensor.
+
+    Parameters
+    ----------
+    full_path : str
+        Path to audio file
+    
+    Returns
+    -------
+    FloatTensor
+        Tensor containing wav data
+    int
+        Sample rate
+    """
     sampling_rate, data = read(full_path)
     return torch.FloatTensor(data.astype(np.float32)), sampling_rate
 
 
 class VoiceDataset(torch.utils.data.Dataset):
     """
+    Credit: https://github.com/NVIDIA/tacotron2
+
     1) loads audio,text pairs
     2) normalizes text and converts them to sequences of one-hot vectors
     3) computes mel-spectrograms from audio files.
     """
-
     def __init__(self, filepaths_and_text, dataset_path, symbols, seed):
         self.filepaths_and_text = filepaths_and_text
         self.dataset_path = dataset_path

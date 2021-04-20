@@ -8,6 +8,21 @@ model, device, decoder = None, None, None
 
 
 def load_audio(path):
+    """
+    Loads the audio from a given path into a tensor for transcription.
+
+    Parameters
+    ----------
+    path : str
+        Path to audio file
+    
+    Raises
+    -------
+    Exception
+        If the audio file could not be loaded
+    AssertionError
+        If the audio file was empty
+    """
     try:
         wav, _ = librosa.load(path, sr=16000)
     except Exception:
@@ -18,6 +33,29 @@ def load_audio(path):
 
 
 def transcribe(path):
+    """
+    Credit: https://github.com/snakers4/silero-models
+
+    Transcribes a given audio file.
+    Loads silero into a global variable to save time in future calls.
+
+    Parameters
+    ----------
+    path : str
+        Path to audio file
+    
+    Raises
+    -------
+    Exception
+        If the audio file could not be loaded
+    AssertionError
+        If the audio file was not found or was empty
+
+    Returns
+    -------
+    str
+        Text transcription of audio file
+    """
     global model, device, decoder, read_batch, split_into_batches, prepare_model_input
     assert os.path.isfile(path), f"{path} not found. Cannot transcribe"
 

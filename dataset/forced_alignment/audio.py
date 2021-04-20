@@ -10,15 +10,67 @@ DEFAULT_FORMAT = (DEFAULT_RATE, DEFAULT_CHANNELS, DEFAULT_WIDTH)
 
 
 def get_num_samples(pcm_buffer_size, audio_format=DEFAULT_FORMAT):
+    """
+    Credit: https://github.com/mozilla/DSAlign
+
+    Gets number of samples in audio file.
+
+    Parameters
+    ----------
+    pcm_buffer_size : int
+        Size of audio PCM buffer
+    audio_format : tuple
+        Tuple containing the audio sample rate, channels & width
+
+    Returns
+    -------
+    int
+        Number of samples
+    """
     _, channels, width = audio_format
     return pcm_buffer_size // (channels * width)
 
 
 def get_pcm_duration(pcm_buffer_size, audio_format=DEFAULT_FORMAT):
+    """
+    Credit: https://github.com/mozilla/DSAlign
+
+    Gets duration of audio file.
+
+    Parameters
+    ----------
+    pcm_buffer_size : int
+        Size of audio PCM buffer
+    audio_format : tuple
+        Tuple containing the audio sample rate, channels & width
+
+    Returns
+    -------
+    float
+        Audio duration
+    """
     return get_num_samples(pcm_buffer_size, audio_format) / audio_format[0]
 
 
 def read_frames(wav_file, frame_duration_ms=30, yield_remainder=False):
+    """
+    Credit: https://github.com/mozilla/DSAlign
+
+    Read frames of audio file.
+
+    Parameters
+    ----------
+    wav_file : wave
+        Opened wav file using wave
+    frame_duration_ms : int
+        Frame duration in milliseconds
+    yield_remainder : bool
+        Whether to yield remaining audio frames
+
+    Yields
+    -------
+    Audio frames
+    """
     frame_size = int(DEFAULT_FORMAT[0] * (frame_duration_ms / 1000.0))
     while True:
         try:
@@ -31,12 +83,55 @@ def read_frames(wav_file, frame_duration_ms=30, yield_remainder=False):
 
 
 def read_frames_from_file(audio_path, audio_format=DEFAULT_FORMAT, frame_duration_ms=30, yield_remainder=False):
+    """
+    Credit: https://github.com/mozilla/DSAlign
+
+    Read frames of audio file.
+
+    Parameters
+    ----------
+    audio_path : str
+        Path to audio file
+    audio_format : tuple
+        Tuple containing the audio sample rate, channels & width
+    frame_duration_ms : int
+        Frame duration in milliseconds
+    yield_remainder : bool
+        Whether to yield remaining audio frames
+
+    Yields
+    -------
+    Audio frames
+    """
     audio = wave.open(audio_path, "r")
     for frame in read_frames(audio, frame_duration_ms=frame_duration_ms, yield_remainder=yield_remainder):
         yield frame
 
 
 def vad_split(audio_frames, audio_format=DEFAULT_FORMAT, num_padding_frames=10, threshold=0.5, aggressiveness=3):
+    """
+    Credit: https://github.com/mozilla/DSAlign
+
+    Splits audio into segments using Voice Activity Detection.
+
+    Parameters
+    ----------
+    audio_frames : list
+        List of audio frames
+    audio_format : tuple
+        Tuple containing the audio sample rate, channels & width
+    num_padding_frames : int
+        Number of frames to pad
+    threshold : float
+        Minimum threshold
+    aggressiveness : int
+        Aggressivess of VAD split
+
+    Yields
+    -------
+    Audio segments (tuples containing number of frames, start time & end time))
+    """
+
     sample_rate, channels, width = audio_format
     if channels != 1:
         raise ValueError("VAD-splitting requires mono samples")

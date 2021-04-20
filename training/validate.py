@@ -2,6 +2,27 @@ import torch
 
 
 def validate(model, val_loader, criterion, iteration):
+    """
+    Credit: https://github.com/NVIDIA/tacotron2
+
+    Validate the tacotron2 model.
+
+    Parameters
+    ----------
+    model : Tacotron2
+        tacotron2 model
+    val_loader : torch.utils.data.DataLoader
+        Dataloader for the validation dataset
+    criterion : func
+        Loss function
+    iteration : int
+        Current training iteration
+
+    Returns
+    -------
+    float
+        Validation loss
+    """
     model.eval()
     with torch.no_grad():
         val_loss = 0.0

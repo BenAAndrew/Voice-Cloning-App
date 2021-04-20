@@ -9,6 +9,19 @@ ALLOWED_CHARACTERS_RE = re.compile("[^a-zA-Z ]+")
 
 
 def get_text(metadata_file):
+    """
+    Get all words in a metadata file.
+
+    Parameters
+    ----------
+    metadata_file : str
+        Path to metadata file
+    
+    Returns
+    -------
+    list
+        All words in text file
+    """
     text = []
     with open(metadata_file, encoding="utf-8") as f:
         lines = f.readlines()
@@ -20,16 +33,56 @@ def get_text(metadata_file):
 
 
 def get_clip_lengths(folder):
+    """
+    Get duration of all clips in a given folder.
+
+    Parameters
+    ----------
+    folder : str
+        Path to clip folder
+    
+    Returns
+    -------
+    list
+        Lengths in seconds of clips in folder
+    """
     return [librosa.get_duration(filename=os.path.join(folder, filename)) for filename in os.listdir(folder)]
 
 
 def get_total_audio_duration(info_file):
+    """
+    Get duration and total clips from info JSON.
+
+    Parameters
+    ----------
+    info_file : str
+        Path to info JSON
+    
+    Returns
+    -------
+    float
+        Total duration of all clips
+    int    
+        Total number of clips
+    """
     with open(info_file) as f:
         data = json.load(f)
         return data["total_duration"], data["total_clips"]
 
 
 def save_dataset_info(metadata_file, folder, output_path):
+    """
+    Save dataset properties to info JSON.
+
+    Parameters
+    ----------
+    metadata_file : str
+        Path to metadata file
+    folder : str
+        Path to audio folder
+    output_path : str
+        Path to save info JSON to
+    """
     clip_lengths = get_clip_lengths(folder)
     words = get_text(metadata_file)
     total_duration = sum(clip_lengths)
@@ -52,6 +105,25 @@ def save_dataset_info(metadata_file, folder, output_path):
 
 
 def validate_dataset(folder, metadata_file="metadata.csv", audio_folder="wavs", info_file="info.json"):
+    """
+    Validate a dataset has all required files.
+
+    Parameters
+    ----------
+    folder : str
+        Path to dataset folder
+    metadata_file : str
+        Metadata file name
+    audio_folder : str
+        Audio folder name
+    info_file : str
+        Info file name
+
+    Returns
+    -------
+    str
+        Error message or None if no error is produced
+    """
     if not os.path.isfile(os.path.join(folder, metadata_file)):
         return f"Missing {metadata_file} file"
     if not os.path.isfile(os.path.join(folder, info_file)):

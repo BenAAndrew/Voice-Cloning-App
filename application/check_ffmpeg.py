@@ -12,6 +12,13 @@ FFMPEG_LINUX_INSTALL = "sudo apt-get install -y ffmpeg"
 
 
 def is_ffmpeg_installed():
+    """Checks if FFmpeg is installed
+
+    Returns
+    -------
+    bool
+        Whether or not ffmpeg is installed
+    """
     try:
         check_output(FFMPEG_COMMAND.split(" "))
         return True
@@ -20,6 +27,7 @@ def is_ffmpeg_installed():
 
 
 def install_ffmpeg_windows():
+    """Downloads and extracts the FFmpeg library"""
     r = requests.get(FFMPEG_WINDOWS_URL)
     with open("ffmpeg.zip", "wb") as f:
         f.write(r.content)
@@ -33,10 +41,18 @@ def install_ffmpeg_windows():
 
 
 def install_ffmpeg_linux():
+    """Runs the linux FFmpeg install command"""
     check_output(FFMPEG_LINUX_INSTALL.split(" "))
 
 
 def check_ffmpeg():
+    """Checks if FFmpeg is installed, and if not will install
+
+    Raises
+    -------
+    AssertionError
+        If ffmpeg could not be installed
+    """
     if not is_ffmpeg_installed():
         if platform == "win32":
             os.environ["PATH"] += os.pathsep + FFMPEG_WINDOWS_INSTALL_PATH

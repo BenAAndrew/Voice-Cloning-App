@@ -26,6 +26,42 @@ def clip_generator(
     silence_padding=0.1,
     min_confidence=0.85,
 ):
+    """
+    Generates dataset clips & label file.
+
+    Parameters
+    ----------
+    audio_path : str
+        Path to audio file (must have been converted using convert_audio)
+    script_path : str
+        Path to source text
+    forced_alignment_path : str
+        Path to save alignment JSON to
+    output_path : str
+        Path to save audio clips to
+    label_path : str
+        Path to save label file to
+    logging : logging (optional)
+        Logging object to write logs to
+    min_length : float
+        Minimum duration of a clip in seconds
+    max_length : float
+        Maximum duration of a clip in seconds
+    silence_padding : float
+        Padding of silence at the end of each clip in seconds
+    min_confidence : float
+        Minimum confidence score to generate a clip for
+
+    Raises
+    -------
+    AssertionError
+        If given paths are invalid or clips could not be produced
+
+    Returns
+    -------
+    list
+        List of clip lengths in seconds
+    """
     assert not os.path.isdir(output_path), "Output directory already exists"
     os.makedirs(output_path, exist_ok=False)
     assert os.path.isfile(audio_path), "Audio file not found"
@@ -44,7 +80,7 @@ def clip_generator(
 
     # Produce segments
     logging.info("Fetching segments...")
-    segments = align.get_segments(new_audio_path, output_path)
+    segments = align.get_segments(new_audio_path)
 
     # Match with text
     logging.info("Matching segments...")
@@ -100,6 +136,21 @@ def clip_generator(
 
 
 def get_filename(filename, suffix):
+    """
+    Adds a suffix to a filename.
+
+    Parameters
+    ----------
+    filename : str
+        Current filename
+    suffix : str
+        String to add to the filename
+
+    Returns
+    -------
+    str
+        New filename
+    """
     name_without_filetype = filename.split(".")[0]
     return filename.replace(name_without_filetype, name_without_filetype + "-" + suffix)
 
@@ -113,6 +164,32 @@ def extend_dataset(
     suffix=str(uuid.uuid4()),
     logging=logging,
 ):
+    """
+    Extends an existing dataset.
+    Uses temporary filenames and then combines files with the existing dataset.
+
+    Parameters
+    ----------
+    audio_path : str
+        Path to audio file (must have been converted using convert_audio)
+    script_path : str
+        Path to source text
+    forced_alignment_path : str
+        Path to save alignment JSON to
+    output_path : str
+        Path to save audio clips to
+    label_path : str
+        Path to save label file to
+    suffix : str
+        String suffix to add to filenames
+    logging : logging (optional)
+        Logging object to write logs to
+    
+    Raises
+    -------
+    AssertionError
+        If given paths are invalid or clips could not be produced
+    """
     assert os.path.isdir(output_path), "Existing wavs folder not found"
     assert os.path.isfile(label_path), "Existing metadata file not found"
 

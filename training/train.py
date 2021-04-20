@@ -43,6 +43,41 @@ def train(
     early_stopping=True,
     logging=logging,
 ):
+    """
+    Trains the Tacotron2 model.
+
+    Parameters
+    ----------
+    metadata_path : str
+        Path to label file
+    dataset_directory : str
+        Path to dataset clips
+    output_directory : str
+        Path to save checkpoints to
+    find_checkpoint : bool (optional)
+        Search for latest checkpoint to continue training from (default is True)
+    checkpoint_path : str (optional)
+        Path to a checkpoint to load (default is None)
+    transfer_learning_path : str (optional)
+        Path to a transfer learning checkpoint to use (default is None)
+    overwrite_checkpoints : bool (optional)
+        Whether to overwrite old checkpoints (default is True)
+    epochs : int (optional)
+        Number of epochs to run training for (default is 8000)
+    batch_size : int (optional)
+        Training batch size (calculated automatically if None)
+    early_stopping : bool (optional)
+        Whether to stop training when loss stops significantly decreasing (default is True)
+    logging : logging (optional)
+        Logging object to write logs to
+
+    Raises
+    -------
+    AssertionError
+        If CUDA is not available or there is not enough GPU memory
+    RuntimeError
+        If the batch size is too high (causing CUDA out of memory)
+    """
     assert torch.cuda.is_available(), "You do not have Torch with CUDA installed. Please check CUDA & Pytorch install"
     os.makedirs(output_directory, exist_ok=True)
 
