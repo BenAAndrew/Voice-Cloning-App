@@ -1,4 +1,4 @@
-from subprocess import call
+from subprocess import check_output
 from pathlib import Path
 from datetime import datetime
 from pydub import AudioSegment
@@ -27,7 +27,7 @@ def convert_audio(input_path):
     current_filename, filetype = Path(input_path).name.split(".")
     output_path = input_path.replace(current_filename, current_filename + "-converted")
     output_path = output_path.replace(filetype, "wav")
-    call(
+    check_output(
         [
             "ffmpeg",
             "-i",
@@ -41,9 +41,7 @@ def convert_audio(input_path):
             "-ar",
             str(TARGET_SAMPLE_RATE),
             output_path,
-        ],
-        stdout=devnull,
-        stderr=devnull,
+        ]
     )
     return output_path
 
@@ -66,7 +64,7 @@ def change_sample_rate(input_path, new_sample_rate):
     """
     current_filename = Path(input_path).name.split(".")[0]
     output_path = input_path.replace(current_filename, f"{current_filename}-{new_sample_rate}")
-    call(["ffmpeg", "-i", input_path, "-ar", str(new_sample_rate), output_path], stdout=devnull, stderr=devnull)
+    check_output(["ffmpeg", "-i", input_path, "-ar", str(new_sample_rate), output_path])
     return output_path
 
 
@@ -94,18 +92,14 @@ def cut_audio(input_path, start, end, output_folder):
     duration = (end - start) / 1000
     output_name = f"{start}_{end}.wav"
     output_path = os.path.join(output_folder, output_name)
-    call(
-        ["ffmpeg", "-ss", start_timestamp, "-t", str(duration), "-i", input_path, output_path],
-        stdout=devnull,
-        stderr=devnull,
-    )
+    check_output(["ffmpeg", "-ss", start_timestamp, "-t", str(duration), "-i", input_path, output_path])
     return output_name
 
 
 def add_silence(input_path, silence):
     """
     Adds silence to the end of a clip.
-    This is needed as Tacotron2 sometimes has alignment issues if speech 
+    This is needed as Tacotron2 sometimes has alignment issues if speech
     continues right until the end of the clip.
 
     Parameters
