@@ -11,7 +11,7 @@ from dataset.create_dataset import create_dataset
 expected_clips = {
     "0_2730.wav": "the examination and testimony of the experts",
     "2820_5100.wav": "enabled the commission to conclude",
-    "5130_7560.wav": "that five shots may have been fired",
+    "5130_7560.wav": "that five shots may have been",
 }
 expected_duration = 7
 expected_total_clips = 3
