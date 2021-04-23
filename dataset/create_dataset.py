@@ -10,7 +10,7 @@ from dataset.clip_generator import clip_generator
 from dataset.analysis import save_dataset_info
 
 
-def create_dataset(text_path, audio_path, forced_alignment_path, output_path, label_path, info_path, logging=logging):
+def create_dataset(text_path, audio_path, forced_alignment_path, output_path, label_path, info_path, logging=logging, min_confidence=0.85):
     """
     Generates a dataset.
     Converts audio to required format, generates clips & produces required files.
@@ -31,6 +31,8 @@ def create_dataset(text_path, audio_path, forced_alignment_path, output_path, la
         Path to save info JSON to
     logging : logging (optional)
         Logging object to write logs to
+    min_confidence : float (optional)
+        Minimum confidence score to generate a clip for
     
     Raises
     -------
@@ -39,7 +41,7 @@ def create_dataset(text_path, audio_path, forced_alignment_path, output_path, la
     """
     logging.info(f"Coverting {audio_path}...")
     converted_audio = convert_audio(audio_path)
-    clip_generator(converted_audio, text_path, forced_alignment_path, output_path, label_path, logging)
+    clip_generator(converted_audio, text_path, forced_alignment_path, output_path, label_path, logging=logging, min_confidence=min_confidence)
     logging.info("Getting dataset info...")
     save_dataset_info(label_path, output_path, info_path)
 

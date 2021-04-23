@@ -43,13 +43,13 @@ def clip_generator(
         Path to save label file to
     logging : logging (optional)
         Logging object to write logs to
-    min_length : float
+    min_length : float (optional)
         Minimum duration of a clip in seconds
-    max_length : float
+    max_length : float (optional)
         Maximum duration of a clip in seconds
-    silence_padding : float
+    silence_padding : float (optional)
         Padding of silence at the end of each clip in seconds
-    min_confidence : float
+    min_confidence : float (optional)
         Minimum confidence score to generate a clip for
 
     Raises
@@ -163,6 +163,7 @@ def extend_dataset(
     label_path,
     suffix=str(uuid.uuid4()),
     logging=logging,
+    min_confidence=0.85
 ):
     """
     Extends an existing dataset.
@@ -184,6 +185,8 @@ def extend_dataset(
         String suffix to add to filenames
     logging : logging (optional)
         Logging object to write logs to
+    min_confidence : float (optional)
+        Minimum confidence score to generate a clip for
     
     Raises
     -------
@@ -203,6 +206,7 @@ def extend_dataset(
         temp_wavs_folder,
         temp_label_path,
         logging,
+        min_confidence=min_confidence
     )
 
     with open(temp_label_path) as f:

@@ -12,7 +12,7 @@ from dataset.analysis import save_dataset_info
 
 
 def extend_existing_dataset(
-    text_path, audio_path, forced_alignment_path, output_path, label_path, suffix, info_path, logging=logging
+    text_path, audio_path, forced_alignment_path, output_path, label_path, suffix, info_path, logging=logging, min_confidence=0.85
 ):
     """
     Extends an existing dataset.
@@ -36,6 +36,8 @@ def extend_existing_dataset(
         Path to save info JSON to
     logging : logging (optional)
         Logging object to write logs to
+    min_confidence : float (optional)
+        Minimum confidence score to generate a clip for
     
     Raises
     -------
@@ -46,7 +48,7 @@ def extend_existing_dataset(
     assert os.path.isfile(label_path), "Missing existing dataset metadata file"
     logging.info(f"Coverting {audio_path}...")
     converted_audio = convert_audio(audio_path)
-    extend_dataset(converted_audio, text_path, forced_alignment_path, output_path, label_path, suffix, logging=logging)
+    extend_dataset(converted_audio, text_path, forced_alignment_path, output_path, label_path, suffix, logging=logging, min_confidence=min_confidence)
     logging.info("Getting dataset info...")
     save_dataset_info(label_path, output_path, info_path)
 

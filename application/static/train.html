@@ -1,14 +1,4 @@
 {% extends "base.html" %}
-{% block additional_scripts %}
-<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-<script>
-$(document).ready(function(){
-    $('[data-toggle="tooltip"]').tooltip();
-});
-</script>
-{% endblock %}
 {% block content %}
 {% if cuda_enabled %}
 <form method="POST" action="/train" enctype="multipart/form-data">
@@ -41,7 +31,7 @@ $(document).ready(function(){
     <div class="content">
         <br>
         <div class="form-group">
-            <label for="pretrained_model"><a href="#" data-toggle="tooltip" data-placement="top" title="Using a pretrained model may reduce the number of required epochs and improve quality">Pretrained model</a> (optional)</label>
+            <label for="pretrained_model"><a href="#" data-toggle="tooltip" data-placement="top" title="Using a pretrained model may reduce the number of required epochs and improve quality">Pretrained model</a> (optional) <a href="https://drive.google.com/file/d/1c5ZTuT7J08wLUoVZ2KkUs_VdZuJ86ZqA/view">default</a></label>
             <input type="file" id="pretrained_model" name="pretrained_model"> 
         </div>
         <div class="form-group">
@@ -60,6 +50,7 @@ $(document).ready(function(){
     <br>
     <input type="submit" class="btn btn-primary">
 </form>
+<script src="{{ url_for('static', filename='advanced.js') }}"></script>
 <script src="{{ url_for('static', filename='train.js') }}"></script>
 {% else %}
 <h3>Training is not available</h3>

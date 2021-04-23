@@ -43,6 +43,20 @@
         <label for="audio_file">Audio file</label>
         <input type="file" id="audio_file" name="audio_file" required> 
     </div>
+    <button type="button" class="collapsible" id="advanced">Advanced Options ∨</button>
+    <div class="content">
+        <br>
+        <div class="form-group">
+            <input type="range" id="confidence" name="confidence" step="0.05" min="0.5" max="0.95" value="0.85" onchange="showConfidenceLabel()">
+            <label for="confidence">
+                <a href="#" data-toggle="tooltip" data-placement="top" title="Decreasing minimum confidence will increase data but will likely decrease the quality of that data">Minimum confidence: </a> 
+                <span id="confidence_label"></span>
+            </label>
+        </div>
+    </div>
+    <br>
     <input type="submit" class="btn btn-primary">
 </form>
+<script src="{{ url_for('static', filename='advanced.js') }}"></script>
+<script src="{{ url_for('static', filename='dataset.js') }}"></script>
 {% endblock %}
