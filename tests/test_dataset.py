@@ -52,10 +52,10 @@ def test_create_dataset():
     with open(forced_alignment_path, "r") as forced_alignment_file:
         data = json.load(forced_alignment_file)
         for segment in data:
-            assert {"start", "end", "name", "sws", "aligned"}.issubset(
+            assert {"start", "end", "name", "score", "aligned"}.issubset(
                 segment.keys()
             ), "Alignment JSON missing required keys"
-            assert segment["sws"] >= min_confidence, "SWS score less than min confidence"
+            assert segment["score"] >= min_confidence, "SWS score less than min confidence"
 
     with open(info_path) as f:
         data = json.load(f)

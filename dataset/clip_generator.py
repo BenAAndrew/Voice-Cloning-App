@@ -70,7 +70,7 @@ def clip_generator(
 
     logging.info(f"Loading script from {script_path}...")
     with open(script_path, "r", encoding="utf-8") as script_file:
-        clean_text = script_file.read().lower()
+        clean_text = script_file.read().lower().strip().replace("\n", " ").replace("  ", " ")
 
     logging.info("Searching text for matching fragments...")
     search = FuzzySearch(clean_text)
@@ -100,14 +100,14 @@ def clip_generator(
     for fragment in matched_segments:
         if (
             fragment["transcript"]
-            and fragment["sws"] >= min_confidence
+            and fragment["score"] >= min_confidence
             and "match-start" in fragment
             and "match-end" in fragment
             and fragment["match-end"] - fragment["match-start"] > 0
         ):
             fragment_matched = clean_text[fragment["match-start"] : fragment["match-end"]]
             if fragment_matched:
-                fragment["aligned"] = fragment_matched.strip().replace("\n", " ")
+                fragment["aligned"] = fragment_matched
                 clip_lengths.append((fragment["end"] - fragment["start"]) // 1000)
                 add_silence(os.path.join(output_path, fragment["name"]), silence)
                 result_fragments.append(fragment)

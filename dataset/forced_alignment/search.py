@@ -1,4 +1,8 @@
 from collections import Counter
+from difflib import SequenceMatcher
+
+def similarity(a, b):
+    return SequenceMatcher(None, a, b).ratio()
 
 
 def ngrams(s, size):
@@ -69,51 +73,67 @@ class FuzzySearch(object):
             return self.char_similarities[key]
         return self.match_score if a == b else self.mismatch_score
 
-    def sw_align(self, a, start, end):
-        b = self.text[start:end]
-        n, m = len(a), len(b)
-        # building scoring matrix
-        f = [[0]] * (n + 1)
-        for i in range(0, n + 1):
-            f[i] = [0] * (m + 1)
-        for i in range(1, n + 1):
-            f[i][0] = self.gap_score * i
-        for j in range(1, m + 1):
-            f[0][j] = self.gap_score * j
-        max_score = 0
-        start_i, start_j = 0, 0
-        for i in range(1, n + 1):
-            for j in range(1, m + 1):
-                match = f[i - 1][j - 1] + self.char_similarity(a[i - 1], b[j - 1])
-                insert = f[i][j - 1] + self.gap_score
-                delete = f[i - 1][j] + self.gap_score
-                score = max(0, match, insert, delete)
-                f[i][j] = score
-                if score > max_score:
-                    max_score = score
-                    start_i, start_j = i, j
-        # backtracking
-        substitutions = Counter()
-        i, j = start_i, start_j
-        while (j > 0 or i > 0) and f[i][j] != 0:
-            if i > 0 and j > 0 and f[i][j] == (f[i - 1][j - 1] + self.char_similarity(a[i - 1], b[j - 1])):
-                substitutions[FuzzySearch.char_pair(a[i - 1], b[j - 1])] += 1
-                i, j = i - 1, j - 1
-            elif i > 0 and f[i][j] == (f[i - 1][j] + self.gap_score):
-                i -= 1
-            elif j > 0 and f[i][j] == (f[i][j - 1] + self.gap_score):
-                j -= 1
-            else:
-                raise Exception("Smith–Waterman failure")
-        align_start = max(start, start + j - 1)
-        align_end = min(end, start + start_j)
-        score = f[start_i][start_j] / (self.match_score * max(align_end - align_start, n))
-        return align_start, align_end, score, substitutions
+    # def sw_align(self, a, start, end):
+    #     b = self.text[start:end]
+    #     n, m = len(a), len(b)
+    #     # building scoring matrix
+    #     f = [[0]] * (n + 1)
+    #     for i in range(0, n + 1):
+    #         f[i] = [0] * (m + 1)
+    #     for i in range(1, n + 1):
+    #         f[i][0] = self.gap_score * i
+    #     for j in range(1, m + 1):
+    #         f[0][j] = self.gap_score * j
+    #     max_score = 0
+    #     start_i, start_j = 0, 0
+    #     for i in range(1, n + 1):
+    #         for j in range(1, m + 1):
+    #             match = f[i - 1][j - 1] + self.char_similarity(a[i - 1], b[j - 1])
+    #             insert = f[i][j - 1] + self.gap_score
+    #             delete = f[i - 1][j] + self.gap_score
+    #             score = max(0, match, insert, delete)
+    #             f[i][j] = score
+    #             if score > max_score:
+    #                 max_score = score
+    #                 start_i, start_j = i, j
+    #     # backtracking
+    #     i, j = start_i, start_j
+    #     while (j > 0 or i > 0) and f[i][j] != 0:
+    #         if i > 0 and j > 0 and f[i][j] == (f[i - 1][j - 1] + self.char_similarity(a[i - 1], b[j - 1])):
+    #             i, j = i - 1, j - 1
+    #         elif i > 0 and f[i][j] == (f[i - 1][j] + self.gap_score):
+    #             i -= 1
+    #         elif j > 0 and f[i][j] == (f[i][j - 1] + self.gap_score):
+    #             j -= 1
+    #         else:
+    #             raise Exception("Smith–Waterman failure")
+    #     align_start = max(start, start + j - 1)
+    #     align_end = min(end, start + start_j)
+    #     score = f[start_i][start_j] / (self.match_score * max(align_end - align_start, n))
+    #     return align_start, align_end, score
+
+    def sim_align(self, a, start, end):
+        source = self.text[start:end]
+        words = source.split(" ")
+        best = ""
+        best_score = 0
+        for i in range(len(words)):
+            for j in range(i, len(words)):
+                t = " ".join(words[i:j])
+                score = similarity(a, t)
+                if score > best_score:
+                    best = t
+                    best_score = score
+
+        start = self.text.index(best)
+        end = start + len(best)
+        return start, end, best_score
+
 
     def find_best(self, look_for, start=0, end=-1):
         end = len(self.text) if end < 0 else end
         if end - start < 2 * len(look_for):
-            return self.sw_align(look_for, start, end)
+            return self.sim_align(look_for, start, end)
         window_size = len(look_for)
         windows = {}
         for i, ngram in enumerate(ngrams(" " + look_for + " ", 3)):
@@ -125,7 +145,7 @@ class FuzzySearch(object):
                     window = occurrence // window_size
                     windows[window] = (windows[window] + 1) if window in windows else 1
         candidate_windows = sorted(windows.keys(), key=lambda w: windows[w], reverse=True)
-        best = (-1, -1, 0, None)
+        best = (-1, -1, 0)
         last_window_grams = 0.1
         for window in candidate_windows[: self.max_candidates]:
             ngram_factor = windows[window] / last_window_grams
@@ -134,7 +154,7 @@ class FuzzySearch(object):
             last_window_grams = windows[window]
             interval_start = max(start, int((window - 1) * window_size))
             interval_end = min(end, int((window + 2) * window_size))
-            search_result = self.sw_align(look_for, interval_start, interval_end)
+            search_result = self.sim_align(look_for, interval_start, interval_end)
             if search_result[2] > best[2]:
                 best = search_result
         return best

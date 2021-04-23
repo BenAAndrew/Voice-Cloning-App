@@ -166,11 +166,11 @@ def split_match(fragments, search, start=0, end=-1):
 
     for index, fragment in weighted_fragments:
         match = search.find_best(fragment["transcript"], start=start, end=end)
-        match_start, match_end, sws_score, match_substitutions = match
-        if sws_score > (n - 1) / (2 * n):
+        match_start, match_end, score = match
+        if score > (n - 1) / (2 * n):
             fragment["match-start"] = match_start
             fragment["match-end"] = match_end
-            fragment["sws"] = sws_score
+            fragment["score"] = score
             for f in split_match(fragments[0:index], search, start=start, end=match_start):
                 yield f
             yield fragment
