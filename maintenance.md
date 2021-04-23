@@ -59,3 +59,6 @@ The synthsis script implements https://github.com/NVIDIA/waveglow.
 The synthesis process is implemented in `synthesize.py`. It firstly loads the feature predictor model (from training) and a pretrained waveglow model. It then cleans the text and infers the results. Audio & an alignment graph can be produced from this.
 
 In the app `synonyms.py` is also used to suggest synonyms for poorly synthsised words. It uses the `trainscribe.py` script to estimate which words were non-audible, and the `nltk` library to list synonyms.
+
+## Build command
+`pyinstaller main.py --onefile --hidden-import="sklearn.utils._weight_vector" --add-data "application/static;application/static" --icon application\static\favicon\app-icon.ico --clean`
