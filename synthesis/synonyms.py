@@ -14,7 +14,7 @@ def get_synonyms(word):
     ----------
     word : str
         Word to find synonyms of
-    
+
     Returns
     -------
     list
@@ -40,7 +40,7 @@ def evalulate_audio(audio, text):
         Path to audio file
     text : str
         Synthesised text
-    
+
     Returns
     -------
     set
@@ -63,7 +63,7 @@ def get_alternative_word_suggestions(audio, text):
         Path to audio file
     text : str
         Synthesised text
-    
+
     Returns
     -------
     dict

@@ -20,7 +20,7 @@ def load_wav_to_torch(full_path):
     ----------
     full_path : str
         Path to audio file
-    
+
     Returns
     -------
     FloatTensor
@@ -40,6 +40,7 @@ class VoiceDataset(torch.utils.data.Dataset):
     2) normalizes text and converts them to sequences of one-hot vectors
     3) computes mel-spectrograms from audio files.
     """
+
     def __init__(self, filepaths_and_text, dataset_path, symbols, seed):
         self.filepaths_and_text = filepaths_and_text
         self.dataset_path = dataset_path

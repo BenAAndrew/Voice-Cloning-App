@@ -41,7 +41,7 @@ def enweight(items, direction=0):
 
 def get_segments(audio_path):
     """
-    Credit: https://github.com/mozilla/DSAlign  
+    Credit: https://github.com/mozilla/DSAlign
 
     Generates segments for an given audio file.
 
@@ -129,7 +129,7 @@ def process_segments(audio_path, output_path, segments, min_length, max_length, 
 
 def split_match(fragments, search, start=0, end=-1):
     """
-    Credit: https://github.com/mozilla/DSAlign  
+    Credit: https://github.com/mozilla/DSAlign
 
     Matches fragments to text file.
 

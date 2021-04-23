@@ -15,7 +15,7 @@ def load_audio(path):
     ----------
     path : str
         Path to audio file
-    
+
     Raises
     -------
     Exception
@@ -43,7 +43,7 @@ def transcribe(path):
     ----------
     path : str
         Path to audio file
-    
+
     Raises
     -------
     Exception

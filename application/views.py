@@ -99,7 +99,7 @@ def create_dataset_post():
             output_path=output_path,
             label_path=label_path,
             info_path=info_path,
-            min_confidence=float(min_confidence)
+            min_confidence=float(min_confidence),
         )
     else:
         output_folder = os.path.join(paths["datasets"], request.form["path"])
@@ -124,7 +124,7 @@ def create_dataset_post():
             label_path=existing_label_path,
             suffix=suffix,
             info_path=info_path,
-            min_confidence=float(min_confidence)
+            min_confidence=float(min_confidence),
         )
 
     return render_template("progress.html", next_url=get_next_url(URLS, request.path))
@@ -186,7 +186,7 @@ def train_post():
         transfer_learning_path=transfer_learning_path,
         epochs=int(epochs),
         batch_size=int(batch_size),
-        early_stopping=early_stopping
+        early_stopping=early_stopping,
     )
 
     return render_template("progress.html", next_url=get_next_url(URLS, request.path))

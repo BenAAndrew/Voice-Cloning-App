@@ -163,7 +163,7 @@ def extend_dataset(
     label_path,
     suffix=str(uuid.uuid4()),
     logging=logging,
-    min_confidence=0.85
+    min_confidence=0.85,
 ):
     """
     Extends an existing dataset.
@@ -187,7 +187,7 @@ def extend_dataset(
         Logging object to write logs to
     min_confidence : float (optional)
         Minimum confidence score to generate a clip for
-    
+
     Raises
     -------
     AssertionError
@@ -206,7 +206,7 @@ def extend_dataset(
         temp_wavs_folder,
         temp_label_path,
         logging,
-        min_confidence=min_confidence
+        min_confidence=min_confidence,
     )
 
     with open(temp_label_path) as f:

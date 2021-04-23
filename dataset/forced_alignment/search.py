@@ -31,6 +31,7 @@ class FuzzySearch(object):
         Text from text file
     Other optional parameters
     """
+
     def __init__(
         self,
         text,

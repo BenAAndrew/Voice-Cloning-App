@@ -30,7 +30,7 @@ def load_model(model_path):
     ----------
     model_path : str
         Path to tacotron2 model
-    
+
     Returns
     -------
     Tacotron2
@@ -55,7 +55,7 @@ def load_waveglow(waveglow_path):
     ----------
     waveglow_path : str
         Path to waveglow model
-    
+
     Returns
     -------
     Torch

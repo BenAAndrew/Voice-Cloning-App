@@ -189,12 +189,14 @@ def train(
                 val_loss = validate(model, val_loader, criterion, iteration)
                 validation_losses.append(val_loss)
                 logging.info(
-                    "Saving model and optimizer state at iteration {} to {}. Scored {}".format(iteration, output_directory, val_loss)
+                    "Saving model and optimizer state at iteration {} to {}. Scored {}".format(
+                        iteration, output_directory, val_loss
+                    )
                 )
                 save_checkpoint(model, optimizer, learning_rate, iteration, output_directory, overwrite_checkpoints)
 
             iteration += 1
-        
+
         # Early Stopping
         if early_stopping and len(validation_losses) >= EARLY_STOPPING_WINDOW:
             losses = validation_losses[-EARLY_STOPPING_WINDOW:]

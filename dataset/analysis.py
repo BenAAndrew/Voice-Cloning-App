@@ -16,7 +16,7 @@ def get_text(metadata_file):
     ----------
     metadata_file : str
         Path to metadata file
-    
+
     Returns
     -------
     list
@@ -40,7 +40,7 @@ def get_clip_lengths(folder):
     ----------
     folder : str
         Path to clip folder
-    
+
     Returns
     -------
     list
@@ -57,12 +57,12 @@ def get_total_audio_duration(info_file):
     ----------
     info_file : str
         Path to info JSON
-    
+
     Returns
     -------
     float
         Total duration of all clips
-    int    
+    int
         Total number of clips
     """
     with open(info_file) as f:

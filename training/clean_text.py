@@ -39,7 +39,7 @@ ABBREVIATION_REPLACEMENT = {
 def clean_text(text, inflect_engine):
     """
     Cleans text. This includes:
-    - Replacing monetary terms (i.e. $ -> dollars) 
+    - Replacing monetary terms (i.e. $ -> dollars)
     - Converting ordinals to full words (i.e. 1st -> first)
     - Converting numbers to their full word format (i.e. 100 -> one hundred)
     - Replacing abbreviations (i.e. dr. -> doctor)
@@ -51,7 +51,7 @@ def clean_text(text, inflect_engine):
         Text to clean
     inflect_engine : inflect.engine()
         inflect.engine() object
-    
+
     Returns
     -------
     str
