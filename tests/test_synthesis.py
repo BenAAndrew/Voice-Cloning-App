@@ -1,7 +1,8 @@
 import os
 import inflect
 
-from synthesis.synthesize import load_model, load_waveglow, synthesize
+from synthesis.synthesize import load_model, synthesize
+from synthesis.waveglow import load_waveglow_model
 from dataset.transcribe import transcribe
 
 
@@ -18,7 +19,7 @@ def test_synthesize():
     model = load_model(model_path)
     assert model
 
-    waveglow = load_waveglow(waveglow_path)
+    waveglow = load_waveglow_model(waveglow_path)
     assert waveglow
 
     text = "hello everybody my name is david attenborough"
