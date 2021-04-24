@@ -13,6 +13,7 @@ from synthesis.hifigan_model import Generator
 
 MAX_WAV_VALUE = 32768.0
 
+
 class AttrDict(dict):
     def __init__(self, *args, **kwargs):
         super(AttrDict, self).__init__(*args, **kwargs)
@@ -43,15 +44,15 @@ def load_hifigan_model(model_path, config_path):
         data = f.read()
 
     if torch.cuda.is_available():
-        device = torch.device('cuda')
+        device = torch.device("cuda")
     else:
-        device = torch.device('cpu')
-    
+        device = torch.device("cpu")
+
     h = AttrDict(json.loads(data))
     generator = Generator(h).to(device)
 
     checkpoint_dict = torch.load(model_path, map_location=device)
-    generator.load_state_dict(checkpoint_dict['generator'])
+    generator.load_state_dict(checkpoint_dict["generator"])
     generator.eval()
     generator.remove_weight_norm()
 
@@ -77,5 +78,5 @@ def generate_audio_hifigan(model, mel, filepath, sample_rate=22050):
         y_g_hat = model(mel)
         audio = y_g_hat.squeeze()
         audio = audio * MAX_WAV_VALUE
-        audio = audio.cpu().numpy().astype('int16')
+        audio = audio.cpu().numpy().astype("int16")
         write(filepath, sample_rate, audio)

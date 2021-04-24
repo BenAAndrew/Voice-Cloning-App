@@ -81,13 +81,18 @@ def get_timestamp(milliseconds):
     str
         Timestamp (in format H:M:S.milli)
     """
-    hours = int(milliseconds / (60*60*1000))
-    milliseconds = milliseconds - hours*(60*60*1000)
-    minutes = int(milliseconds / (60*1000))
-    milliseconds = milliseconds - minutes*(60*1000)
+    hours = int(milliseconds / (60 * 60 * 1000))
+    milliseconds = milliseconds - hours * (60 * 60 * 1000)
+    minutes = int(milliseconds / (60 * 1000))
+    milliseconds = milliseconds - minutes * (60 * 1000)
     seconds = int(milliseconds / 1000)
-    milliseconds = milliseconds - seconds*1000
-    return "%s:%s:%s.%s" % (str(hours).zfill(2), str(minutes).zfill(2), str(seconds).zfill(2), str(milliseconds).zfill(3))
+    milliseconds = milliseconds - seconds * 1000
+    return "%s:%s:%s.%s" % (
+        str(hours).zfill(2),
+        str(minutes).zfill(2),
+        str(seconds).zfill(2),
+        str(milliseconds).zfill(3),
+    )
 
 
 def cut_audio(input_path, start, end, output_folder):
@@ -114,7 +119,11 @@ def cut_audio(input_path, start, end, output_folder):
     duration = (end - start) / 1000
     output_name = f"{start}_{end}.wav"
     output_path = os.path.join(output_folder, output_name)
-    call(["ffmpeg", "-ss", start_timestamp, "-t", str(duration), "-i", input_path, output_path], stdout=DEVNULL, stderr=STDOUT)
+    call(
+        ["ffmpeg", "-ss", start_timestamp, "-t", str(duration), "-i", input_path, output_path],
+        stdout=DEVNULL,
+        stderr=STDOUT,
+    )
     return output_name
 
 

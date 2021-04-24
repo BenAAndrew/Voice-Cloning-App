@@ -199,7 +199,10 @@ def train_post():
 @app.route("/synthesis-setup", methods=["GET"])
 def get_synthesis_setup():
     return render_template(
-        "synthesis-setup.html", waveglow_models=os.listdir(paths["waveglow"]), hifigan_models=os.listdir(paths["hifigan"]), models=os.listdir(paths["models"])
+        "synthesis-setup.html",
+        waveglow_models=os.listdir(paths["waveglow"]),
+        hifigan_models=os.listdir(paths["hifigan"]),
+        models=os.listdir(paths["models"]),
     )
 
 
@@ -212,7 +215,7 @@ def synthesis_setup_post():
         if request.files.get("hifigan-model") and request.files.get("hifigan-config"):
             model_name = request.files["hifigan-model"].filename.split(".")[0]
             model_config = request.files["hifigan-config"].filename.split(".")[0]
-            hifigan_folder = os.path.join(paths["hifigan"], model_name+"-"+model_config)
+            hifigan_folder = os.path.join(paths["hifigan"], model_name + "-" + model_config)
             os.makedirs(hifigan_folder, exist_ok=False)
             model_path = os.path.join(hifigan_folder, "model.pt")
             model_config_path = os.path.join(hifigan_folder, "config.json")
@@ -224,7 +227,7 @@ def synthesis_setup_post():
             model_config_path = os.path.join(hifigan_folder, "config.json")
         else:
             return render_template("synthesis-setup.html", error="No hifigan model chosen")
-        
+
         vocoder = load_hifigan_model(model_path, model_config_path)
     elif vocoder_type == "waveglow":
         if request.files.get("waveglow"):

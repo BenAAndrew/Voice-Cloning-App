@@ -1,6 +1,7 @@
 from collections import Counter
 from difflib import SequenceMatcher
 
+
 def similarity(a, b):
     return SequenceMatcher(None, a, b).ratio()
 
@@ -128,7 +129,6 @@ class FuzzySearch(object):
         start = self.text.index(best)
         end = start + len(best)
         return start, end, best_score
-
 
     def find_best(self, look_for, start=0, end=-1):
         end = len(self.text) if end < 0 else end
