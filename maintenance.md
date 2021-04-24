@@ -5,6 +5,21 @@ If you wish to make changes to a feature, please read this first.
 ## How to get involved
 Everyone is welcome to make modifications to the project and propose their changes in pull requests. Please make sure that you understand and have tested your changes before sharing.
 
+## Making changes
+To make a change create a Pull Request with a title explaining & description listing the changes.
+Also ensure the following:
+1. You have tested the changes and are confident existing functionality has not been impacted
+2. You have formatted the code using [black](https://pypi.org/project/black/) with the command `black . -l 120`
+3. The feature works in the executable (which can be built with the command below)
+
+## Build command
+Before builing the executable you will need to create a python environment with the requirements installed (`requirements.txt`) as well as `pyinstaller`.
+Run this command from the root of the project.
+
+`pyinstaller main.py --onefile --hidden-import="sklearn.utils._weight_vector" --add-data "application/static;application/static" --icon application\static\favicon\app-icon.ico --clean`
+
+This will add the executable to the `dist` folder.
+
 ## Project Structure
 - [Application](#application)
 - [Dataset](#dataset)
@@ -59,6 +74,3 @@ The synthsis script implements https://github.com/NVIDIA/waveglow.
 The synthesis process is implemented in `synthesize.py`. It firstly loads the feature predictor model (from training) and a pretrained waveglow model. It then cleans the text and infers the results. Audio & an alignment graph can be produced from this.
 
 In the app `synonyms.py` is also used to suggest synonyms for poorly synthsised words. It uses the `trainscribe.py` script to estimate which words were non-audible, and the `nltk` library to list synonyms.
-
-## Build command
-`pyinstaller main.py --onefile --hidden-import="sklearn.utils._weight_vector" --add-data "application/static;application/static" --icon application\static\favicon\app-icon.ico --clean`
