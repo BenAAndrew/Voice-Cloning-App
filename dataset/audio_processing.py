@@ -1,6 +1,5 @@
 from subprocess import check_output
 from pathlib import Path
-from datetime import datetime
 from pydub import AudioSegment
 import os
 
@@ -68,6 +67,29 @@ def change_sample_rate(input_path, new_sample_rate):
     return output_path
 
 
+def get_timestamp(milliseconds):
+    """
+    Generates timestamp for an amount of milliseconds
+
+    Parameters
+    ----------
+    milliseconds : int
+        Time in milliseconds
+
+    Returns
+    -------
+    str
+        Timestamp (in format H:M:S.milli)
+    """
+    hours = int(milliseconds / (60*60*1000))
+    milliseconds = milliseconds - hours*(60*60*1000)
+    minutes = int(milliseconds / (60*1000))
+    milliseconds = milliseconds - minutes*(60*1000)
+    seconds = int(milliseconds / 1000)
+    milliseconds = milliseconds - seconds*1000
+    return "%s:%s:%s.%s" % (str(hours).zfill(2), str(minutes).zfill(2), str(seconds).zfill(2), str(milliseconds).zfill(3))
+
+
 def cut_audio(input_path, start, end, output_folder):
     """
     Cuts audio to a given start & end point.
@@ -88,7 +110,7 @@ def cut_audio(input_path, start, end, output_folder):
     str
         Path of the generated clip (named in the format 'start_end.wav')
     """
-    start_timestamp = datetime.fromtimestamp(start / 1000).strftime("%H:%M:%S.%f")
+    start_timestamp = get_timestamp(start)
     duration = (end - start) / 1000
     output_name = f"{start}_{end}.wav"
     output_path = os.path.join(output_folder, output_name)
