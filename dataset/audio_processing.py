@@ -1,4 +1,4 @@
-from subprocess import check_output
+from subprocess import check_output, call, DEVNULL, STDOUT
 from pathlib import Path
 from pydub import AudioSegment
 import os
@@ -114,7 +114,7 @@ def cut_audio(input_path, start, end, output_folder):
     duration = (end - start) / 1000
     output_name = f"{start}_{end}.wav"
     output_path = os.path.join(output_folder, output_name)
-    check_output(["ffmpeg", "-ss", start_timestamp, "-t", str(duration), "-i", input_path, output_path])
+    call(["ffmpeg", "-ss", start_timestamp, "-t", str(duration), "-i", input_path, output_path], stdout=DEVNULL, stderr=STDOUT)
     return output_name
 
 
