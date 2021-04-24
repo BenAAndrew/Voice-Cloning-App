@@ -25,7 +25,9 @@ from dataset.analysis import get_total_audio_duration, validate_dataset, save_da
 from training.train import train
 from training.checkpoint import get_latest_checkpoint
 from training.utils import get_available_memory, get_batch_size
-from synthesis.synthesize import load_model, load_waveglow, synthesize
+from synthesis.synthesize import load_model, synthesize
+from synthesis.waveglow import load_waveglow_model
+from synthesis.hifigan import load_hifigan_model
 from synthesis.synonyms import get_alternative_word_suggestions
 
 from flask import Flask, request, render_template, redirect, url_for, send_file
@@ -43,7 +45,8 @@ GRAPH_FILE = "graph.png"
 RESULTS_FILE = "out.wav"
 
 model = None
-waveglow_model = None
+vocoder = None
+vocoder_type = ""
 inflect_engine = inflect.engine()
 
 
@@ -196,28 +199,50 @@ def train_post():
 @app.route("/synthesis-setup", methods=["GET"])
 def get_synthesis_setup():
     return render_template(
-        "synthesis-setup.html", waveglow_models=os.listdir(paths["waveglow"]), models=os.listdir(paths["models"])
+        "synthesis-setup.html", waveglow_models=os.listdir(paths["waveglow"]), hifigan_models=os.listdir(paths["hifigan"]), models=os.listdir(paths["models"])
     )
 
 
 @app.route("/synthesis-setup", methods=["POST"])
 def synthesis_setup_post():
-    global model, waveglow_model
+    global model, vocoder, vocoder_type
 
-    if request.files.get("waveglow"):
-        waveglow_path = os.path.join(paths["waveglow"], request.files["waveglow"].filename)
-        request.files["waveglow"].save(waveglow_path)
-    elif request.form.get("existing_waveglow"):
-        waveglow_path = os.path.join(paths["waveglow"], request.form["existing_waveglow"])
+    vocoder_type = request.form["vocoder"]
+    if vocoder_type == "hifigan":
+        if request.files.get("hifigan-model") and request.files.get("hifigan-config"):
+            model_name = request.files["hifigan-model"].filename.split(".")[0]
+            model_config = request.files["hifigan-config"].filename.split(".")[0]
+            hifigan_folder = os.path.join(paths["hifigan"], model_name+"-"+model_config)
+            os.makedirs(hifigan_folder, exist_ok=False)
+            model_path = os.path.join(hifigan_folder, "model.pt")
+            model_config_path = os.path.join(hifigan_folder, "config.json")
+            request.files["hifigan-model"].save(model_path)
+            request.files["hifigan-config"].save(model_config_path)
+        elif request.form.get("existing_hifigan"):
+            hifigan_folder = os.path.join(paths["hifigan"], request.form["existing_hifigan"])
+            model_path = os.path.join(hifigan_folder, "model.pt")
+            model_config_path = os.path.join(hifigan_folder, "config.json")
+        else:
+            return render_template("synthesis-setup.html", error="No hifigan model chosen")
+        
+        vocoder = load_hifigan_model(model_path, model_config_path)
+    elif vocoder_type == "waveglow":
+        if request.files.get("waveglow"):
+            model_path = os.path.join(paths["waveglow"], request.files["waveglow"].filename)
+            request.files["waveglow"].save(model_path)
+        elif request.form.get("existing_waveglow"):
+            model_path = os.path.join(paths["waveglow"], request.form["existing_waveglow"])
+        else:
+            return render_template("synthesis-setup.html", error="No waveglow model chosen")
+
+        vocoder = load_waveglow_model(model_path)
     else:
-        return render_template("synthesis-setup.html", path=None, error="No waveglow model chosen")
+        return render_template("synthesis-setup.html", error="Invalid vocoder selected")
 
     dataset_name = request.form["path"]
     checkpoint_folder = os.path.join(paths["models"], dataset_name)
     checkpoint = get_latest_checkpoint(checkpoint_folder)
     model = load_model(checkpoint)
-    waveglow_model = load_waveglow(waveglow_path)
-
     return redirect("/synthesis")
 
 
@@ -232,8 +257,8 @@ def get_result_file(path):
 
 @app.route("/synthesis", methods=["GET", "POST"])
 def synthesis_post():
-    global model, waveglow_model
-    if not model:
+    global model, vocoder
+    if not model or not vocoder:
         return redirect("/synthesis-setup")
 
     if request.method == "GET":
@@ -248,7 +273,7 @@ def synthesis_post():
         graph_web_path = graph_path.replace("\\", "/")
         audio_web_path = audio_path.replace("\\", "/")
 
-        synthesize(model, waveglow_model, text, inflect_engine, graph_path, audio_path)
+        synthesize(model, text, inflect_engine, graph_path, audio_path, vocoder, vocoder_type)
         return render_template(
             "synthesis.html",
             text=text.strip(),

@@ -11,20 +11,51 @@
     </div>
     <br>
     <div class="form-group">
-        <h5>Waveglow model</h5>
-        <p>If you don't have one: <a href="https://drive.google.com/file/d/1rpK8CzAAirq9sWZhe9nlfvxMF1dRgFbF/view">Download pretrained</a></p>
-        <input type="file" id="waveglow" name="waveglow" {% if not waveglow_models %}required{% endif %}>
+        <h5>Vocoder</h5>
+        <select class="form-control" id="vocoder" name="vocoder" onchange="selectVocoder()">
+            <option value="hifigan">Hifi-gan</option>
+            <option value="waveglow">Waveglow</option>
+        </select>
     </div>
-    {% if waveglow_models %}
+    <div id="hifigan-fields">
         <div class="form-group">
-            Or
-            <select class="form-control" id="existing_waveglow" name="existing_waveglow">
-                {% for model in waveglow_models %}
-                    <option value="{{model}}">{{model}}</option>
-                {% endfor %}
-            </select>
+            <h5>Hifi-gan model</h5>
+            <p>If you don't have one: <a href="https://drive.google.com/drive/folders/1dqpUYEYF_hH7T0rII9_VQbps45FvNBqf">Download pretrained</a></p>
+            <input type="file" name="hifigan-model" {% if not hifigan_models %}required{% endif %}>
         </div>
-    {% endif %}
+        <div class="form-group">
+            <h5>Hifi-gan config</h5>
+            <input type="file" name="hifigan-config" {% if not hifigan_models %}required{% endif %}>
+        </div>
+        {% if hifigan_models %}
+            <div class="form-group">
+                Or
+                <select class="form-control" name="existing_hifigan">
+                    {% for model in hifigan_models %}
+                        <option value="{{model}}">{{model}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        {% endif %}
+    </div>
+    <div id="waveglow-fields">
+        <div class="form-group">
+            <h5>Waveglow model</h5>
+            <p>If you don't have one: <a href="https://drive.google.com/file/d/1rpK8CzAAirq9sWZhe9nlfvxMF1dRgFbF/view">Download pretrained</a></p>
+            <input type="file" id="waveglow" name="waveglow" {% if not waveglow_models %}required{% endif %}>
+        </div>
+        {% if waveglow_models %}
+            <div class="form-group">
+                Or
+                <select class="form-control" id="existing_waveglow" name="existing_waveglow">
+                    {% for model in waveglow_models %}
+                        <option value="{{model}}">{{model}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        {% endif %}
+    </div>
     <input type="submit" class="btn btn-primary">
 </form>
+<script src="{{ url_for('static', filename='synthesis.js') }}"></script>
 {% endblock %}
