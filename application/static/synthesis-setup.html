@@ -21,11 +21,11 @@
         <div class="form-group">
             <h5>Hifi-gan model</h5>
             <p>If you don't have one: <a href="https://drive.google.com/drive/folders/1dqpUYEYF_hH7T0rII9_VQbps45FvNBqf">Download pretrained</a></p>
-            <input type="file" name="hifigan-model" {% if not hifigan_models %}required{% endif %}>
+            <input type="file" name="hifigan-model">
         </div>
         <div class="form-group">
             <h5>Hifi-gan config</h5>
-            <input type="file" name="hifigan-config" {% if not hifigan_models %}required{% endif %}>
+            <input type="file" name="hifigan-config">
         </div>
         {% if hifigan_models %}
             <div class="form-group">
@@ -42,7 +42,7 @@
         <div class="form-group">
             <h5>Waveglow model</h5>
             <p>If you don't have one: <a href="https://drive.google.com/file/d/1rpK8CzAAirq9sWZhe9nlfvxMF1dRgFbF/view">Download pretrained</a></p>
-            <input type="file" id="waveglow" name="waveglow" {% if not waveglow_models %}required{% endif %}>
+            <input type="file" id="waveglow" name="waveglow">
         </div>
         {% if waveglow_models %}
             <div class="form-group">
