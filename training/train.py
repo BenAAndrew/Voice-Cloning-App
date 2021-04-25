@@ -99,7 +99,7 @@ def train(
         )
         logging.info("Using multi-GPU")
 
-    available_memory_gb = get_available_memory(num_gpus)
+    available_memory_gb = get_available_memory(distributed_run)
     assert (
         available_memory_gb >= MINIMUM_MEMORY_GB
     ), f"Required GPU with at least {MINIMUM_MEMORY_GB}GB memory. (only {available_memory_gb}GB available)"
