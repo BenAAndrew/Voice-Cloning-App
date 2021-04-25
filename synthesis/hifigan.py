@@ -75,6 +75,9 @@ def generate_audio_hifigan(model, mel, filepath, sample_rate=22050):
         Sample rate of audio (default is 22050)
     """
     with torch.no_grad():
+        if torch.cuda.is_available():
+            mel = mel.type(torch.cuda.FloatTensor)
+
         y_g_hat = model(mel)
         audio = y_g_hat.squeeze()
         audio = audio * MAX_WAV_VALUE
