@@ -38,7 +38,6 @@ A Python/Pytorch app for easily synthesising human voices
 3. [Synthesis](synthesis/synthesis.md)
 
 ## Future Improvements
-- Test pretrained weights for transfer learning
 - Add support for alternative models
 - Improved batch size estimation
 - Multi-GPU support
@@ -53,6 +52,8 @@ This project uses a reworked version of [Tacotron2](https://github.com/NVIDIA/ta
 Additionally, the dataset generation uses [DSAlign](https://github.com/mozilla/DSAlign) & [Silero](https://github.com/snakers4/silero-models).
 
 Thank you to Dr. John Bustard at Queen's University Belfast for his support throughout the project.
+
+Supported by [uberduck.ai](https://uberduck.ai/), reach out to them for live model hosting.
 
 Also a big thanks to the members of the [VocalSynthesis subreddit](https://www.reddit.com/r/VocalSynthesis/) for their feedback.
 
