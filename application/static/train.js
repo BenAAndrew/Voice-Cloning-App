@@ -42,13 +42,22 @@ low_epoch_threshold = 2500;
 medium_epoch_threshold = 5000;
 high_epoch_threshold = 7500;
 
+low_epoch_threshold_with_tl = 500;
+medium_epoch_threshold_with_tl = 1500;
+high_epoch_threshold_with_tl = 2500;
+
 function showEpochsLabel(){
     newVal = document.getElementById("epochs").value;
     text = newVal.toString();
-    text += addSuggestion(newVal, low_epoch_threshold, medium_epoch_threshold, high_epoch_threshold);
+    if(document.getElementById("pretrained_model").files.length == 1){
+        text += addSuggestion(newVal, low_epoch_threshold_with_tl, medium_epoch_threshold_with_tl, high_epoch_threshold_with_tl);
+    } else {
+        text += addSuggestion(newVal, low_epoch_threshold, medium_epoch_threshold, high_epoch_threshold);
+    }
     document.getElementById("epochs_label").innerHTML = text;
     estimateTime();
 }
+document.getElementById("pretrained_model").addEventListener("change", showEpochsLabel, false);
 showEpochsLabel();
 
 // Dataset
