@@ -102,3 +102,9 @@ function showBatchSize(){
     estimateTime();
 }
 showBatchSize();
+
+// Checkpoint frequency
+function showCheckpointFrequencyLabel(){
+    document.getElementById("checkpoint_frequency_label").innerHTML =  document.getElementById("checkpoint_frequency").value;
+}
+showCheckpointFrequencyLabel();

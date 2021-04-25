@@ -20,7 +20,6 @@ from tacotron2_model import Tacotron2, TextMelCollate, Tacotron2Loss
 
 
 MINIMUM_MEMORY_GB = 4
-ITERS_PER_CHECKPOINT = 1000
 TRAIN_SIZE = 0.8
 WEIGHT_DECAY = 1e-6
 GRAD_CLIP_THRESH = 1.0
@@ -41,6 +40,7 @@ def train(
     epochs=8000,
     batch_size=None,
     early_stopping=True,
+    iters_per_checkpoint=1000,
     logging=logging,
 ):
     """
@@ -68,6 +68,8 @@ def train(
         Training batch size (calculated automatically if None)
     early_stopping : bool (optional)
         Whether to stop training when loss stops significantly decreasing (default is True)
+    iters_per_checkpoint : int (optional)
+        How often checkpoints are saved (number of iterations)
     logging : logging (optional)
         Logging object to write logs to
 
@@ -153,7 +155,7 @@ def train(
     # Check available memory
     if not overwrite_checkpoints:
         num_iterations = len(train_loader) * epochs - epoch_offset
-        check_space(num_iterations // ITERS_PER_CHECKPOINT)
+        check_space(num_iterations // iters_per_checkpoint)
 
     model.train()
     validation_losses = []
@@ -185,7 +187,7 @@ def train(
             )
 
             # Validate & save checkpoint
-            if iteration % ITERS_PER_CHECKPOINT == 0:
+            if iteration % iters_per_checkpoint == 0:
                 val_loss = validate(model, val_loader, criterion, iteration)
                 validation_losses.append(val_loss)
                 logging.info(

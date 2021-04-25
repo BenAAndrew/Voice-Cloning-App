@@ -34,18 +34,23 @@
     <button type="button" class="collapsible" id="advanced">Advanced Options ∨</button>
     <div class="content">
         <br>
-        
         <div class="form-group">
             <input type="range" id="batch_size" name="batch_size" step="2" min="2" max="64" value="{{ batch_size }}" onchange="showBatchSize()">
             <label for="batch_size">
                 <a href="#" data-toggle="tooltip" data-placement="top" title="Larger batch sizes use more GPU memory leading to faster training, but setting this too high may lead to a 'CUDA out of memory' error">Batch size</a>: 
                 <span id="batch_size_label"></span>
             </label> 
-            <br>  
         </div>
         <div class="form-group">
             <input type="checkbox" id="early_stopping" name="early_stopping" checked>
             <label for="early_stopping"><a href="#" data-toggle="tooltip" data-placement="top" title="Early stopping will stop training when the loss stops significantly decreasing. This will reduce unnecessary training time">Early Stopping</a></label>
+        </div>
+        <div class="form-group">
+            <input type="range" id="checkpoint_frequency" name="checkpoint_frequency" step="250" min="250" max="2500" value="1000" onchange="showCheckpointFrequencyLabel()">
+            <label for="checkpoint_frequency">
+                <a href="#" data-toggle="tooltip" data-placement="top" title="Changes how frequently backup checkpoints are made. Increasing this value will marginally increase performance but may also increase how much progress is lost if training fails.">Checkpoint Frequency</a>: 
+                <span id="checkpoint_frequency_label"></span>
+            </label>
         </div>
     </div>
     <br>
