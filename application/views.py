@@ -190,7 +190,7 @@ def train_post():
         epochs=int(epochs),
         batch_size=int(batch_size),
         early_stopping=early_stopping,
-        iters_per_checkpoint=int(iters_per_checkpoint)
+        iters_per_checkpoint=int(iters_per_checkpoint),
     )
 
     return render_template("progress.html", next_url=get_next_url(URLS, request.path))
