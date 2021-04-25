@@ -86,8 +86,8 @@ def check_space(num_checkpoints):
     ), f"Insufficent storage space (requires {required_mb}mb). Reduce checkpoint frequency or free up space"
 
 
-def reduce_tensor(tensor):
+def reduce_tensor(tensor, num_gpus):
     rt = tensor.clone()
     dist.all_reduce(rt, op=dist.reduce_op.SUM)
-    rt /= 2
+    rt /= num_gpus
     return rt

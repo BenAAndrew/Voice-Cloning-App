@@ -87,7 +87,7 @@ def train(
     os.makedirs(output_directory, exist_ok=True)
 
     num_gpus = torch.cuda.device_count()
-    distributed_run = num_gpus == 2
+    distributed_run = num_gpus > 1
 
     if distributed_run:
         torch.cuda.set_device(0)
@@ -194,7 +194,7 @@ def train(
 
             loss = criterion(y_pred, y)
             if distributed_run:
-                reduced_loss = reduce_tensor(loss.data).item()
+                reduced_loss = reduce_tensor(loss.data, num_gpus).item()
             else:
                 reduced_loss = loss.item()
             loss.backward()
@@ -211,7 +211,7 @@ def train(
 
             # Validate & save checkpoint
             if iteration % iters_per_checkpoint == 0:
-                val_loss = validate(model, val_loader, criterion, iteration, distributed_run)
+                val_loss = validate(model, val_loader, criterion, iteration, distributed_run, num_gpus)
                 validation_losses.append(val_loss)
                 logging.info(
                     "Saving model and optimizer state at iteration {} to {}. Scored {}".format(
