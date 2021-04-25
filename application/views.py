@@ -35,7 +35,6 @@ from flask import Flask, request, render_template, redirect, url_for, send_file
 
 URLS = {"/": "Build dataset", "/train": "Train", "/synthesis-setup": "Synthesis"}
 TEXT_FILE = "text.txt"
-AUDIO_FILE = "audio.mp3"
 ALIGNMENT_FILE = "align.json"
 AUDIO_FOLDER = "wavs"
 METADATA_FILE = "metadata.csv"
@@ -82,10 +81,10 @@ def create_dataset_post():
         if os.path.exists(output_folder):
             request.files = None
             raise Exception("Dataset name taken")
-        os.makedirs(output_folder, exist_ok=True)
 
+        os.makedirs(output_folder, exist_ok=True)
         text_path = os.path.join(output_folder, TEXT_FILE)
-        audio_path = os.path.join(output_folder, AUDIO_FILE)
+        audio_path = os.path.join(output_folder, request.files["audio_file"].filename)
         forced_alignment_path = os.path.join(output_folder, ALIGNMENT_FILE)
         output_path = os.path.join(output_folder, AUDIO_FOLDER)
         label_path = os.path.join(output_folder, METADATA_FILE)
