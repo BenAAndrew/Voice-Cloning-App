@@ -83,7 +83,20 @@ def train(
     assert torch.cuda.is_available(), "You do not have Torch with CUDA installed. Please check CUDA & Pytorch install"
     os.makedirs(output_directory, exist_ok=True)
 
-    available_memory_gb = get_available_memory()
+    num_gpus = torch.cuda.device_count()
+
+    if num_gpus == 2:
+        torch.cuda.set_device(0)
+        # Initialize distributed communication
+        dist.init_process_group(
+            backend="nccl", 
+            init_method="tcp://localhost:54321",
+            world_size=num_gpus, 
+            rank=0
+        )
+        logging.info("Using multi-GPU")
+
+    available_memory_gb = get_available_memory(num_gpus)
     assert (
         available_memory_gb >= MINIMUM_MEMORY_GB
     ), f"Required GPU with at least {MINIMUM_MEMORY_GB}GB memory. (only {available_memory_gb}GB available)"
