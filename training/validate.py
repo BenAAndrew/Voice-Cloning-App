@@ -1,7 +1,9 @@
 import torch
 
+from training.utils import reduce_tensor
 
-def validate(model, val_loader, criterion, iteration):
+
+def validate(model, val_loader, criterion, iteration, distributed_run):
     """
     Credit: https://github.com/NVIDIA/tacotron2
 
@@ -30,7 +32,10 @@ def validate(model, val_loader, criterion, iteration):
             x, y = model.parse_batch(batch)
             y_pred = model(x)
             loss = criterion(y_pred, y)
-            reduced_val_loss = loss.item()
+            if distributed_run:
+                reduced_val_loss = reduce_tensor(loss.data).item()
+            else:
+                reduced_val_loss = loss.item()
             val_loss += reduced_val_loss
         val_loss = val_loss / (i + 1)
 

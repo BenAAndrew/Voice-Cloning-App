@@ -83,3 +83,10 @@ def check_space(num_checkpoints):
     assert (
         free_mb >= required_mb
     ), f"Insufficent storage space (requires {required_mb}mb). Reduce checkpoint frequency or free up space"
+
+
+def reduce_tensor(tensor):
+    rt = tensor.clone()
+    dist.all_reduce(rt, op=dist.reduce_op.SUM)
+    rt /= 2
+    return rt

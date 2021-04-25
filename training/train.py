@@ -11,11 +11,13 @@ logging.getLogger().setLevel(logging.INFO)
 
 import torch
 from torch.utils.data import DataLoader
+from torch.utils.data.distributed import DistributedSampler
 
 from training.dataset import VoiceDataset
 from training.checkpoint import load_checkpoint, save_checkpoint, get_latest_checkpoint, warm_start_model
 from training.validate import validate
-from training.utils import get_available_memory, get_batch_size, get_learning_rate, check_space
+from training.utils import get_available_memory, get_batch_size, get_learning_rate, check_space, reduce_tensor
+from training.distributed import apply_gradient_allreduce
 from tacotron2_model import Tacotron2, TextMelCollate, Tacotron2Loss
 
 
@@ -84,8 +86,9 @@ def train(
     os.makedirs(output_directory, exist_ok=True)
 
     num_gpus = torch.cuda.device_count()
+    distributed_run = num_gpus == 2
 
-    if num_gpus == 2:
+    if distributed_run:
         torch.cuda.set_device(0)
         # Initialize distributed communication
         dist.init_process_group(
@@ -121,6 +124,9 @@ def train(
     # Load model & optimizer
     logging.info("Loading model...")
     model = Tacotron2().cuda()
+    if distributed_run:
+        model = apply_gradient_allreduce(model)
+
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate, weight_decay=WEIGHT_DECAY)
     criterion = Tacotron2Loss()
     logging.info("Loaded model")
@@ -142,10 +148,10 @@ def train(
 
     # Data loaders
     train_loader = DataLoader(
-        trainset, num_workers=0, sampler=None, batch_size=batch_size, pin_memory=False, collate_fn=collate_fn
+        trainset, num_workers=0, sampler=DistributedSampler(trainset) if distributed_run else None, batch_size=batch_size, pin_memory=False, collate_fn=collate_fn
     )
     val_loader = DataLoader(
-        valset, num_workers=0, sampler=None, batch_size=batch_size, pin_memory=False, collate_fn=collate_fn
+        valset, num_workers=0, sampler=DistributedSampler(valset) if distributed_run else None, batch_size=batch_size, pin_memory=False, collate_fn=collate_fn
     )
     logging.info("Loaded data")
 
@@ -186,7 +192,10 @@ def train(
             y_pred = model(x)
 
             loss = criterion(y_pred, y)
-            reduced_loss = loss.item()
+            if distributed_run:
+                reduced_loss = reduce_tensor(loss.data).item()
+            else:
+                reduced_loss = loss.item()
             loss.backward()
 
             grad_norm = torch.nn.utils.clip_grad_norm_(model.parameters(), GRAD_CLIP_THRESH)
@@ -201,7 +210,7 @@ def train(
 
             # Validate & save checkpoint
             if iteration % iters_per_checkpoint == 0:
-                val_loss = validate(model, val_loader, criterion, iteration)
+                val_loss = validate(model, val_loader, criterion, iteration, distributed_run)
                 validation_losses.append(val_loss)
                 logging.info(
                     "Saving model and optimizer state at iteration {} to {}. Scored {}".format(
