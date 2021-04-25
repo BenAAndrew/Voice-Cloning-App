@@ -151,7 +151,9 @@ def get_train():
     cuda_enabled = torch.cuda.is_available()
 
     if cuda_enabled:
-        available_memory_gb = get_available_memory()
+        num_gpus = torch.cuda.device_count()
+        distributed_run = num_gpus == 2
+        available_memory_gb = get_available_memory(distributed_run)
         batch_size = get_batch_size(available_memory_gb)
     else:
         batch_size = None
