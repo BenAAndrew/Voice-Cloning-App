@@ -91,6 +91,7 @@ def train(
 
     if distributed_run:
         torch.cuda.set_device(0)
+        logging.info("Starting distributed processing")
         # Initialize distributed communication
         dist.init_process_group(
             backend="nccl", 
