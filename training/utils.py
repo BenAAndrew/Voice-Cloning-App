@@ -1,5 +1,6 @@
 import shutil
 import torch
+import torch.distributed as dist
 
 CHECKPOINT_SIZE_MB = 333
 BATCH_SIZE_PER_GB = 2.5
