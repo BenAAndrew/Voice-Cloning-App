@@ -3,7 +3,6 @@ import random
 import time
 import argparse
 import logging
-import datetime
 from os.path import dirname, abspath
 import sys
 
@@ -12,7 +11,6 @@ logging.getLogger().setLevel(logging.INFO)
 
 import torch
 import torch.nn as nn
-import torch.distributed as dist
 from torch.utils.data import DataLoader
 from torch.utils.data.distributed import DistributedSampler
 
@@ -200,7 +198,7 @@ def train(
 
             # Validate & save checkpoint
             if iteration % iters_per_checkpoint == 0:
-                val_loss = validate(model, val_loader, criterion, iteration, distributed_run, num_gpus)
+                val_loss = validate(model, val_loader, criterion, iteration)
                 validation_losses.append(val_loss)
                 logging.info(
                     "Saving model and optimizer state at iteration {} to {}. Scored {}".format(
