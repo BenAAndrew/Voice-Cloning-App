@@ -91,7 +91,6 @@ def train(
     distributed_run = num_gpus > 1
 
     if distributed_run:
-        torch.cuda.set_device(0)
         # Initialize distributed communication
         current_dir = os.getcwd().replace('\\', '/')
         path = f"file:///{current_dir}/distributed_logging"
