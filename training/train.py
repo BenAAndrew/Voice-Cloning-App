@@ -91,10 +91,12 @@ def train(
 
     if distributed_run:
         torch.cuda.set_device(0)
-        logging.info("Starting distributed processing")
         # Initialize distributed communication
+        path = f"file:///{os.getcwd().replace('\\', '/')}/distributed_logging"
+        logging.info(f"Starting distributed processing ({path})")
         dist.init_process_group(
             backend="gloo", 
+            init_method=path,
             world_size=num_gpus, 
             rank=0
         )
