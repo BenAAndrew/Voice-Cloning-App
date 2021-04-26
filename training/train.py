@@ -3,7 +3,7 @@ import random
 import time
 import argparse
 import logging
-from datetime import datetime
+import datetime
 from os.path import dirname, abspath
 import sys
 
