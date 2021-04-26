@@ -3,6 +3,7 @@ import random
 import time
 import argparse
 import logging
+import datetime
 from os.path import dirname, abspath
 import sys
 
@@ -214,7 +215,7 @@ def train(
 
             # Validate & save checkpoint
             if iteration % iters_per_checkpoint == 0:
-                val_loss = validate(model, val_loader, criterion, iteration)
+                val_loss = validate(model, val_loader, criterion, iteration, distributed_run, num_gpus)
                 validation_losses.append(val_loss)
                 logging.info(
                     "Saving model and optimizer state at iteration {} to {}. Scored {}".format(
