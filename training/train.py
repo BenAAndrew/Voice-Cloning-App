@@ -92,7 +92,8 @@ def train(
     if distributed_run:
         torch.cuda.set_device(0)
         # Initialize distributed communication
-        path = f"file:///{os.getcwd().replace('\\', '/')}/distributed_logging"
+        current_dir = os.getcwd().replace('\\', '/')
+        path = f"file:///{current_dir}/distributed_logging"
         logging.info(f"Starting distributed processing ({path})")
         dist.init_process_group(
             backend="gloo", 
