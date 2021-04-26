@@ -3,6 +3,7 @@ import random
 import time
 import argparse
 import logging
+from datetime import datetime
 from os.path import dirname, abspath
 import sys
 
@@ -99,6 +100,7 @@ def train(
             backend="gloo", 
             init_method=path,
             world_size=num_gpus, 
+            timeout=datetime.timedelta(0, 180),
             rank=0
         )
         logging.info("Using multi-GPU")
