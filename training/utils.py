@@ -1,6 +1,5 @@
 import shutil
 import torch
-import torch.distributed as dist
 
 CHECKPOINT_SIZE_MB = 333
 BATCH_SIZE_PER_GB = 2.5
@@ -80,10 +79,3 @@ def check_space(num_checkpoints):
     assert (
         free_mb >= required_mb
     ), f"Insufficent storage space (requires {required_mb}mb). Reduce checkpoint frequency or free up space"
-
-
-def reduce_tensor(tensor, num_gpus):
-    rt = tensor.clone()
-    dist.all_reduce(rt, op=dist.reduce_op.SUM)
-    rt /= num_gpus
-    return rt
