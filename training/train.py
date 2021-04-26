@@ -13,6 +13,7 @@ logging.getLogger().setLevel(logging.INFO)
 import torch
 import torch.distributed as dist
 from torch.utils.data import DataLoader
+from torch.utils.data.distributed import DistributedSampler
 
 from training.dataset import VoiceDataset
 from training.checkpoint import load_checkpoint, save_checkpoint, get_latest_checkpoint, warm_start_model
@@ -153,10 +154,10 @@ def train(
 
     # Data loaders
     train_loader = DataLoader(
-        trainset, num_workers=0, sampler=None, batch_size=batch_size, pin_memory=False, collate_fn=collate_fn
+        trainset, num_workers=0, sampler=DistributedSampler(trainset) if distributed_run else None, batch_size=batch_size, pin_memory=False, collate_fn=collate_fn
     )
     val_loader = DataLoader(
-        valset, num_workers=0, sampler=None, batch_size=batch_size, pin_memory=False, collate_fn=collate_fn
+        valset, num_workers=0, sampler=DistributedSampler(valset) if distributed_run else None, batch_size=batch_size, pin_memory=False, collate_fn=collate_fn
     )
     logging.info("Loaded data")
 
