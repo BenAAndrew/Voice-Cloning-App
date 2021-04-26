@@ -93,6 +93,7 @@ def train(
     if distributed_run:
         # Initialize distributed communication
         assert torch.distributed.is_available(), "Distributed processing not available"
+        torch.multiprocessing.set_start_method('spawn')
         current_dir = os.getcwd().replace('\\', '/')
         path = f"file:///{current_dir}/distributed_logging"
         logging.info(f"Starting distributed processing ({path})")
