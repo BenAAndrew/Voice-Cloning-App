@@ -95,7 +95,6 @@ def train(
         # Initialize distributed communication
         dist.init_process_group(
             backend="gloo", 
-            init_method="tcp://127.0.0.1:54321",
             world_size=num_gpus, 
             rank=0
         )
