@@ -111,7 +111,7 @@ def train(
     model = Tacotron2()
 
     if torch.cuda.device_count() > 1:
-        logging.info("Using", torch.cuda.device_count(), "GPUs")
+        logging.info(f"Using {torch.cuda.device_count()} GPUs")
         model = nn.DataParallel(model)
 
     device = torch.device("cuda:0")
