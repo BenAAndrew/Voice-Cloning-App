@@ -189,7 +189,7 @@ def train(
             output_lengths = to_gpu(output_lengths).long()
 
             x, y = ((text_padded, input_lengths, mel_padded, max_len, output_lengths), (mel_padded, gate_padded))
-            print("Outside Model: ", x.size())
+            print("Outside Model: ", x[0].size())
             y_pred = model(x)
 
             loss = criterion(y_pred, y)
