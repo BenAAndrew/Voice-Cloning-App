@@ -18,6 +18,7 @@ from training.checkpoint import load_checkpoint, save_checkpoint, get_latest_che
 from training.validate import validate
 from training.utils import get_available_memory, get_batch_size, get_learning_rate, check_space
 from tacotron2_model import Tacotron2, TextMelCollate, Tacotron2Loss
+from tacotron2_model.utils import to_gpu
 
 
 MINIMUM_MEMORY_GB = 4
@@ -178,7 +179,16 @@ def train(
 
             # Backpropogation
             model.zero_grad()
-            x, y = model.parse_batch(batch)
+            # x, y = model.parse_batch(batch)
+            text_padded, input_lengths, mel_padded, gate_padded, output_lengths = batch
+            text_padded = to_gpu(text_padded).long()
+            input_lengths = to_gpu(input_lengths).long()
+            max_len = torch.max(input_lengths.data).item()
+            mel_padded = to_gpu(mel_padded).float()
+            gate_padded = to_gpu(gate_padded).float()
+            output_lengths = to_gpu(output_lengths).long()
+
+            x, y = ((text_padded, input_lengths, mel_padded, max_len, output_lengths), (mel_padded, gate_padded))
             print("Outside Model: ", x.size())
             y_pred = model(x)
 
