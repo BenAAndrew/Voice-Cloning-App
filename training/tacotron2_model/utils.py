@@ -58,3 +58,32 @@ def to_gpu(x):
     if torch.cuda.is_available():
         x = x.cuda(non_blocking=True)
     return torch.autograd.Variable(x)
+
+
+def parse_batch(batch):
+    text_padded, input_lengths, mel_padded, gate_padded, output_lengths = batch
+    text_padded = to_gpu(text_padded).long()
+    input_lengths = to_gpu(input_lengths).long()
+    max_len = torch.max(input_lengths.data).item()
+    mel_padded = to_gpu(mel_padded).float()
+    gate_padded = to_gpu(gate_padded).float()
+    output_lengths = to_gpu(output_lengths).long()
+    print("Outside Model: ", output_lengths.size())
+
+    return ((text_padded, input_lengths, mel_padded, max_len, output_lengths), (mel_padded, gate_padded))
+
+
+def parse_output(outputs, output_lengths=None, n_mel_channels=80):
+    print("Dims 0: ", outputs[0].size())
+
+    if output_lengths is not None:
+        mask = ~get_mask_from_lengths(output_lengths)
+        mask = mask.expand(n_mel_channels, mask.size(0), mask.size(1))
+        mask = mask.permute(1, 0, 2)
+        print("Mask ", mask.size())
+
+        outputs[0].data.masked_fill_(mask, 0.0)
+        outputs[1].data.masked_fill_(mask, 0.0)
+        outputs[2].data.masked_fill_(mask[:, 0, :], 1e3)  # gate energies
+
+    return outputs
