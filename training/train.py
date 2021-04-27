@@ -182,7 +182,7 @@ def train(
             x, y = parse_batch(batch)
             outputs, output_lengths = model(x)
             print("PARSE OUTPUT")
-            y_pred = parse_output(out, output_lengths=output_lengths)
+            y_pred = parse_output(outputs, output_lengths=output_lengths)
 
             loss = criterion(y_pred, y)
             reduced_loss = loss.item()
