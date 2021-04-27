@@ -588,7 +588,7 @@ class Tacotron2(nn.Module):
         mel_outputs_postnet = self.postnet(mel_outputs)
         mel_outputs_postnet = mel_outputs + mel_outputs_postnet
 
-        return self.parse_output([mel_outputs, mel_outputs_postnet, gate_outputs, alignments], output_lengths)
+        return [mel_outputs, mel_outputs_postnet, gate_outputs, alignments], output_lengths
 
     def inference(self, inputs):
         embedded_inputs = self.embedding(inputs).transpose(1, 2)
