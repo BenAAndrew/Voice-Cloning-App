@@ -10,6 +10,7 @@ sys.path.append(dirname(dirname(abspath(__file__))))
 logging.getLogger().setLevel(logging.INFO)
 
 import torch
+import torch.nn as nn
 from torch.utils.data import DataLoader
 
 from training.dataset import VoiceDataset
@@ -107,7 +108,15 @@ def train(
 
     # Load model & optimizer
     logging.info("Loading model...")
-    model = Tacotron2().cuda()
+    model = Tacotron2()
+
+    if torch.cuda.device_count() > 1:
+        logging.info("Using", torch.cuda.device_count(), "GPUs")
+        model = nn.DataParallel(model)
+
+    device = torch.device("cuda:0")
+    model = model.to(device)
+    
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate, weight_decay=WEIGHT_DECAY)
     criterion = Tacotron2Loss()
     logging.info("Loaded model")
@@ -170,6 +179,7 @@ def train(
             # Backpropogation
             model.zero_grad()
             x, y = model.parse_batch(batch)
+            print("Outside Model: ", x.size())
             y_pred = model(x)
 
             loss = criterion(y_pred, y)
