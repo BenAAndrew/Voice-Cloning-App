@@ -242,11 +242,11 @@ if __name__ == "__main__":
         assert os.path.isfile(args.checkpoint_path)
 
     train(
-        args.metadata_path,
-        args.dataset_directory,
-        args.output_directory,
-        args.find_checkpoint,
-        args.checkpoint_path,
-        args.epochs,
-        args.batch_size,
+        metadata_path=args.metadata_path,
+        dataset_directory=args.dataset_directory,
+        output_directory=args.output_directory,
+        find_checkpoint=args.find_checkpoint,
+        checkpoint_path=args.checkpoint_path,
+        epochs=args.epochs,
+        batch_size=args.batch_size,
     )
