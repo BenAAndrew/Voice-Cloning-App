@@ -559,6 +559,9 @@ class Tacotron2(nn.Module):
         return ((text_padded, input_lengths, mel_padded, max_len, output_lengths), (mel_padded, gate_padded))
 
     def parse_output(self, outputs, output_lengths=None):
+        print("Dims: ", outputs.size())
+        print("Dims 0: ", outputs[0].size())
+
         if self.mask_padding and output_lengths is not None:
             mask = ~get_mask_from_lengths(output_lengths)
             mask = mask.expand(self.n_mel_channels, mask.size(0), mask.size(1))
