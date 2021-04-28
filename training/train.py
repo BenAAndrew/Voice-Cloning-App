@@ -109,13 +109,13 @@ def train(
 
     # Load model & optimizer
     logging.info("Loading model...")
+    device = torch.device("cuda:0")
     model = Tacotron2()
 
     if torch.cuda.device_count() > 1:
         logging.info(f"Using {torch.cuda.device_count()} GPUs")
-        model = nn.DataParallel(model)
-
-    device = torch.device("cuda:0")
+        model = nn.DataParallel(model, output_device=device)
+    
     model = model.to(device)
     
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate, weight_decay=WEIGHT_DECAY)
@@ -180,7 +180,12 @@ def train(
             # Backpropogation
             model.zero_grad()
             x, y = parse_batch(batch)
-            outputs, output_lengths = model(x)
+            print("Outside Model: ", x[4].size())
+            output_lengths = x[4].data
+
+            outputs = model(x)
+
+            print("Outputs", outputs[0].size())
             print("PARSE OUTPUT")
             y_pred = parse_output(outputs, output_lengths=output_lengths)
 
