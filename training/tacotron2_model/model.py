@@ -104,6 +104,7 @@ class Attention(nn.Module):
 
         if mask is not None:
             if mask.size() != alignment.size():
+                alignment = nn.ConstantPad1d((0, mask.size(1)-alignment.size(1)), 0)(alignment.data)
                 print(mask.size(), alignment.size())
             alignment.data.masked_fill_(mask, self.score_mask_value)
 
