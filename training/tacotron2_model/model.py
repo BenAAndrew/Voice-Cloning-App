@@ -577,7 +577,7 @@ class Tacotron2(nn.Module):
     def forward(self, inputs):
         text_inputs, text_lengths, mels, max_len, output_lengths, decoder_mask_size, output_mask_size = inputs
         print("In Model: ", output_lengths.size())
-        print("IN MODEL MASK_SIZE", mask_size)
+        print("IN MODEL decoder_mask_size", decoder_mask_size, "output_mask_size", output_mask_size)
         text_lengths, output_lengths = text_lengths.data, output_lengths.data
 
         embedded_inputs = self.embedding(text_inputs).transpose(1, 2)
