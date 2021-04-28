@@ -114,7 +114,7 @@ def train(
 
     if torch.cuda.device_count() > 1:
         logging.info(f"Using {torch.cuda.device_count()} GPUs")
-        model = nn.DataParallel(model, output_device=device)
+        # model = nn.DataParallel(model, output_device=device)
     
     model = model.to(device)
     
