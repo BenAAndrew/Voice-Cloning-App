@@ -558,11 +558,11 @@ class Tacotron2(nn.Module):
 
         return ((text_padded, input_lengths, mel_padded, max_len, output_lengths), (mel_padded, gate_padded))
 
-    def parse_output(self, outputs, output_lengths=None):
+    def parse_output(self, outputs, mask_size, output_lengths=None):
         print("Dims 0: ", outputs[0].size())
 
         if self.mask_padding and output_lengths is not None:
-            mask = ~get_mask_from_lengths(output_lengths)
+            mask = ~get_mask_from_lengths(output_lengths, mask_size)
             mask = mask.expand(self.n_mel_channels, mask.size(0), mask.size(1))
             mask = mask.permute(1, 0, 2)
 
@@ -575,8 +575,9 @@ class Tacotron2(nn.Module):
         return outputs
 
     def forward(self, inputs):
-        text_inputs, text_lengths, mels, max_len, output_lengths = inputs
+        text_inputs, text_lengths, mels, max_len, output_lengths, mask_size = inputs
         print("In Model: ", output_lengths.size())
+        print("IN MODEL MASK_SIZE", mask_size)
         text_lengths, output_lengths = text_lengths.data, output_lengths.data
 
         embedded_inputs = self.embedding(text_inputs).transpose(1, 2)
@@ -588,7 +589,7 @@ class Tacotron2(nn.Module):
         mel_outputs_postnet = self.postnet(mel_outputs)
         mel_outputs_postnet = mel_outputs + mel_outputs_postnet
 
-        return self.parse_output([mel_outputs, mel_outputs_postnet, gate_outputs, alignments], output_lengths)
+        return self.parse_output([mel_outputs, mel_outputs_postnet, gate_outputs, alignments], mask_size=mask_size, output_lengths=output_lengths)
 
     def inference(self, inputs):
         embedded_inputs = self.embedding(inputs).transpose(1, 2)

@@ -34,12 +34,10 @@ from scipy.io.wavfile import read
 import torch
 
 
-def get_mask_from_lengths(lengths):
-    max_len = torch.max(lengths).item()
-    print("LENGTHS", lengths)
+def get_mask_from_lengths(lengths, max_len):
+    print("MASK_SIZE", max_len)
     ids = torch.arange(0, max_len, out=torch.cuda.LongTensor(max_len))
     mask = (ids < lengths.unsqueeze(1)).bool()
-    print("MASK DATA", mask)
     return mask
 
 
@@ -70,5 +68,6 @@ def parse_batch(batch):
     mel_padded = to_gpu(mel_padded).float()
     gate_padded = to_gpu(gate_padded).float()
     output_lengths = to_gpu(output_lengths).long()
+    mask_size = torch.max(output_lengths.data).item()
 
-    return ((text_padded, input_lengths, mel_padded, max_len, output_lengths), (mel_padded, gate_padded))
+    return ((text_padded, input_lengths, mel_padded, max_len, output_lengths, mask_size), (mel_padded, gate_padded))
