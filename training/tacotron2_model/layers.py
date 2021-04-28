@@ -31,9 +31,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 """
 import torch
 from librosa.filters import mel as librosa_mel_fn
-from tacotron2_model.audio_processing import dynamic_range_compression
-from tacotron2_model.audio_processing import dynamic_range_decompression
-from tacotron2_model.stft import STFT
+from training.tacotron2_model.audio_processing import dynamic_range_compression
+from training.tacotron2_model.audio_processing import dynamic_range_decompression
+from training.tacotron2_model.stft import STFT
 
 
 class LinearNorm(torch.nn.Module):

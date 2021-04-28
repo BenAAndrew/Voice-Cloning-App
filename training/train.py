@@ -17,9 +17,7 @@ from training.dataset import VoiceDataset
 from training.checkpoint import load_checkpoint, save_checkpoint, get_latest_checkpoint, warm_start_model
 from training.validate import validate
 from training.utils import get_available_memory, get_batch_size, get_learning_rate, check_space
-from training.tacotron2_model.model import Tacotron2
-from training.tacotron2_model.loss import Tacotron2Loss
-from training.tacotron2_model.collate import TextMelCollate
+from training.tacotron2_model import Tacotron2, Tacotron2Loss, TextMelCollate
 from training.tacotron2_model.utils import parse_batch, parse_output
 
 
