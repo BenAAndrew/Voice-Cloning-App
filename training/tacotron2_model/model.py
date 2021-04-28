@@ -114,12 +114,7 @@ class Attention(nn.Module):
                 alignment.data.masked_fill_(mask, self.score_mask_value)
 
         except Exception as e:
-            print("PQ", processed_query.size())
-            print("PAW", processed_attention_weights.size())
-            print("PM", processed_memory.size())
-            print("alignment", alignment.size())
-            print("Mask", mask.size())
-            raise e
+            raise Exception(f"Mask {mask.size()}, Alignment {alignment.size()}, PM {processed_memory.size()}, PQ {processed_query.size()}, PAW {processed_attention_weights.size()}")
 
         attention_weights = F.softmax(alignment, dim=1)
         attention_context = torch.bmm(attention_weights.unsqueeze(1), memory)
