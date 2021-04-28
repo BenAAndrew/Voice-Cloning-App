@@ -2,7 +2,7 @@ import os
 import numpy as np
 import random
 import torch
-from tacotron2_model import TacotronSTFT
+from training.tacotron2_model import TacotronSTFT
 from scipy.io.wavfile import read
 import inflect
 from unidecode import unidecode

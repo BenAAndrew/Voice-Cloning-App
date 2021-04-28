@@ -5,7 +5,7 @@ from tqdm import tqdm
 import numpy as np
 import torch
 from scipy.io.wavfile import read
-from tacotron2_model.stft import TacotronSTFT
+from training.tacotron2_model.stft import TacotronSTFT
 
 max_wav_value = 32768.0
 sampling_rate = 22050
