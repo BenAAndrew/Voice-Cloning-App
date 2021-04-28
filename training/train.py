@@ -10,6 +10,7 @@ sys.path.append(dirname(dirname(abspath(__file__))))
 logging.getLogger().setLevel(logging.INFO)
 
 import torch
+import torch.nn as nn
 from torch.utils.data import DataLoader
 
 from training.dataset import VoiceDataset
@@ -107,7 +108,15 @@ def train(
 
     # Load model & optimizer
     logging.info("Loading model...")
-    model = Tacotron2().cuda()
+    device = torch.device("cuda:0")
+    model = Tacotron2()
+
+    if torch.cuda.device_count() > 1:
+        logging.info(f"Using {torch.cuda.device_count()} GPUs")
+        model = nn.DataParallel(model, output_device=device)
+
+    model = model.to(device)
+
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate, weight_decay=WEIGHT_DECAY)
     criterion = Tacotron2Loss()
     logging.info("Loaded model")
@@ -232,11 +241,11 @@ if __name__ == "__main__":
         assert os.path.isfile(args.checkpoint_path)
 
     train(
-        args.metadata_path,
-        args.dataset_directory,
-        args.output_directory,
-        args.find_checkpoint,
-        args.checkpoint_path,
-        args.epochs,
-        args.batch_size,
+        metadata_path=args.metadata_path,
+        dataset_directory=args.dataset_directory,
+        output_directory=args.output_directory,
+        find_checkpoint=args.find_checkpoint,
+        checkpoint_path=args.checkpoint_path,
+        epochs=args.epochs,
+        batch_size=args.batch_size,
     )
