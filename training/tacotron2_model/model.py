@@ -564,11 +564,11 @@ class Tacotron2(nn.Module):
             mask = mask.expand(self.n_mel_channels, mask.size(0), mask.size(1))
             mask = mask.permute(1, 0, 2)
 
-            print("SIZE", mask.size())
-
             outputs[0].data.masked_fill_(mask, 0.0)
             outputs[1].data.masked_fill_(mask, 0.0)
             outputs[2].data.masked_fill_(mask[:, 0, :], 1e3)  # gate energies
+
+        print("OUTPUT SIZE", outputs.size())
 
         return outputs
 
