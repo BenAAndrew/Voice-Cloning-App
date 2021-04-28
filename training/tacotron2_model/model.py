@@ -588,6 +588,7 @@ class Tacotron2(nn.Module):
         mel_outputs_postnet = self.postnet(mel_outputs)
         print("DID POSTNET")
         mel_outputs_postnet = mel_outputs + mel_outputs_postnet
+        print("COMBINED MEL OUTPUT POSTNET")
 
         return [mel_outputs, mel_outputs_postnet, gate_outputs, alignments]
 
