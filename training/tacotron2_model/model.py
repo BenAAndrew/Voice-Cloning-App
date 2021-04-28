@@ -84,10 +84,14 @@ class Attention(nn.Module):
         """
 
         processed_query = self.query_layer(query.unsqueeze(1))
+        print("PQ", processed_query.size())
         processed_attention_weights = self.location_layer(attention_weights_cat)
+        print("PAW", processed_attention_weights.size())
+        print("PM", processed_memory.size())
         energies = self.v(torch.tanh(processed_query + processed_attention_weights + processed_memory))
 
         energies = energies.squeeze(-1)
+        print("ENERGIES", energies.size())
         return energies
 
     def forward(self, attention_hidden_state, memory, processed_memory, attention_weights_cat, mask):
