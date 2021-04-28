@@ -574,7 +574,7 @@ class Tacotron2(nn.Module):
 
         return outputs
 
-     def forward(self, inputs):
+    def forward(self, inputs):
         text_inputs, text_lengths, mels, max_len, output_lengths = inputs
         print("In Model: ", output_lengths.size())
         text_lengths, output_lengths = text_lengths.data, output_lengths.data
