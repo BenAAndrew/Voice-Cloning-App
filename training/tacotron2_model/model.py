@@ -103,7 +103,7 @@ class Attention(nn.Module):
         alignment = self.get_alignment_energies(attention_hidden_state, processed_memory, attention_weights_cat)
 
         if mask is not None:
-            print("Attention", alignment.size(), mask.size())
+            print("Attention", alignment.size(), mask.size(), self.score_mask_value)
             alignment.data.masked_fill_(mask, self.score_mask_value)
 
         attention_weights = F.softmax(alignment, dim=1)
