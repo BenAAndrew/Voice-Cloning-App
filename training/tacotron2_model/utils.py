@@ -69,5 +69,6 @@ def parse_batch(batch):
     gate_padded = to_gpu(gate_padded).float()
     output_lengths = to_gpu(output_lengths).long()
     mask_size = torch.max(output_lengths.data).item()
+    alignment_mask_size = torch.max(input_lengths.data).item()
 
-    return ((text_padded, input_lengths, mel_padded, max_len, output_lengths), (mel_padded, gate_padded), mask_size)
+    return ((text_padded, input_lengths, mel_padded, max_len, output_lengths), (mel_padded, gate_padded), mask_size, alignment_mask_size)
