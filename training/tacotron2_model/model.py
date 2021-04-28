@@ -106,7 +106,7 @@ class Attention(nn.Module):
             try:
                 alignment.data.masked_fill_(mask, self.score_mask_value)
             except Exception as e:
-                print("Attention", alignment.size(), mask.size())
+                print("Attention", alignment.size(), mask.size(), self.score_mask_value)
                 raise e
 
         attention_weights = F.softmax(alignment, dim=1)
