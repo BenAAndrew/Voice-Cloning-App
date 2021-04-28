@@ -568,7 +568,7 @@ class Tacotron2(nn.Module):
             outputs[1].data.masked_fill_(mask, 0.0)
             outputs[2].data.masked_fill_(mask[:, 0, :], 1e3)  # gate energies
 
-        print("OUTPUT SIZE", outputs[0].size(), outputs[1].size(), outputs[2].size())
+        print("OUTPUT SIZE", len(outputs), [o.size() for o in outputs])
 
         return outputs
 
