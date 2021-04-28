@@ -104,14 +104,22 @@ class Attention(nn.Module):
         attention_weights_cat: previous and cummulative attention weights
         mask: binary mask for padded data
         """
-        alignment = self.get_alignment_energies(attention_hidden_state, processed_memory, attention_weights_cat)
-
-        if mask is not None:
-            try:
+        try:
+            processed_query = self.query_layer(attention_hidden_state.unsqueeze(1))
+            processed_attention_weights = self.location_layer(attention_weights_cat)
+            energies = self.v(torch.tanh(processed_query + processed_attention_weights + processed_memory))
+            alignment = energies.squeeze(-1)
+            
+            if mask is not None:
                 alignment.data.masked_fill_(mask, self.score_mask_value)
-            except Exception as e:
-                print("Attention", alignment.size(), mask.size(), self.score_mask_value)
-                raise e
+
+        except Exception as e:
+            print("PQ", processed_query.size())
+            print("PAW", processed_attention_weights.size())
+            print("PM", processed_memory.size())
+            print("alignment", alignment.size())
+            print("Mask", mask.size())
+            raise e
 
         attention_weights = F.softmax(alignment, dim=1)
         attention_context = torch.bmm(attention_weights.unsqueeze(1), memory)
