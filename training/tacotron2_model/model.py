@@ -580,9 +580,13 @@ class Tacotron2(nn.Module):
 
         text_lengths = text_lengths.data
         embedded_inputs = self.embedding(text_inputs).transpose(1, 2)
+        print("DID EMBEDDING")
         encoder_outputs = self.encoder(embedded_inputs, text_lengths)
+        print("DID ENCODER")
         mel_outputs, gate_outputs, alignments = self.decoder(encoder_outputs, mels, memory_lengths=text_lengths)
+        print("DID DECODER")
         mel_outputs_postnet = self.postnet(mel_outputs)
+        print("DID POSTNET")
         mel_outputs_postnet = mel_outputs + mel_outputs_postnet
 
         return [mel_outputs, mel_outputs_postnet, gate_outputs, alignments]
