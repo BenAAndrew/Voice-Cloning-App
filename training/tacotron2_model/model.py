@@ -90,7 +90,7 @@ class Attention(nn.Module):
         energies = energies.squeeze(-1)
         return energies
 
-    def forward(self, attention_hidden_state, memory, processed_memory, attention_weights_cat, mask):
+    def forward(self, attention_hidden_state, memory, processed_memory, attention_weights_cat, memory_lengths):
         """
         PARAMS
         ------
@@ -101,6 +101,7 @@ class Attention(nn.Module):
         mask: binary mask for padded data
         """
         alignment = self.get_alignment_energies(attention_hidden_state, processed_memory, attention_weights_cat)
+        mask = ~get_mask_from_lengths(memory_lengths, max_len=alignment.size(1))
 
         if mask is not None:
             if mask.size() != alignment.size():
@@ -387,7 +388,7 @@ class Decoder(nn.Module):
 
         return mel_outputs, gate_outputs, alignments
 
-    def decode(self, decoder_input):
+    def decode(self, decoder_input, memory_lengths):
         """Decoder step using stored states, attention and memory
         PARAMS
         ------
@@ -408,8 +409,11 @@ class Decoder(nn.Module):
         attention_weights_cat = torch.cat(
             (self.attention_weights.unsqueeze(1), self.attention_weights_cum.unsqueeze(1)), dim=1
         )
+        # self.attention_context, self.attention_weights = self.attention_layer(
+        #     self.attention_hidden, self.memory, self.processed_memory, attention_weights_cat, self.mask
+        # )
         self.attention_context, self.attention_weights = self.attention_layer(
-            self.attention_hidden, self.memory, self.processed_memory, attention_weights_cat, self.mask
+            self.attention_hidden, self.memory, self.processed_memory, attention_weights_cat, memory_lengths
         )
 
         self.attention_weights_cum += self.attention_weights
@@ -425,7 +429,7 @@ class Decoder(nn.Module):
         gate_prediction = self.gate_layer(decoder_hidden_attention_context)
         return decoder_output, gate_prediction, self.attention_weights
 
-    def forward(self, memory, decoder_inputs, memory_lengths, mask_size):
+    def forward(self, memory, decoder_inputs, memory_lengths):
         """Decoder forward pass for training
         PARAMS
         ------
@@ -445,7 +449,7 @@ class Decoder(nn.Module):
         decoder_inputs = torch.cat((decoder_input, decoder_inputs), dim=0)
         decoder_inputs = self.prenet(decoder_inputs)
 
-        self.initialize_decoder_states(memory, mask=~get_mask_from_lengths(memory_lengths, mask_size))
+        self.initialize_decoder_states(memory, mask=~get_mask_from_lengths(memory_lengths))
 
         mel_outputs, gate_outputs, alignments = [], [], []
         while len(mel_outputs) < decoder_inputs.size(0) - 1:
@@ -582,7 +586,7 @@ class Tacotron2(nn.Module):
 
         encoder_outputs = self.encoder(embedded_inputs, text_lengths)
 
-        mel_outputs, gate_outputs, alignments = self.decoder(encoder_outputs, mels, memory_lengths=text_lengths, mask_size=alignment_mask_size)
+        mel_outputs, gate_outputs, alignments = self.decoder(encoder_outputs, mels, memory_lengths=text_lengths)
 
         mel_outputs_postnet = self.postnet(mel_outputs)
         mel_outputs_postnet = mel_outputs + mel_outputs_postnet
