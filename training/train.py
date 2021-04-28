@@ -183,7 +183,7 @@ def train(
             print("Outside Model: ", x[4].size())
 
             y_pred = model(x)
-            print("Outputs", outputs[0].size())
+            print("Outputs y_pred")
 
             loss = criterion(y_pred, y)
             reduced_loss = loss.item()
