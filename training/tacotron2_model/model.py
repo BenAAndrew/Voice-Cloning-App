@@ -103,8 +103,11 @@ class Attention(nn.Module):
         alignment = self.get_alignment_energies(attention_hidden_state, processed_memory, attention_weights_cat)
 
         if mask is not None:
-            print("Attention", alignment.data.size(), mask.size())
-            alignment.data.masked_fill_(mask, self.score_mask_value)
+            try:
+                alignment.data.masked_fill_(mask, self.score_mask_value)
+            except Exception as e:
+                print("Attention", alignment.size(), mask.size())
+                raise e
 
         attention_weights = F.softmax(alignment, dim=1)
         attention_context = torch.bmm(attention_weights.unsqueeze(1), memory)
