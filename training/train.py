@@ -18,7 +18,7 @@ from training.checkpoint import load_checkpoint, save_checkpoint, get_latest_che
 from training.validate import validate
 from training.utils import get_available_memory, get_batch_size, get_learning_rate, check_space
 from training.tacotron2_model import Tacotron2, Tacotron2Loss, TextMelCollate
-from training.tacotron2_model.utils import parse_batch, parse_output
+from training.tacotron2_model.utils import parse_batch
 
 
 MINIMUM_MEMORY_GB = 4
@@ -181,13 +181,9 @@ def train(
             model.zero_grad()
             x, y = parse_batch(batch)
             print("Outside Model: ", x[4].size())
-            output_lengths = x[4].data
 
-            outputs = model(x)
-
+            y_pred = model(x)
             print("Outputs", outputs[0].size())
-            print("PARSE OUTPUT")
-            y_pred = parse_output(outputs, output_lengths=output_lengths)
 
             loss = criterion(y_pred, y)
             reduced_loss = loss.item()

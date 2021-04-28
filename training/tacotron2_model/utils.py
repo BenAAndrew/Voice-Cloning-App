@@ -70,19 +70,3 @@ def parse_batch(batch):
     output_lengths = to_gpu(output_lengths).long()
 
     return ((text_padded, input_lengths, mel_padded, max_len, output_lengths), (mel_padded, gate_padded))
-
-
-def parse_output(outputs, output_lengths=None, n_mel_channels=80):
-    print("Dims 0: ", outputs[0].size())
-
-    if output_lengths is not None:
-        mask = ~get_mask_from_lengths(output_lengths)
-        mask = mask.expand(n_mel_channels, mask.size(0), mask.size(1))
-        mask = mask.permute(1, 0, 2)
-        print("Mask ", mask.size())
-
-        outputs[0].data.masked_fill_(mask, 0.0)
-        outputs[1].data.masked_fill_(mask, 0.0)
-        outputs[2].data.masked_fill_(mask[:, 0, :], 1e3)  # gate energies
-
-    return outputs
