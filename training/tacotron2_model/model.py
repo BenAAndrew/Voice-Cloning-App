@@ -104,10 +104,7 @@ class Attention(nn.Module):
 
         if mask is not None:
             if mask.size() != alignment.size():
-                print(alignment.type())
-                alignment = nn.ConstantPad1d((0, mask.size(1)-alignment.size(1)), 0)(alignment.data)
                 print("MASK & ALIGNMENT", mask.size(), alignment.size())
-                print(alignment.type())
             alignment.data.masked_fill_(mask, self.score_mask_value)
 
         attention_weights = F.softmax(alignment, dim=1)
