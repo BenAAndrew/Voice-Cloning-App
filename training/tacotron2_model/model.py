@@ -443,6 +443,7 @@ class Decoder(nn.Module):
         decoder_inputs = torch.cat((decoder_input, decoder_inputs), dim=0)
         decoder_inputs = self.prenet(decoder_inputs)
 
+        print("DECODER_SIZE_2 = ", mask_size)
         self.initialize_decoder_states(memory, mask=~get_mask_from_lengths(memory_lengths, mask_size))
 
         mel_outputs, gate_outputs, alignments = [], [], []
@@ -559,14 +560,11 @@ class Tacotron2(nn.Module):
         return ((text_padded, input_lengths, mel_padded, max_len, output_lengths), (mel_padded, gate_padded))
 
     def parse_output(self, outputs, mask_size, output_lengths=None):
-        print("Dims 0: ", outputs[0].size())
-
         if self.mask_padding and output_lengths is not None:
+            print("OUTPUT_SIZE_2 = ", mask_size)
             mask = ~get_mask_from_lengths(output_lengths, mask_size)
             mask = mask.expand(self.n_mel_channels, mask.size(0), mask.size(1))
             mask = mask.permute(1, 0, 2)
-
-            print("Mask ", mask.size())
 
             outputs[0].data.masked_fill_(mask, 0.0)
             outputs[1].data.masked_fill_(mask, 0.0)
@@ -577,7 +575,8 @@ class Tacotron2(nn.Module):
     def forward(self, inputs):
         text_inputs, text_lengths, mels, max_len, output_lengths, decoder_mask_size, output_mask_size = inputs
         print("In Model: ", output_lengths.size())
-        print("IN MODEL decoder_mask_size", decoder_mask_size, "output_mask_size", output_mask_size)
+        print("DECODER_SIZE = ", decoder_mask_size)
+        print("OUTPUT_SIZE = ", output_mask_size)
         text_lengths, output_lengths = text_lengths.data, output_lengths.data
 
         embedded_inputs = self.embedding(text_inputs).transpose(1, 2)
