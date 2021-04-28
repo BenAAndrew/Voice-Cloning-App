@@ -103,6 +103,7 @@ class Attention(nn.Module):
         alignment = self.get_alignment_energies(attention_hidden_state, processed_memory, attention_weights_cat)
 
         if mask is not None:
+            print("Attention", alignment.size(), mask.size())
             alignment.data.masked_fill_(mask, self.score_mask_value)
 
         attention_weights = F.softmax(alignment, dim=1)
@@ -574,7 +575,6 @@ class Tacotron2(nn.Module):
 
     def forward(self, inputs):
         text_inputs, text_lengths, mels, max_len, output_lengths, decoder_mask_size, output_mask_size = inputs
-        print("In Model: ", output_lengths.size())
         print("DECODER_SIZE = ", decoder_mask_size)
         print("OUTPUT_SIZE = ", output_mask_size)
         text_lengths, output_lengths = text_lengths.data, output_lengths.data

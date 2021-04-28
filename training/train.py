@@ -180,10 +180,7 @@ def train(
             # Backpropogation
             model.zero_grad()
             x, y = parse_batch(batch)
-            print("Outside Model: ", x[4].size())
-
             y_pred = model(x)
-            print("Outputs y_pred")
 
             loss = criterion(y_pred, y)
             reduced_loss = loss.item()
