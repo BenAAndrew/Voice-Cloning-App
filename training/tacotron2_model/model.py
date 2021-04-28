@@ -423,7 +423,7 @@ class Decoder(nn.Module):
         gate_prediction = self.gate_layer(decoder_hidden_attention_context)
         return decoder_output, gate_prediction, self.attention_weights
 
-    def forward(self, memory, decoder_inputs, memory_lengths):
+    def forward(self, memory, decoder_inputs, memory_lengths, mask_size):
         """Decoder forward pass for training
         PARAMS
         ------
@@ -443,7 +443,7 @@ class Decoder(nn.Module):
         decoder_inputs = torch.cat((decoder_input, decoder_inputs), dim=0)
         decoder_inputs = self.prenet(decoder_inputs)
 
-        self.initialize_decoder_states(memory, mask=~get_mask_from_lengths(memory_lengths))
+        self.initialize_decoder_states(memory, mask=~get_mask_from_lengths(memory_lengths, mask_size))
 
         mel_outputs, gate_outputs, alignments = [], [], []
         while len(mel_outputs) < decoder_inputs.size(0) - 1:
@@ -575,7 +575,7 @@ class Tacotron2(nn.Module):
         return outputs
 
     def forward(self, inputs):
-        text_inputs, text_lengths, mels, max_len, output_lengths, mask_size = inputs
+        text_inputs, text_lengths, mels, max_len, output_lengths, decoder_mask_size, output_mask_size = inputs
         print("In Model: ", output_lengths.size())
         print("IN MODEL MASK_SIZE", mask_size)
         text_lengths, output_lengths = text_lengths.data, output_lengths.data
@@ -584,12 +584,12 @@ class Tacotron2(nn.Module):
 
         encoder_outputs = self.encoder(embedded_inputs, text_lengths)
 
-        mel_outputs, gate_outputs, alignments = self.decoder(encoder_outputs, mels, memory_lengths=text_lengths)
+        mel_outputs, gate_outputs, alignments = self.decoder(encoder_outputs, mels, memory_lengths=text_lengths, mask_size=decoder_mask_size)
 
         mel_outputs_postnet = self.postnet(mel_outputs)
         mel_outputs_postnet = mel_outputs + mel_outputs_postnet
 
-        return self.parse_output([mel_outputs, mel_outputs_postnet, gate_outputs, alignments], mask_size=mask_size, output_lengths=output_lengths)
+        return self.parse_output([mel_outputs, mel_outputs_postnet, gate_outputs, alignments], mask_size=output_mask_size, output_lengths=output_lengths)
 
     def inference(self, inputs):
         embedded_inputs = self.embedding(inputs).transpose(1, 2)
