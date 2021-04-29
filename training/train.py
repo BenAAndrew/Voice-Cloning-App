@@ -111,11 +111,6 @@ def train(
     logging.info("Loading model...")
     device = torch.device("cuda:0")
     model = Tacotron2()
-
-    if torch.cuda.device_count() > 1:
-        logging.info(f"Using {torch.cuda.device_count()} GPUs")
-        model = nn.DataParallel(model, output_device=device)
-
     model = model.to(device)
 
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate, weight_decay=WEIGHT_DECAY)
@@ -161,6 +156,10 @@ def train(
     elif transfer_learning_path:
         model = warm_start_model(transfer_learning_path, model)
         logging.info("Loaded transfer learning model '{}'".format(transfer_learning_path))
+
+    if torch.cuda.device_count() > 1:
+        logging.info(f"Using {torch.cuda.device_count()} GPUs")
+        model = nn.DataParallel(model, output_device=device)
 
     # Check available memory
     if not overwrite_checkpoints:
