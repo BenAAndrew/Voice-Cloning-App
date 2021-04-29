@@ -566,8 +566,8 @@ class Tacotron2(nn.Module):
             outputs[1].data.masked_fill_(mask, 0.0)
             outputs[2].data.masked_fill_(mask[:, 0, :], 1e3)  # gate energies
             if outputs[3].size(1) != alignment_mask_size:
-                print(alignment_mask_size, outputs[3].size(1), alignment_mask_size-outputs[3].size(1))
-                outputs[3] = nn.ConstantPad1d((0, alignment_mask_size-outputs[3].size(1)), 0)(outputs[3])
+                print(alignment_mask_size, outputs[3].size(), alignment_mask_size-outputs[3].size())
+                # outputs[3] = nn.ConstantPad1d((0, alignment_mask_size-outputs[3].size(1)), 0)(outputs[3])
 
         print("OUTPUT SIZE", len(outputs), [o.size() for o in outputs])
 
