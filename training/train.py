@@ -231,6 +231,7 @@ if __name__ == "__main__":
     parser.add_argument("-o", "--output_directory", type=str, help="directory to save checkpoints")
     parser.add_argument("-l", "--find_checkpoint", default=True, type=str, help="load checkpoint if one exists")
     parser.add_argument("-c", "--checkpoint_path", required=False, type=str, help="checkpoint path")
+    parser.add_argument("-t", "--transfer_learning_path", required=False, type=str, help="transfer learning model path")
     parser.add_argument("-e", "--epochs", default=8000, type=int, help="num epochs")
     parser.add_argument("-b", "--batch_size", required=False, type=int, help="batch size")
 
@@ -247,6 +248,7 @@ if __name__ == "__main__":
         output_directory=args.output_directory,
         find_checkpoint=args.find_checkpoint,
         checkpoint_path=args.checkpoint_path,
+        transfer_learning_path=args.transfer_learning_path,
         epochs=args.epochs,
         batch_size=args.batch_size,
     )
