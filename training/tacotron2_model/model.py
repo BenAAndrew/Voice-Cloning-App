@@ -556,7 +556,7 @@ class Tacotron2(nn.Module):
 
         return ((text_padded, input_lengths, mel_padded, max_len, output_lengths), (mel_padded, gate_padded))
 
-    def parse_output(self, outputs, output_lengths, mask_size):
+    def parse_output(self, outputs, output_lengths, mask_size, alignment_mask_size):
         if self.mask_padding:
             mask = ~get_mask_from_lengths(output_lengths, mask_size)
             mask = mask.expand(self.n_mel_channels, mask.size(0), mask.size(1))
@@ -565,13 +565,13 @@ class Tacotron2(nn.Module):
             outputs[0].data.masked_fill_(mask, 0.0)
             outputs[1].data.masked_fill_(mask, 0.0)
             outputs[2].data.masked_fill_(mask[:, 0, :], 1e3)  # gate energies
+            outputs[3] = nn.ConstantPad1d((0, alignment_mask_size-outputs[3].size(1)), 0)(outputs[3])
 
         print("OUTPUT SIZE", len(outputs), [o.size() for o in outputs])
 
         return outputs
 
     def forward(self, inputs, mask_size, alignment_mask_size):
-        print("ALIGNMENT MASK SIZE", alignment_mask_size)
         text_inputs, text_lengths, mels, max_len, output_lengths = inputs
         text_lengths, output_lengths = text_lengths.data, output_lengths.data
 
@@ -584,7 +584,7 @@ class Tacotron2(nn.Module):
         mel_outputs_postnet = self.postnet(mel_outputs)
         mel_outputs_postnet = mel_outputs + mel_outputs_postnet
 
-        return self.parse_output([mel_outputs, mel_outputs_postnet, gate_outputs, alignments], output_lengths, mask_size)
+        return self.parse_output([mel_outputs, mel_outputs_postnet, gate_outputs, alignments], output_lengths, mask_size, alignment_mask_size)
 
     def inference(self, inputs):
         embedded_inputs = self.embedding(inputs).transpose(1, 2)
