@@ -571,6 +571,7 @@ class Tacotron2(nn.Module):
         return outputs
 
     def forward(self, inputs, mask_size, alignment_mask_size):
+        print("ALIGNMENT MASK SIZE", alignment_mask_size)
         text_inputs, text_lengths, mels, max_len, output_lengths = inputs
         text_lengths, output_lengths = text_lengths.data, output_lengths.data
 
