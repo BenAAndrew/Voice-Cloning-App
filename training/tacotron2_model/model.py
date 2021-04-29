@@ -454,7 +454,7 @@ class Decoder(nn.Module):
         mel_outputs, gate_outputs, alignments = [], [], []
         while len(mel_outputs) < decoder_inputs.size(0) - 1:
             decoder_input = decoder_inputs[len(mel_outputs)]
-            mel_output, gate_output, attention_weights = self.decode(decoder_input)
+            mel_output, gate_output, attention_weights = self.decode(decoder_input, memory_lengths)
             mel_outputs += [mel_output.squeeze(1)]
             gate_outputs += [gate_output.squeeze(1)]
             alignments += [attention_weights]
