@@ -90,7 +90,7 @@ class Attention(nn.Module):
         energies = energies.squeeze(-1)
         return energies
 
-    def forward(self, attention_hidden_state, memory, processed_memory, attention_weights_cat, memory_lengths):
+    def forward(self, attention_hidden_state, memory, processed_memory, attention_weights_cat, mask):
         """
         PARAMS
         ------
@@ -101,11 +101,8 @@ class Attention(nn.Module):
         mask: binary mask for padded data
         """
         alignment = self.get_alignment_energies(attention_hidden_state, processed_memory, attention_weights_cat)
-        mask = ~get_mask_from_lengths(memory_lengths, max_len=alignment.size(1))
 
         if mask is not None:
-            if mask.size() != alignment.size():
-                print("MASK & ALIGNMENT", mask.size(), alignment.size())
             alignment.data.masked_fill_(mask, self.score_mask_value)
 
         attention_weights = F.softmax(alignment, dim=1)
@@ -388,12 +385,11 @@ class Decoder(nn.Module):
 
         return mel_outputs, gate_outputs, alignments
 
-    def decode(self, decoder_input, memory_lengths):
+    def decode(self, decoder_input):
         """Decoder step using stored states, attention and memory
         PARAMS
         ------
         decoder_input: previous mel output
-
         RETURNS
         -------
         mel_output:
@@ -409,11 +405,8 @@ class Decoder(nn.Module):
         attention_weights_cat = torch.cat(
             (self.attention_weights.unsqueeze(1), self.attention_weights_cum.unsqueeze(1)), dim=1
         )
-        # self.attention_context, self.attention_weights = self.attention_layer(
-        #     self.attention_hidden, self.memory, self.processed_memory, attention_weights_cat, self.mask
-        # )
         self.attention_context, self.attention_weights = self.attention_layer(
-            self.attention_hidden, self.memory, self.processed_memory, attention_weights_cat, memory_lengths
+            self.attention_hidden, self.memory, self.processed_memory, attention_weights_cat, self.mask
         )
 
         self.attention_weights_cum += self.attention_weights
@@ -436,7 +429,6 @@ class Decoder(nn.Module):
         memory: Encoder outputs
         decoder_inputs: Decoder inputs for teacher forcing. i.e. mel-specs
         memory_lengths: Encoder output lengths for attention masking.
-
         RETURNS
         -------
         mel_outputs: mel outputs from the decoder
@@ -454,7 +446,7 @@ class Decoder(nn.Module):
         mel_outputs, gate_outputs, alignments = [], [], []
         while len(mel_outputs) < decoder_inputs.size(0) - 1:
             decoder_input = decoder_inputs[len(mel_outputs)]
-            mel_output, gate_output, attention_weights = self.decode(decoder_input, memory_lengths)
+            mel_output, gate_output, attention_weights = self.decode(decoder_input)
             mel_outputs += [mel_output.squeeze(1)]
             gate_outputs += [gate_output.squeeze(1)]
             alignments += [attention_weights]
