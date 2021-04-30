@@ -116,7 +116,7 @@ def save_checkpoint(model, optimizer, learning_rate, iteration, output_directory
     torch.save(
         {
             "iteration": iteration,
-            "state_dict": model.state_dict(),
+            "state_dict": model.get_state_dict(),
             "optimizer": optimizer.state_dict(),
             "learning_rate": learning_rate,
         },

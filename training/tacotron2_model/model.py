@@ -596,3 +596,6 @@ class Tacotron2(nn.Module):
         outputs = self.parse_output([mel_outputs, mel_outputs_postnet, gate_outputs, alignments])
 
         return outputs
+
+    def get_state_dict(self):
+        return self.module.state_dict() if isinstance(self, torch.nn.DataParallel) else self.state_dict()
