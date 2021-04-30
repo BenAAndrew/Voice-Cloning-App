@@ -598,5 +598,4 @@ class Tacotron2(nn.Module):
         return outputs
 
     def get_state_dict(self):
-        print("IS PARALLEL:", isinstance(self, torch.nn.DataParallel))
         return self.module.state_dict() if isinstance(self, torch.nn.DataParallel) else self.state_dict()
