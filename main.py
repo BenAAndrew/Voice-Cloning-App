@@ -1,5 +1,7 @@
 import os
 import logging
+import sys
+import shutil
 import webbrowser
 from engineio.async_drivers import threading
 from flask_socketio import SocketIO
@@ -22,6 +24,22 @@ def load_paths():
     return paths
 
 
+def cleanup_mei():
+    """
+    Rudimentary workaround for https://github.com/pyinstaller/pyinstaller/issues/2379
+    """
+    mei_bundle = getattr(sys, "_MEIPASS", False)
+
+    if mei_bundle:
+        dir_mei, current_mei = mei_bundle.split("_MEI")
+        for file in os.listdir(dir_mei):
+            if file.startswith("_MEI") and not file.endswith(current_mei):
+                try:
+                    shutil.rmtree(os.path.join(dir_mei, file))
+                except PermissionError:  # mainly to allow simultaneous pyinstaller instances
+                    pass
+
+
 paths = load_paths()
 static = os.path.join("application", "static")
 app = Flask(__name__, template_folder=static, static_folder=static)
@@ -29,6 +47,7 @@ socketio = SocketIO(app, async_mode="threading", logger=True, engineio_logger=Tr
 from application.views import *
 
 if __name__ == "__main__":
+    cleanup_mei()
     check_ffmpeg()
     webbrowser.open_new_tab("http://localhost:5000")
     socketio.run(app)
