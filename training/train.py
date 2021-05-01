@@ -144,9 +144,8 @@ def train(
         checkpoint_path = get_latest_checkpoint(output_directory)
 
     if checkpoint_path:
-        model, optimizer, iteration = load_checkpoint(checkpoint_path, model, optimizer)
+        model, optimizer, iteration, epoch_offset = load_checkpoint(checkpoint_path, model, optimizer, train_loader)
         iteration += 1
-        epoch_offset = max(0, int(iteration / len(train_loader)))
         logging.info("Loaded checkpoint '{}' from iteration {}".format(checkpoint_path, iteration))
     elif transfer_learning_path:
         model = warm_start_model(transfer_learning_path, model)
@@ -195,7 +194,7 @@ def train(
                         iteration, output_directory, val_loss
                     )
                 )
-                save_checkpoint(model, optimizer, learning_rate, iteration, output_directory, overwrite_checkpoints)
+                save_checkpoint(model, optimizer, learning_rate, iteration, epoch, output_directory, overwrite_checkpoints)
 
             iteration += 1
 
@@ -209,7 +208,7 @@ def train(
                 break
 
     validate(model, val_loader, criterion, iteration)
-    save_checkpoint(model, optimizer, learning_rate, iteration, output_directory, overwrite_checkpoints)
+    save_checkpoint(model, optimizer, learning_rate, iteration, epoch, output_directory, overwrite_checkpoints)
     logging.info("Saving model and optimizer state at iteration {} to {}".format(iteration, checkpoint_path))
 
 

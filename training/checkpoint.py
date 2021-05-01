@@ -30,7 +30,7 @@ def get_latest_checkpoint(checkpoint_folder):
     return os.path.join(checkpoint_folder, latest_checkpoint)
 
 
-def load_checkpoint(checkpoint_path, model, optimizer):
+def load_checkpoint(checkpoint_path, model, optimizer, train_loader):
     """
     Credit: https://github.com/NVIDIA/tacotron2
 
@@ -44,6 +44,8 @@ def load_checkpoint(checkpoint_path, model, optimizer):
         tacotron2 model to load checkpoint into
     optimizer : torch.optim
         Torch optimizer
+    train_loader: torch.Dataloader
+        Torch training dataloader
 
     Returns
     -------
@@ -58,7 +60,8 @@ def load_checkpoint(checkpoint_path, model, optimizer):
     model.load_state_dict(checkpoint_dict["state_dict"])
     optimizer.load_state_dict(checkpoint_dict["optimizer"])
     iteration = checkpoint_dict["iteration"]
-    return model, optimizer, iteration
+    epoch = checkpoint_dict.get("epoch", max(0, int(iteration / len(train_loader))))
+    return model, optimizer, iteration, epoch
 
 
 def warm_start_model(checkpoint_path, model, ignore_layers=["embedding.weight"]):
@@ -92,7 +95,7 @@ def warm_start_model(checkpoint_path, model, ignore_layers=["embedding.weight"])
     return model
 
 
-def save_checkpoint(model, optimizer, learning_rate, iteration, output_directory, overwrite_checkpoints=True):
+def save_checkpoint(model, optimizer, learning_rate, iteration, epoch, output_directory, overwrite_checkpoints=True):
     """
     Save training checkpoint.
     Also deletes old checkpoints if overwrite_checkpoints is set.
@@ -107,6 +110,8 @@ def save_checkpoint(model, optimizer, learning_rate, iteration, output_directory
         Learning rate
     iteration : int
         Current iteration
+    epoch : int
+        Current epoch
     output_directory : str
         Folder to save checkpoint to
     overwrite_checkpoints : bool (optional)
@@ -119,6 +124,7 @@ def save_checkpoint(model, optimizer, learning_rate, iteration, output_directory
             "state_dict": model.state_dict(),
             "optimizer": optimizer.state_dict(),
             "learning_rate": learning_rate,
+            "epoch": epoch
         },
         os.path.join(output_directory, checkpoint_name),
     )
