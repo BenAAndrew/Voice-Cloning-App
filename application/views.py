@@ -18,6 +18,7 @@ from application.utils import (
     update_config,
     can_send_logs,
     delete_folder,
+    import_dataset
 )
 from dataset.create_dataset import create_dataset
 from dataset.extend_existing_dataset import extend_existing_dataset
@@ -42,6 +43,7 @@ INFO_FILE = "info.json"
 CHECKPOINT_FOLDER = "checkpoints"
 GRAPH_FILE = "graph.png"
 RESULTS_FILE = "out.wav"
+TEMP_DATASET_UPLOAD = "temp.zip"
 
 model = None
 vocoder = None
@@ -298,53 +300,20 @@ def import_export():
 @app.route("/upload-dataset", methods=["POST"])
 def upload_dataset():
     dataset = request.files["dataset"]
+    dataset.save(TEMP_DATASET_UPLOAD)
     dataset_name = request.values["name"]
     dataset_directory = os.path.join(paths["datasets"], dataset_name)
     audio_folder = os.path.join(dataset_directory, AUDIO_FOLDER)
     assert not os.path.isdir(dataset_directory), "Output folder already exists"
 
-    with zipfile.ZipFile(dataset, mode="r") as z:
-        files_list = z.namelist()
-        if "metadata.csv" not in files_list:
-            return render_template(
-                "import-export.html",
-                message="Dataset missing metadata.csv. Make sure this file is in the root of the zip file",
-            )
-
-        folders = [x.split("/")[0] for x in files_list if "/" in x]
-        if "wavs" not in folders:
-            return render_template(
-                "import-export.html",
-                message="Dataset missing wavs folder. Make sure this folder is in the root of the zip file",
-            )
-
-        wavs = [x for x in files_list if x.startswith("wavs/") and x.endswith(".wav")]
-        if not wavs:
-            return render_template("import-export.html", message="No wavs found in wavs folder")
-
-        os.makedirs(dataset_directory, exist_ok=False)
-        os.makedirs(audio_folder, exist_ok=False)
-
-        # Save metadata
-        with open(os.path.join(dataset_directory, "metadata.csv"), "wb") as f:
-            data = z.read("metadata.csv")
-            f.write(data)
-
-        # Save wavs
-        for wav in wavs:
-            data = z.read(wav)
-            path = os.path.join(dataset_directory, "wavs", wav.split("/")[1])
-            with open(path, "wb") as f:
-                f.write(data)
-
-        # Create info file
-        save_dataset_info(
-            os.path.join(dataset_directory, "metadata.csv"),
-            os.path.join(dataset_directory, "wavs"),
-            os.path.join(dataset_directory, "info.json"),
-        )
-
-    return render_template("import-export.html", message=f"Successfully uploaded {dataset_name} dataset")
+    start_progress_thread(
+        import_dataset,
+        dataset=TEMP_DATASET_UPLOAD,
+        dataset_directory=dataset_directory,
+        audio_folder=audio_folder
+    )
+    
+    return render_template("progress.html", next_url="/import-export")
 
 
 @app.route("/download-dataset", methods=["POST"])

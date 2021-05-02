@@ -6,6 +6,9 @@ import requests
 import traceback
 import configparser
 import shutil
+import zipfile
+import librosa
+import time
 
 from main import socketio
 from dataset.audio_processing import convert_audio
@@ -118,11 +121,9 @@ def background_task(func, **kwargs):
         error = {"type": e.__class__.__name__, "text": str(e), "stacktrace": traceback.format_exc()}
         send_error_log(error)
         socketio.emit("error", error, namespace="/voice")
-        exception = True
-        print(e)
+        raise e
 
-    if not exception:
-        socketio.emit("done", {"text": None}, namespace="/voice")
+    socketio.emit("done", {"text": None}, namespace="/voice")
 
 
 def start_progress_thread(func, **kwargs):
@@ -186,3 +187,64 @@ def delete_folder(path):
     """
     assert os.path.isdir(path), f"{path} does not exist"
     shutil.rmtree(path)
+
+
+def import_dataset(dataset, dataset_directory, audio_folder, logging):
+    try:
+        with zipfile.ZipFile(dataset, mode="r") as z:
+            files_list = z.namelist()
+            assert "metadata.csv" in files_list, "Dataset missing metadata.csv. Make sure this file is in the root of the zip file"
+
+            folders = [x.split("/")[0] for x in files_list if "/" in x]
+            assert "wavs" in folders, "Dataset missing wavs folder. Make sure this folder is in the root of the zip file"
+
+            wavs = [x for x in files_list if x.startswith("wavs/") and x.endswith(".wav")]
+            assert wavs, "No wavs found in wavs folder"
+
+            metadata = z.read("metadata.csv")
+            num_metadata_rows = len([row for row in metadata.decode("utf-8").split("\n") if row])
+            assert len(wavs) == num_metadata_rows, f"Number of wavs and labels do not match. metadata: {num_metadata_rows}, wavs: {len(wavs)}"
+
+            logging.info("Creating directory")
+            os.makedirs(dataset_directory, exist_ok=False)
+            os.makedirs(audio_folder, exist_ok=False)
+
+            # Save metadata
+            logging.info("Saving files")
+            with open(os.path.join(dataset_directory, "metadata.csv"), "wb") as f:
+                f.write(metadata)
+
+            # Save wavs
+            total_wavs = len(wavs)
+            clip_lengths = []
+            filenames = {}
+            for i in range(total_wavs):
+                wav = wavs[i]
+                data = z.read(wav)
+                path = os.path.join(dataset_directory, "wavs", wav.split("/")[1])
+                with open(path, "wb") as f:
+                    f.write(data)
+                    new_path = convert_audio(path)
+                    clip_lengths.append(librosa.get_duration(filename=new_path))
+                    filenames[path] = new_path
+                logging.info(f"Progress - {i+1}/{total_wavs}")
+
+            # Get around "file in use" by using delay
+            logging.info("Deleting temp files")
+            for old_path, new_path in filenames.items():
+                os.remove(old_path)
+                os.rename(new_path, old_path)
+
+            # Create info file
+            logging.info("Creating info file")
+            save_dataset_info(
+                os.path.join(dataset_directory, "metadata.csv"),
+                os.path.join(dataset_directory, "wavs"),
+                os.path.join(dataset_directory, "info.json"),
+                clip_lengths=clip_lengths
+            )
+    except Exception as e:
+        os.remove(dataset)
+        raise e
+    
+    os.remove(dataset)

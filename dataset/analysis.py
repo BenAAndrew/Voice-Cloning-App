@@ -70,7 +70,7 @@ def get_total_audio_duration(info_file):
         return data["total_duration"], data["total_clips"]
 
 
-def save_dataset_info(metadata_file, folder, output_path):
+def save_dataset_info(metadata_file, folder, output_path, clip_lengths=None):
     """
     Save dataset properties to info JSON.
 
@@ -82,8 +82,11 @@ def save_dataset_info(metadata_file, folder, output_path):
         Path to audio folder
     output_path : str
         Path to save info JSON to
+    clip_lengths : list (optional)
+        List of clip lengths
     """
-    clip_lengths = get_clip_lengths(folder)
+    if not clip_lengths:
+        clip_lengths = get_clip_lengths(folder)
     words = get_text(metadata_file)
     total_duration = sum(clip_lengths)
     total_words = len(words)
