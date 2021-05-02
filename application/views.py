@@ -18,7 +18,7 @@ from application.utils import (
     update_config,
     can_send_logs,
     delete_folder,
-    import_dataset
+    import_dataset,
 )
 from dataset.create_dataset import create_dataset
 from dataset.extend_existing_dataset import extend_existing_dataset
@@ -307,12 +307,9 @@ def upload_dataset():
     assert not os.path.isdir(dataset_directory), "Output folder already exists"
 
     start_progress_thread(
-        import_dataset,
-        dataset=TEMP_DATASET_UPLOAD,
-        dataset_directory=dataset_directory,
-        audio_folder=audio_folder
+        import_dataset, dataset=TEMP_DATASET_UPLOAD, dataset_directory=dataset_directory, audio_folder=audio_folder
     )
-    
+
     return render_template("progress.html", next_url="/import-export")
 
 

@@ -124,7 +124,7 @@ def save_checkpoint(model, optimizer, learning_rate, iteration, epoch, output_di
             "state_dict": model.state_dict(),
             "optimizer": optimizer.state_dict(),
             "learning_rate": learning_rate,
-            "epoch": epoch
+            "epoch": epoch,
         },
         os.path.join(output_directory, checkpoint_name),
     )

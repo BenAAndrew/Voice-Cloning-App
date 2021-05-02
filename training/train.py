@@ -194,7 +194,9 @@ def train(
                         iteration, output_directory, val_loss
                     )
                 )
-                save_checkpoint(model, optimizer, learning_rate, iteration, epoch, output_directory, overwrite_checkpoints)
+                save_checkpoint(
+                    model, optimizer, learning_rate, iteration, epoch, output_directory, overwrite_checkpoints
+                )
 
             iteration += 1
 

@@ -193,17 +193,23 @@ def import_dataset(dataset, dataset_directory, audio_folder, logging):
     try:
         with zipfile.ZipFile(dataset, mode="r") as z:
             files_list = z.namelist()
-            assert "metadata.csv" in files_list, "Dataset missing metadata.csv. Make sure this file is in the root of the zip file"
+            assert (
+                "metadata.csv" in files_list
+            ), "Dataset missing metadata.csv. Make sure this file is in the root of the zip file"
 
             folders = [x.split("/")[0] for x in files_list if "/" in x]
-            assert "wavs" in folders, "Dataset missing wavs folder. Make sure this folder is in the root of the zip file"
+            assert (
+                "wavs" in folders
+            ), "Dataset missing wavs folder. Make sure this folder is in the root of the zip file"
 
             wavs = [x for x in files_list if x.startswith("wavs/") and x.endswith(".wav")]
             assert wavs, "No wavs found in wavs folder"
 
             metadata = z.read("metadata.csv")
             num_metadata_rows = len([row for row in metadata.decode("utf-8").split("\n") if row])
-            assert len(wavs) == num_metadata_rows, f"Number of wavs and labels do not match. metadata: {num_metadata_rows}, wavs: {len(wavs)}"
+            assert (
+                len(wavs) == num_metadata_rows
+            ), f"Number of wavs and labels do not match. metadata: {num_metadata_rows}, wavs: {len(wavs)}"
 
             logging.info("Creating directory")
             os.makedirs(dataset_directory, exist_ok=False)
@@ -241,10 +247,10 @@ def import_dataset(dataset, dataset_directory, audio_folder, logging):
                 os.path.join(dataset_directory, "metadata.csv"),
                 os.path.join(dataset_directory, "wavs"),
                 os.path.join(dataset_directory, "info.json"),
-                clip_lengths=clip_lengths
+                clip_lengths=clip_lengths,
             )
     except Exception as e:
         os.remove(dataset)
         raise e
-    
+
     os.remove(dataset)
