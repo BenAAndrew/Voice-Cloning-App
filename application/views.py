@@ -92,7 +92,8 @@ def create_dataset_post():
         label_path = os.path.join(output_folder, METADATA_FILE)
         info_path = os.path.join(output_folder, INFO_FILE)
 
-        request.files["text_file"].save(text_path)
+        with open(text_path, "w", encoding="utf-8") as f:
+            f.write(request.files["text_file"].read().decode("utf-8", "ignore").replace("\r\n", "\n"))
         request.files["audio_file"].save(audio_path)
 
         start_progress_thread(
