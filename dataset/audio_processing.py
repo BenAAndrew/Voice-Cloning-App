@@ -8,6 +8,11 @@ TARGET_SAMPLE_RATE = 22050
 TARGET_BITRATE = "32k"
 
 
+def rename_file(path, appendix):
+    p = Path(path)
+    return os.path.join(str(p.parent), f"{p.stem}-{appendix}.wav")
+
+
 def convert_audio(input_path):
     """
     Convert an audio file to the required format.
@@ -23,9 +28,7 @@ def convert_audio(input_path):
     str
         Path of the converted audio
     """
-    current_filename, filetype = Path(input_path).name.split(".")
-    output_path = input_path.replace(current_filename, current_filename + "-converted")
-    output_path = output_path.replace(filetype, "wav")
+    output_path = rename_file(input_path, "converted")
     check_output(
         [
             "ffmpeg",
@@ -61,8 +64,7 @@ def change_sample_rate(input_path, new_sample_rate):
     str
         Path of the converted audio
     """
-    current_filename = Path(input_path).name.split(".")[0]
-    output_path = input_path.replace(current_filename, f"{current_filename}-{new_sample_rate}")
+    output_path = rename_file(input_path, str(new_sample_rate))
     check_output(["ffmpeg", "-i", input_path, "-ar", str(new_sample_rate), output_path])
     return output_path
 
