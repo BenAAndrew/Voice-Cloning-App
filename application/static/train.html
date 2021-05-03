@@ -35,10 +35,10 @@
     <div class="content">
         <br>
         <div class="form-group">
-            <input type="range" id="batch_size" name="batch_size" step="2" min="2" max="256" value="{{ batch_size }}" onchange="showBatchSize()">
+            <input type="range" id="batch_size" name="batch_size" step="2" min="2" max="256" value="{{ batch_size }}" oninput="showBatchSize()">
             <label for="batch_size">
                 <a href="#" data-toggle="tooltip" data-placement="top" title="Larger batch sizes use more GPU memory leading to faster training, but setting this too high may lead to a 'CUDA out of memory' error">Batch size</a>: 
-                <span id="batch_size_label"></span>
+                <input type="text" id="batch_size_label" onchange="editBatchSize()">
             </label> 
         </div>
         <div class="form-group">

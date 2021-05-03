@@ -98,10 +98,15 @@ showDatasetInfo();
 // Batch size
 function showBatchSize(){
     newVal = document.getElementById("batch_size").value;
-    document.getElementById("batch_size_label").innerHTML = newVal.toString();
+    document.getElementById("batch_size_label").value = newVal;
     estimateTime();
 }
 showBatchSize();
+
+function editBatchSize(){
+    document.getElementById("batch_size").value = document.getElementById("batch_size_label").value;
+    showBatchSize();
+}
 
 // Checkpoint frequency
 function showCheckpointFrequencyLabel(){
