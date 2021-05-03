@@ -114,7 +114,8 @@ def create_dataset_post():
         forced_alignment_path = os.path.join(output_folder, f"align-{suffix}.json")
         info_path = os.path.join(output_folder, INFO_FILE)
 
-        request.files["text_file"].save(text_path)
+        with open(text_path, "w", encoding="utf-8") as f:
+            f.write(request.files["text_file"].read().decode("utf-8", "ignore").replace("\r\n", "\n"))
         request.files["audio_file"].save(audio_path)
 
         existing_output_path = os.path.join(output_folder, AUDIO_FOLDER)
