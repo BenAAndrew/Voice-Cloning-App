@@ -50,6 +50,7 @@ A Python/Pytorch app for easily synthesising human voices
 
 - Try out existing voices at [uberduck.ai](https://uberduck.ai/) and [Vocodes](https://vo.codes/)
 - [Synthesize in Colab](https://colab.research.google.com/drive/18IJZZDW1NO7KOslg_WMOCrMeiqz9jOYF?usp=sharing) (created by mega b#6696)
+- [Generate youtube transcription](https://colab.research.google.com/drive/1KfAJig2jekpjJ5QS8Lpjy8sTd8w_ZuFv?usp=sharing) (created by mega b#6696)
 
 ## Acknowledgements
 This project uses a reworked version of [Tacotron2](https://github.com/NVIDIA/tacotron2) & [Waveglow](https://github.com/NVIDIA/waveglow). All rights for belong to NVIDIA and follow the requirements of their BSD-3 licence.
