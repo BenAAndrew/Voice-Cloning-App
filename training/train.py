@@ -210,7 +210,7 @@ def train(
                 break
 
     validate(model, val_loader, criterion, iteration)
-    save_checkpoint(model, optimizer, learning_rate, iteration, epoch, output_directory, overwrite_checkpoints)
+    save_checkpoint(model, optimizer, learning_rate, iteration, epochs, output_directory, overwrite_checkpoints)
     logging.info("Saving model and optimizer state at iteration {} to {}".format(iteration, checkpoint_path))
 
 
