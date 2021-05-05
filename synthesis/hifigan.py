@@ -15,6 +15,10 @@ MAX_WAV_VALUE = 32768.0
 
 
 class AttrDict(dict):
+    """
+    Credit: https://github.com/jik876/hifi-gan
+    """
+
     def __init__(self, *args, **kwargs):
         super(AttrDict, self).__init__(*args, **kwargs)
         self.__dict__ = self

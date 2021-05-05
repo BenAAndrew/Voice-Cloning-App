@@ -22,6 +22,11 @@ CONFIG_FILE = "config.ini"
 
 
 class SocketIOHandler(logging.Handler):
+    """
+    Sends logger messages to the frontend using flask-socketio.
+    These are handled in application.js
+    """
+
     def emit(self, record):
         text = record.getMessage()
         if text.startswith("Progress"):
@@ -42,7 +47,8 @@ thread = None
 
 
 def update_config(data):
-    """Writes data to a config file
+    """
+    Writes data to a config file
 
     Parameters
     ----------
@@ -57,7 +63,8 @@ def update_config(data):
 
 
 def get_config():
-    """Gets data from config file
+    """
+    Gets data from config file
 
     Returns
     -------
@@ -70,7 +77,8 @@ def get_config():
 
 
 def can_send_logs():
-    """Checks whether logging is allowed.
+    """
+    Checks whether logging is allowed.
     Uses config file. If config is not found, defaults to True
 
     Returns
@@ -86,7 +94,8 @@ def can_send_logs():
 
 
 def send_error_log(error):
-    """Sends error log to server if allowed.
+    """
+    Sends error log to server if allowed.
 
     Parameters
     ----------
@@ -103,7 +112,8 @@ def send_error_log(error):
 
 
 def background_task(func, **kwargs):
-    """Runs a background task.
+    """
+    Runs a background task.
     If function errors out it will send an error log to the error logging server and page.
     Sends 'done' message to frontend when complete.
 
@@ -128,7 +138,8 @@ def background_task(func, **kwargs):
 
 
 def start_progress_thread(func, **kwargs):
-    """Starts a background task using socketio.
+    """
+    Starts a background task using socketio.
 
     Parameters
     ----------
@@ -143,7 +154,8 @@ def start_progress_thread(func, **kwargs):
 
 
 def get_next_url(urls, path):
-    """Returns the URL of the next step in the voice cloning process.
+    """
+    Returns the URL of the next step in the voice cloning process.
 
     Parameters
     ----------
@@ -163,7 +175,8 @@ def get_next_url(urls, path):
 
 
 def get_suffix():
-    """Generates a filename suffix using the currrent datetime.
+    """
+    Generates a filename suffix using the currrent datetime.
 
     Returns
     -------
@@ -174,7 +187,8 @@ def get_suffix():
 
 
 def delete_folder(path):
-    """Deletes a folder.
+    """
+    Deletes a folder.
 
     Parameters
     ----------
@@ -191,6 +205,28 @@ def delete_folder(path):
 
 
 def import_dataset(dataset, dataset_directory, audio_folder, logging):
+    """
+    Imports a dataset zip into the app.
+    Checks required files are present, saves the files,
+    converts the audio to the required format and generates the info file.
+    Deletes given zip regardless of success.
+
+    Parameters
+    ----------
+    dataset : str
+        Path to dataset zip
+    dataset_directory : str
+        Destination path for the dataset
+    audio_folder : str
+        Destination path for the dataset audio
+    logging : logging
+        Logging object to write logs to
+
+    Raises
+    -------
+    AssertionError
+        If files are missing or invalid
+    """
     try:
         with zipfile.ZipFile(dataset, mode="r") as z:
             files_list = z.namelist()

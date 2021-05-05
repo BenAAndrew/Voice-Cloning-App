@@ -123,7 +123,8 @@ def synthesize(model, text, inflect_engine, graph=None, audio=None, vocoder=None
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
+    """ Synthesize audio using model and vocoder """
+    parser = argparse.ArgumentParser(description="Synthesize audio using model and vocoder")
     parser.add_argument("-m", "--model_path", type=str, help="tacotron2 model path", required=True)
     parser.add_argument("-w", "--waveglow_model_path", type=str, help="waveglow model path", required=True)
     parser.add_argument("-t", "--text", type=str, help="text to synthesize", required=True)

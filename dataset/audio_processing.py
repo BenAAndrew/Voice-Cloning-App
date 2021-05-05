@@ -9,6 +9,22 @@ TARGET_BITRATE = "32k"
 
 
 def rename_file(path, appendix):
+    """
+    Add an appendix to given filename.
+    For example, '1.wav' & an appendix of 'abc' would produce '1-abc.wav'
+
+    Parameters
+    ----------
+    path : str
+        Current path
+    appendix : str
+        String appendix to add to filename
+
+    Returns
+    -------
+    str
+        Path with new filename
+    """
     p = Path(path)
     return os.path.join(str(p.parent), f"{p.stem}-{appendix}.wav")
 
@@ -148,7 +164,9 @@ def add_silence(input_path, silence):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
+    """ Audio conversion enabled from CLI """
+    parser = argparse.ArgumentParser(description="Convert audio to required format")
     parser.add_argument("-i", "--input_path", type=str, help="audio path")
     args = parser.parse_args()
-    convert_audio(args.input_path)
+    output_path = convert_audio(args.input_path)
+    print("Converted audio saved to ", output_path)

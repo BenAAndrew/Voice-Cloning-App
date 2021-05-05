@@ -1,3 +1,4 @@
+import argparse
 import torch
 import os
 import librosa
@@ -71,3 +72,13 @@ def transcribe(path):
 
     for example in output:
         return decoder(example.cpu())
+
+
+if __name__ == "__main__":
+    """ Transcribe a clip """
+    parser = argparse.ArgumentParser(description="Transcribe a clip")
+    parser.add_argument("-i", "--input_path", help="Path to audio file", type=str, required=True)
+    args = parser.parse_args()
+
+    text = transcribe(args.input_path)
+    print("Text: ", text)
