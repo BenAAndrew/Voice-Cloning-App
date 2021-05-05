@@ -206,9 +206,9 @@ def train(
             difference = max(losses) - min(losses)
             if difference < EARLY_STOPPING_MIN_DIFFERENCE:
                 logging.info("Stopping training early as loss is no longer decreasing")
-                logging.info(f"Progress - {epoch}/{epoch}")
                 break
 
+    logging.info(f"Progress - {epochs}/{epochs}")
     validate(model, val_loader, criterion, iteration)
     save_checkpoint(model, optimizer, learning_rate, iteration, epochs, output_directory, overwrite_checkpoints)
     logging.info("Saving model and optimizer state at iteration {} to {}".format(iteration, checkpoint_path))
