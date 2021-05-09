@@ -43,6 +43,7 @@ def train(
     batch_size=None,
     early_stopping=True,
     iters_per_checkpoint=1000,
+    gpus=[],
     logging=logging,
 ):
     """
@@ -72,6 +73,8 @@ def train(
         Whether to stop training when loss stops significantly decreasing (default is True)
     iters_per_checkpoint : int (optional)
         How often checkpoints are saved (number of iterations)
+    gpus : list (optional)
+        List of GPU's to use in training (indexes)
     logging : logging (optional)
         Logging object to write logs to
 
@@ -107,9 +110,15 @@ def train(
     torch.backends.cudnn.enabled = True
     torch.backends.cudnn.benchmark = False
 
+    # Select main GPU
+    if len(gpus) > 0:
+        main_gpu = gpus[0]
+    else:
+        main_gpu = 0
+
     # Load model & optimizer
     logging.info("Loading model...")
-    device = torch.device("cuda:0")
+    device = torch.device(f"cuda:{main_gpu}")
     model = Tacotron2()
     model = model.to(device)
 
@@ -157,9 +166,9 @@ def train(
         model = warm_start_model(transfer_learning_path, model)
         logging.info("Loaded transfer learning model '{}'".format(transfer_learning_path))
 
-    if torch.cuda.device_count() > 1:
-        logging.info(f"Using {torch.cuda.device_count()} GPUs")
-        model = nn.DataParallel(model, output_device=device)
+    if torch.cuda.device_count() > 1 and len(gpus) > 1:
+        logging.info(f"Using {len(gpus)} GPUs")
+        model = nn.DataParallel(model, device_ids=gpus, output_device=device)
 
     # Check available memory
     if not overwrite_checkpoints:

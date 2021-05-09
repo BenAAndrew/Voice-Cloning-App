@@ -27,6 +27,16 @@
             <span id="epochs_label"></span>
         </label>
     </div>
+    {% if devices %}
+        <b>GPU's:</b>
+        <div class="form-group">
+        {% for device in devices %}
+            <input type="checkbox" id="gpu-{{ loop.index-1 }}" name="gpus[]" value="{{ loop.index-1 }}" checked>
+            <label for="gpu-{{ loop.index-1 }}">GPU {{ loop.index-1 }}: {{ device }}</label>
+            <br>
+        {% endfor %}
+        </div>
+    {% endif %}
     <div>
         Time Estimate: <span id="time_estimate"></span>
     </div>

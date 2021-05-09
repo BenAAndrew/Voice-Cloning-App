@@ -149,15 +149,18 @@ def get_dataset_duration():
 @app.route("/train", methods=["GET"])
 def get_train():
     cuda_enabled = torch.cuda.is_available()
+    devices = None
+    batch_size = None
 
     if cuda_enabled:
         available_memory_gb = get_available_memory()
         batch_size = get_batch_size(available_memory_gb)
-    else:
-        batch_size = None
+        device_count = torch.cuda.device_count()
+        if device_count > 1:
+            devices = [torch.cuda.get_device_name(i) for i in range(device_count)]
 
     return render_template(
-        "train.html", cuda_enabled=cuda_enabled, batch_size=batch_size, datasets=os.listdir(paths["datasets"])
+        "train.html", cuda_enabled=cuda_enabled, batch_size=batch_size, devices=devices, datasets=os.listdir(paths["datasets"])
     )
 
 
@@ -168,6 +171,7 @@ def train_post():
     batch_size = request.form["batch_size"]
     early_stopping = request.form.get("early_stopping") is not None
     iters_per_checkpoint = request.form["checkpoint_frequency"]
+    gpus = request.form.getlist("gpus[]")
 
     metadata_path = os.path.join(paths["datasets"], dataset_name, METADATA_FILE)
     audio_folder = os.path.join(paths["datasets"], dataset_name, AUDIO_FOLDER)
@@ -191,6 +195,7 @@ def train_post():
         batch_size=int(batch_size),
         early_stopping=early_stopping,
         iters_per_checkpoint=int(iters_per_checkpoint),
+        gpus=gpus,
     )
 
     return render_template("progress.html", next_url=get_next_url(URLS, request.path))
