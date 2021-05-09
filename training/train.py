@@ -181,6 +181,8 @@ def train(
         print("Epoch: {}".format(epoch))
         logging.info(f"Progress - {epoch}/{epochs}")
         for _, batch in enumerate(train_loader):
+            if batch.device != device:
+                batch = batch.to(device)
             print("DEVICE", batch.device)
             start = time.perf_counter()
             for param_group in optimizer.param_groups:
