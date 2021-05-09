@@ -113,12 +113,13 @@ def train(
     # Select main GPU
     if len(gpus) > 0:
         main_gpu = gpus[0]
+        logging.info(f"Using {main_gpu} as main GPU")
     else:
         main_gpu = 0
+    device = torch.device(f"cuda:{main_gpu}")
 
     # Load model & optimizer
     logging.info("Loading model...")
-    device = torch.device(f"cuda:{main_gpu}")
     model = Tacotron2()
     model = model.to(device)
 
