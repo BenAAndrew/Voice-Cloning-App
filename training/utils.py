@@ -6,18 +6,26 @@ BATCH_SIZE_PER_GB = 2.5
 LEARNING_RATE_PER_BATCH = 3.125e-5
 
 
-def get_available_memory():
+def get_available_memory(gpus=[0]):
     """
     Get available GPU memory in GB.
+
+    Parameters
+    ----------
+    gpus : list (optional)
+        List of GPU's to use in training (indexes)
 
     Returns
     -------
     int
         Available GPU memory in GB
     """
-    gpu_memory = torch.cuda.get_device_properties(0).total_memory
-    memory_in_use = torch.cuda.memory_allocated(0)
-    available_memory = gpu_memory - memory_in_use
+    available_memory = 0
+    for i in range(gpus):
+        gpu_memory = torch.cuda.get_device_properties(i).total_memory
+        memory_in_use = torch.cuda.memory_allocated(i)
+        available_memory += gpu_memory - memory_in_use
+
     available_memory_gb = available_memory // 1024 // 1024 // 1024
     return available_memory_gb
 
