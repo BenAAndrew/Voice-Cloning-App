@@ -113,7 +113,6 @@ def train(
     # Select main GPU
     if len(gpus) > 0:
         main_gpu = gpus[0]
-        logging.info(f"Using {main_gpu} as main GPU")
     else:
         main_gpu = 0
     device = torch.device(f"cuda:{main_gpu}")
@@ -182,6 +181,7 @@ def train(
         print("Epoch: {}".format(epoch))
         logging.info(f"Progress - {epoch}/{epochs}")
         for _, batch in enumerate(train_loader):
+            print("DEVICE", batch.device)
             start = time.perf_counter()
             for param_group in optimizer.param_groups:
                 param_group["lr"] = learning_rate
