@@ -156,7 +156,7 @@ def get_train():
         device_count = torch.cuda.device_count()
         if device_count > 1:
             devices = [torch.cuda.get_device_name(i) for i in range(device_count)]
-        available_memory_gb = get_available_memory(gpus=devices)
+        available_memory_gb = get_available_memory(gpus=range(device_count))
         batch_size = get_batch_size(available_memory_gb)
 
     return render_template(
