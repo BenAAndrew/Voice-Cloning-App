@@ -21,7 +21,7 @@ def get_available_memory(gpus=[0]):
         Available GPU memory in GB
     """
     available_memory = 0
-    for i in range(gpus):
+    for i in gpus:
         gpu_memory = torch.cuda.get_device_properties(i).total_memory
         memory_in_use = torch.cuda.memory_allocated(i)
         available_memory += gpu_memory - memory_in_use
