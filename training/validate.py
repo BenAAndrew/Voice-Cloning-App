@@ -2,7 +2,7 @@ import torch
 from training.tacotron2_model.utils import parse_batch
 
 
-def validate(model, val_loader, criterion, iteration):
+def validate(model, val_loader, criterion, iteration, device):
     """
     Credit: https://github.com/NVIDIA/tacotron2
 
@@ -28,7 +28,7 @@ def validate(model, val_loader, criterion, iteration):
     with torch.no_grad():
         val_loss = 0.0
         for i, batch in enumerate(val_loader):
-            x, y, mask_size, alignment_mask_size = parse_batch(batch)
+            x, y, mask_size, alignment_mask_size = parse_batch(batch, device)
             y_pred = model(x, mask_size=mask_size, alignment_mask_size=alignment_mask_size)
             loss = criterion(y_pred, y)
             reduced_val_loss = loss.item()

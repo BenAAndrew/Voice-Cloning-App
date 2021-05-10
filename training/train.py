@@ -181,16 +181,13 @@ def train(
         print("Epoch: {}".format(epoch))
         logging.info(f"Progress - {epoch}/{epochs}")
         for _, batch in enumerate(train_loader):
-            # if batch.device != device:
-            #     batch = batch.to(device)
-            print("DEVICE", batch.device)
             start = time.perf_counter()
             for param_group in optimizer.param_groups:
                 param_group["lr"] = learning_rate
 
             # Backpropogation
             model.zero_grad()
-            x, y, mask_size, alignment_mask_size = parse_batch(batch)
+            x, y, mask_size, alignment_mask_size = parse_batch(batch, device)
             y_pred = model(x, mask_size=mask_size, alignment_mask_size=alignment_mask_size)
 
             loss = criterion(y_pred, y)
@@ -209,7 +206,7 @@ def train(
 
             # Validate & save checkpoint
             if iteration % iters_per_checkpoint == 0:
-                val_loss = validate(model, val_loader, criterion, iteration)
+                val_loss = validate(model, val_loader, criterion, iteration, device)
                 validation_losses.append(val_loss)
                 logging.info(
                     "Saving model and optimizer state at iteration {} to {}. Scored {}".format(

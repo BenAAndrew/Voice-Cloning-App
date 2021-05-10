@@ -53,21 +53,18 @@ def load_filepaths_and_text(filename, split="|"):
     return filepaths_and_text
 
 
-def to_gpu(x):
-    x = x.contiguous()
-
-    if torch.cuda.is_available():
-        x = x.cuda(non_blocking=True)
+def to_gpu(x, device):
+    x = x.contiguous().to(device)
     return torch.autograd.Variable(x)
 
-def parse_batch(batch):
+def parse_batch(batch, device):
     text_padded, input_lengths, mel_padded, gate_padded, output_lengths = batch
-    text_padded = to_gpu(text_padded).long()
-    input_lengths = to_gpu(input_lengths).long()
+    text_padded = to_gpu(text_padded, device).long()
+    input_lengths = to_gpu(input_lengths, device).long()
     max_len = torch.max(input_lengths.data).item()
-    mel_padded = to_gpu(mel_padded).float()
-    gate_padded = to_gpu(gate_padded).float()
-    output_lengths = to_gpu(output_lengths).long()
+    mel_padded = to_gpu(mel_padded, device).float()
+    gate_padded = to_gpu(gate_padded, device).float()
+    output_lengths = to_gpu(output_lengths, device).long()
     mask_size = torch.max(output_lengths.data).item()
     alignment_mask_size = torch.max(input_lengths.data).item()
 
