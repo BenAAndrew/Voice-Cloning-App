@@ -50,6 +50,7 @@ A Python/Pytorch app for easily synthesising human voices
 
 - Try out existing voices at [uberduck.ai](https://uberduck.ai/) and [Vocodes](https://vo.codes/)
 - [Synthesize in Colab](https://colab.research.google.com/drive/18IJZZDW1NO7KOslg_WMOCrMeiqz9jOYF?usp=sharing) (created by mega b#6696)
+- [Train in Colab](https://colab.research.google.com/drive/1jP9jUtXt_hA1e2Upd4uJfYsGD34vbSA6?usp=sharing) (created by ericstheguy)
 - [Generate youtube transcription](https://colab.research.google.com/drive/1KfAJig2jekpjJ5QS8Lpjy8sTd8w_ZuFv?usp=sharing) (created by mega b#6696)
 - [Wit.ai transcription](https://colab.research.google.com/drive/1i5hJRZVc0S-tgt5XM8kSoTu2nHBPOPrF#scrollTo=dk689PtThOjn)
 
