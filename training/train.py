@@ -188,7 +188,7 @@ def train(
             # Backpropogation
             model.zero_grad()
             x, y, mask_size, alignment_mask_size = parse_batch(batch, device)
-            y_pred = model(x, mask_size=mask_size, alignment_mask_size=alignment_mask_size)
+            y_pred = model(x, mask_size=mask_size, alignment_mask_size=alignment_mask_size, device=device)
 
             loss = criterion(y_pred, y)
             reduced_loss = loss.item()

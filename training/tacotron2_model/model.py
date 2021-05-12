@@ -422,7 +422,7 @@ class Decoder(nn.Module):
         gate_prediction = self.gate_layer(decoder_hidden_attention_context)
         return decoder_output, gate_prediction, self.attention_weights
 
-    def forward(self, memory, decoder_inputs, memory_lengths):
+    def forward(self, memory, decoder_inputs, memory_lengths, device):
         """Decoder forward pass for training
         PARAMS
         ------
@@ -441,7 +441,7 @@ class Decoder(nn.Module):
         decoder_inputs = torch.cat((decoder_input, decoder_inputs), dim=0)
         decoder_inputs = self.prenet(decoder_inputs)
 
-        self.initialize_decoder_states(memory, mask=~get_mask_from_lengths(memory_lengths))
+        self.initialize_decoder_states(memory, mask=~get_mask_from_lengths(memory_lengths, device))
 
         mel_outputs, gate_outputs, alignments = [], [], []
         while len(mel_outputs) < decoder_inputs.size(0) - 1:
@@ -556,9 +556,9 @@ class Tacotron2(nn.Module):
 
         return ((text_padded, input_lengths, mel_padded, max_len, output_lengths), (mel_padded, gate_padded))
 
-    def parse_output(self, outputs, output_lengths, mask_size, alignment_mask_size):
+    def parse_output(self, outputs, output_lengths, mask_size, alignment_mask_size, device):
         if self.mask_padding:
-            mask = ~get_mask_from_lengths(output_lengths, mask_size)
+            mask = ~get_mask_from_lengths(output_lengths, device, mask_size)
             mask = mask.expand(self.n_mel_channels, mask.size(0), mask.size(1))
             mask = mask.permute(1, 0, 2)
 
@@ -570,7 +570,7 @@ class Tacotron2(nn.Module):
 
         return outputs
 
-    def forward(self, inputs, mask_size, alignment_mask_size):
+    def forward(self, inputs, mask_size, alignment_mask_size, device):
         text_inputs, text_lengths, mels, max_len, output_lengths = inputs
 
         print("INPUTS DEVICES", text_inputs.device, mels.device)
@@ -583,12 +583,12 @@ class Tacotron2(nn.Module):
         encoder_outputs = self.encoder(embedded_inputs, text_lengths)
         print("ENCODER DEVICE", encoder_outputs.device)
 
-        mel_outputs, gate_outputs, alignments = self.decoder(encoder_outputs, mels, memory_lengths=text_lengths)
+        mel_outputs, gate_outputs, alignments = self.decoder(encoder_outputs, mels, memory_lengths=text_lengths, device=device)
 
         mel_outputs_postnet = self.postnet(mel_outputs)
         mel_outputs_postnet = mel_outputs + mel_outputs_postnet
 
-        return self.parse_output([mel_outputs, mel_outputs_postnet, gate_outputs, alignments], output_lengths, mask_size, alignment_mask_size)
+        return self.parse_output([mel_outputs, mel_outputs_postnet, gate_outputs, alignments], output_lengths, mask_size, alignment_mask_size, device)
 
     def inference(self, inputs):
         embedded_inputs = self.embedding(inputs).transpose(1, 2)
