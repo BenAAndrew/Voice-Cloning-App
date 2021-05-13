@@ -172,6 +172,8 @@ def train_post():
     early_stopping = request.form.get("early_stopping") is not None
     iters_per_checkpoint = request.form["checkpoint_frequency"]
     gpus = request.form.getlist("gpus[]")
+    if gpus:
+        gpus = [int(i) for i in gpus]
 
     metadata_path = os.path.join(paths["datasets"], dataset_name, METADATA_FILE)
     audio_folder = os.path.join(paths["datasets"], dataset_name, AUDIO_FOLDER)
