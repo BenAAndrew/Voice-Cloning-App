@@ -6,6 +6,8 @@ import io
 import zipfile
 import traceback
 import torch
+import requests
+import shutil
 
 sys.path.append("synthesis/waveglow/")
 
@@ -198,6 +200,12 @@ def train_post():
     )
 
     return render_template("progress.html", next_url=get_next_url(URLS, request.path))
+
+
+@app.route("/train-remote", methods=["POST"])
+def train_remote_post():
+    dataset_name = request.form["path"]
+    shutil.make_archive(dataset_name+".zip", "zip", os.path.join(paths["datasets"], dataset_name))
 
 
 # Synthesis
