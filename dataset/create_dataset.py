@@ -78,4 +78,4 @@ if __name__ == "__main__":
     parser.add_argument("-i", "--info_path", help="Path to save info file", type=str, default="info.json")
     args = parser.parse_args()
 
-    generate_dataset(**vars(args))
+    create_dataset(**vars(args))
