@@ -26,6 +26,7 @@ from dataset.create_dataset import create_dataset
 from dataset.extend_existing_dataset import extend_existing_dataset
 from dataset.analysis import get_total_audio_duration, validate_dataset, save_dataset_info
 from training.train import train
+from training.remote_train import remote_train
 from training.checkpoint import get_latest_checkpoint
 from training.utils import get_available_memory, get_batch_size
 from synthesis.synthesize import load_model, synthesize
@@ -169,14 +170,17 @@ def get_train():
 
 @app.route("/train", methods=["POST"])
 def train_post():
+    training_type = request.form["training_type"]
+    remote_url = request.form.get("remote_url")
     dataset_name = request.form["path"]
     epochs = request.form["epochs"]
     batch_size = request.form["batch_size"]
     early_stopping = request.form.get("early_stopping") is not None
     iters_per_checkpoint = request.form["checkpoint_frequency"]
 
-    metadata_path = os.path.join(paths["datasets"], dataset_name, METADATA_FILE)
-    audio_folder = os.path.join(paths["datasets"], dataset_name, AUDIO_FOLDER)
+    dataset_folder = os.path.join(paths["datasets"], dataset_name)
+    metadata_path = os.path.join(dataset_folder, METADATA_FILE)
+    audio_folder = os.path.join(dataset_folder, AUDIO_FOLDER)
     checkpoint_folder = os.path.join(paths["models"], dataset_name)
     pretrained_folder = os.path.join(paths["pretrained"], dataset_name)
 
@@ -187,25 +191,32 @@ def train_post():
     else:
         transfer_learning_path = None
 
-    start_progress_thread(
-        train,
-        metadata_path=metadata_path,
-        dataset_directory=audio_folder,
-        output_directory=checkpoint_folder,
-        transfer_learning_path=transfer_learning_path,
-        epochs=int(epochs),
-        batch_size=int(batch_size),
-        early_stopping=early_stopping,
-        iters_per_checkpoint=int(iters_per_checkpoint),
-    )
+    if training_type == "local":
+        start_progress_thread(
+            train,
+            metadata_path=metadata_path,
+            dataset_directory=audio_folder,
+            output_directory=checkpoint_folder,
+            transfer_learning_path=transfer_learning_path,
+            epochs=int(epochs),
+            batch_size=int(batch_size),
+            early_stopping=early_stopping,
+            iters_per_checkpoint=int(iters_per_checkpoint),
+        )
+    else:
+        start_progress_thread(
+            remote_train,
+            remote_url=remote_url,
+            dataset_folder=dataset_folder,
+            output_directory=checkpoint_folder,
+            transfer_learning_path=transfer_learning_path,
+            epochs=int(epochs),
+            batch_size=int(batch_size),
+            early_stopping=early_stopping,
+            iters_per_checkpoint=int(iters_per_checkpoint),
+        )
 
     return render_template("progress.html", next_url=get_next_url(URLS, request.path))
-
-
-@app.route("/train-remote", methods=["POST"])
-def train_remote_post():
-    dataset_name = request.form["path"]
-    shutil.make_archive(dataset_name+".zip", "zip", os.path.join(paths["datasets"], dataset_name))
 
 
 # Synthesis

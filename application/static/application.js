@@ -34,6 +34,7 @@ $(document).ready(function(){
 
     socket.on('error', function(msg) {
         console.log(msg);
+        $('#logs').append("ERROR: "+msg.text+"<br>");
         var r = confirm(msg.text);
         if (r == true) {
             window.history.back();

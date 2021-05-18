@@ -21,22 +21,25 @@ LOGGING_URL = "https://voice-cloning-app-logging.herokuapp.com/"
 CONFIG_FILE = "config.ini"
 
 
-class SocketIOHandler(logging.Handler):
+def handle_logged_message(text):
     """
     Sends logger messages to the frontend using flask-socketio.
     These are handled in application.js
     """
+    if text.startswith("Progress"):
+        text = text.split("-")[1]
+        current, total = text.split("/")
+        socketio.emit("progress", {"number": current, "total": total}, namespace="/voice")
+    elif text.startswith("Status"):
+        socketio.emit("status", {"text": text.replace("Status -", "")}, namespace="/voice")
+    else:
+        socketio.emit("logs", {"text": text}, namespace="/voice")
 
+
+class SocketIOHandler(logging.Handler):
     def emit(self, record):
         text = record.getMessage()
-        if text.startswith("Progress"):
-            text = text.split("-")[1]
-            current, total = text.split("/")
-            socketio.emit("progress", {"number": current, "total": total}, namespace="/voice")
-        elif text.startswith("Status"):
-            socketio.emit("status", {"text": text.replace("Status -", "")}, namespace="/voice")
-        else:
-            socketio.emit("logs", {"text": text}, namespace="/voice")
+        handle_logged_message(text)
 
 
 # Data

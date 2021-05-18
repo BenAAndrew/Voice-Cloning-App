@@ -4,71 +4,13 @@
 {% endblock %}
 {% block content %}
 <div class="tab">
-    <button class="tablinks active" onclick="openPane(event, 'local')">Local GPU</button>
-    <button class="tablinks" onclick="openPane(event, 'colab')">Colab notebook</button>
+    <button class="tablinks active" onclick="changeTab(event, 'local')">Local GPU</button>
+    <button class="tablinks" onclick="changeTab(event, 'colab')">Colab notebook</button>
 </div>
 <br>
 
 <div id="local" class="tabcontent" style="display: block;">
-    {% if cuda_enabled %}
-        <form method="POST" action="/train" enctype="multipart/form-data">
-            <div class="form-group">
-                <label for="path">Dataset path</label>
-                <select class="form-control" id="path" name="path" onchange="showDatasetInfo()" required>
-                    {% for dataset in datasets %}
-                        <option value="{{dataset}}">{{dataset}}</option>
-                    {% endfor %}
-                </select>
-                <div>
-                    <input id="total_clips" type="hidden"></input>
-                    <input id="duration" type="hidden"></input>
-                    <a href="#" data-toggle="tooltip" data-placement="top" title="Having a larger dataset will likely improve voice quality">Dataset size</a>:
-                    <span id="dataset_label"></span>
-                </div>
-            </div>
-            <div class="form-group">
-                <label for="pretrained_model"><a href="#" data-toggle="tooltip" data-placement="top" title="Using a pretrained model may reduce the number of required epochs and improve quality">Pretrained model</a> (recommended) <a href="https://drive.google.com/file/d/1c5ZTuT7J08wLUoVZ2KkUs_VdZuJ86ZqA/view">default</a></label>
-                <input type="file" id="pretrained_model" name="pretrained_model"> 
-            </div>
-            <div class="form-group">
-                <input type="range" id="epochs" name="epochs" step="500" min="500" max="10000" value="3000" onchange="showEpochsLabel()">
-                <label for="epochs">
-                    <a href="#" data-toggle="tooltip" data-placement="top" title="An epoch is a full cycle of the dataset. Increasing this amount will likely improve quality, but will also lead to longer runtime">Epochs</a>: 
-                    <span id="epochs_label"></span>
-                </label>
-            </div>
-            <div>
-                Time Estimate: <span id="time_estimate"></span>
-            </div>
-            <br>
-            <button type="button" class="collapsible" id="advanced">Advanced Options ∨</button>
-            <div class="content">
-                <br>
-                <div class="form-group">
-                    <input type="range" id="batch_size" name="batch_size" step="2" min="2" max="256" value="{{ batch_size }}" oninput="showBatchSize()">
-                    <label for="batch_size">
-                        <a href="#" data-toggle="tooltip" data-placement="top" title="Larger batch sizes use more GPU memory leading to faster training, but setting this too high may lead to a 'CUDA out of memory' error">Batch size</a>: 
-                        <input type="text" id="batch_size_label" onchange="editBatchSize()">
-                    </label> 
-                </div>
-                <div class="form-group">
-                    <input type="checkbox" id="early_stopping" name="early_stopping" checked>
-                    <label for="early_stopping"><a href="#" data-toggle="tooltip" data-placement="top" title="Early stopping will stop training when the loss stops significantly decreasing. This will reduce unnecessary training time">Early Stopping</a></label>
-                </div>
-                <div class="form-group">
-                    <input type="range" id="checkpoint_frequency" name="checkpoint_frequency" step="250" min="250" max="2500" value="1000" onchange="showCheckpointFrequencyLabel()">
-                    <label for="checkpoint_frequency">
-                        <a href="#" data-toggle="tooltip" data-placement="top" title="Changes how frequently backup checkpoints are made. Increasing this value will marginally increase performance but may also increase how much progress is lost if training fails.">Checkpoint Frequency</a>: 
-                        <span id="checkpoint_frequency_label"></span>
-                    </label>
-                </div>
-            </div>
-            <br>
-            <input type="submit" class="btn btn-primary">
-        </form>
-        <script src="{{ url_for('static', filename='advanced.js') }}"></script>
-        <script src="{{ url_for('static', filename='train.js') }}"></script>
-    {% else %}
+    {% if not cuda_enabled %}
         <h3>Training is not available</h3>
         <p>CUDA is not working on your system. Possible reasons:</p>
         <ul>
@@ -79,8 +21,13 @@
     {% endif %}
 </div>
 
-<div id="colab" class="tabcontent">
-    <form method="POST" action="/train-remote" enctype="multipart/form-data">
+<div id="form" style="display: none;">
+    <form method="POST" action="/train" enctype="multipart/form-data">
+        <input type="hidden" id="training-type" name="training_type" value="local">
+        <div class="form-group" id="remote-url-field" style="display: none;">
+            <label for="remote_url">Remote URL</label>
+            <input type="text" id="remote_url" name="remote_url" size="40"> 
+        </div>
         <div class="form-group">
             <label for="path">Dataset path</label>
             <select class="form-control" id="path" name="path" onchange="showDatasetInfo()" required>
@@ -100,12 +47,73 @@
             <input type="file" id="pretrained_model" name="pretrained_model"> 
         </div>
         <div class="form-group">
-            <input type="range" id="epochs" name="epochs" step="500" min="500" max="10000" value="3000" onchange="showEpochsLabel()">
+            <input type="range" id="epochs" name="epochs" step="500" min="10" max="10000" value="10" onchange="showEpochsLabel()">
             <label for="epochs">
                 <a href="#" data-toggle="tooltip" data-placement="top" title="An epoch is a full cycle of the dataset. Increasing this amount will likely improve quality, but will also lead to longer runtime">Epochs</a>: 
                 <span id="epochs_label"></span>
             </label>
         </div>
+        <div>
+            Time Estimate: <span id="time_estimate"></span>
+        </div>
+        <br>
+        <button type="button" class="collapsible" id="advanced">Advanced Options ∨</button>
+        <div class="content">
+            <br>
+            <div class="form-group">
+                <input type="range" id="batch_size" name="batch_size" step="2" min="2" max="256" value="{{ batch_size }}" oninput="showBatchSize()">
+                <label for="batch_size">
+                    <a href="#" data-toggle="tooltip" data-placement="top" title="Larger batch sizes use more GPU memory leading to faster training, but setting this too high may lead to a 'CUDA out of memory' error">Batch size</a>: 
+                    <input type="text" id="batch_size_label" onchange="editBatchSize()">
+                </label> 
+            </div>
+            <div class="form-group">
+                <input type="checkbox" id="early_stopping" name="early_stopping" checked>
+                <label for="early_stopping"><a href="#" data-toggle="tooltip" data-placement="top" title="Early stopping will stop training when the loss stops significantly decreasing. This will reduce unnecessary training time">Early Stopping</a></label>
+            </div>
+            <div class="form-group">
+                <input type="range" id="checkpoint_frequency" name="checkpoint_frequency" step="250" min="250" max="2500" value="1000" onchange="showCheckpointFrequencyLabel()">
+                <label for="checkpoint_frequency">
+                    <a href="#" data-toggle="tooltip" data-placement="top" title="Changes how frequently backup checkpoints are made. Increasing this value will marginally increase performance but may also increase how much progress is lost if training fails.">Checkpoint Frequency</a>: 
+                    <span id="checkpoint_frequency_label"></span>
+                </label>
+            </div>
+        </div>
+        <br>
+        <input type="submit" class="btn btn-primary">
     </form>
+    <script src="{{ url_for('static', filename='advanced.js') }}"></script>
+    <script src="{{ url_for('static', filename='train.js') }}"></script>
 </div>
+<script>
+    function showContent(newTab){
+        cuda = "{{ cuda_enabled }}";
+        f = document.getElementById("form");
+        if(newTab == "local" && cuda == "False"){
+            f.style.display = "none";
+        } else {
+            f.style.display = "block";
+        }
+
+        remote_url = document.getElementById("remote-url-field");
+        batch_size = document.getElementById("batch_size");
+        if(newTab == "local"){
+            remote_url.style.display = "none";
+            batch_size.value = {{ batch_size }};
+        } else {
+            remote_url.style.display = "block";
+            batch_size.value = 50;
+        }
+        showBatchSize();
+
+        document.getElementById("training-type").value = newTab;
+    }
+
+    function changeTab(event, newTab){
+        openPane(event, newTab);
+        showContent(newTab);
+    }
+
+    showContent('local');
+</script>
 {% endblock %}
