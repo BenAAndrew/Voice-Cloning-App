@@ -166,9 +166,11 @@ def train(
         model = warm_start_model(transfer_learning_path, model)
         logging.info("Loaded transfer learning model '{}'".format(transfer_learning_path))
 
+    parallel = False
     if torch.cuda.device_count() > 1 and len(gpus) > 1:
         logging.info(f"Using {len(gpus)} GPUs")
         model = nn.DataParallel(model, device_ids=gpus, output_device=device)
+        parallel = True
 
     # Check available memory
     if not overwrite_checkpoints:
@@ -188,7 +190,7 @@ def train(
             # Backpropogation
             model.zero_grad()
             x, y, mask_size, alignment_mask_size = parse_batch(batch)
-            y_pred = model(x, mask_size=mask_size, alignment_mask_size=alignment_mask_size)
+            y_pred = model(x, mask_size=mask_size, alignment_mask_size=alignment_mask_size, device=device if not parallel else None)
 
             loss = criterion(y_pred, y)
             reduced_loss = loss.item()
