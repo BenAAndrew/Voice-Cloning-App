@@ -140,10 +140,12 @@ def train(
     iteration = 0
     epoch_offset = 0
 
-    if find_checkpoint and not checkpoint_path and not transfer_learning_path:
+    if find_checkpoint and not checkpoint_path:
         checkpoint_path = get_latest_checkpoint(output_directory)
 
     if checkpoint_path:
+        if transfer_learning_path:
+            logging.info("Ignoring transfer learning as checkpoint already exists")
         model, optimizer, iteration, epoch_offset = load_checkpoint(checkpoint_path, model, optimizer, train_loader)
         iteration += 1
         logging.info("Loaded checkpoint '{}' from iteration {}".format(checkpoint_path, iteration))
