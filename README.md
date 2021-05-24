@@ -44,6 +44,11 @@ A Python/Pytorch app for easily synthesising human voices
 - AMD GPU support
 - Additional language support
 
+## Experimental/In-Development features
+Available for those with a manual install
+- [Google Colab Training](https://github.com/BenAAndrew/Voice-Cloning-App/pull/36)
+- [Multi-GPU](https://github.com/BenAAndrew/Voice-Cloning-App/pull/32)
+
 ## [How to make changes](maintenance.md)
 
 ## Other resources
