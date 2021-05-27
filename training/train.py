@@ -18,7 +18,7 @@ from training.checkpoint import load_checkpoint, save_checkpoint, get_latest_che
 from training.validate import validate
 from training.utils import get_available_memory, get_batch_size, get_learning_rate, check_space
 from training.tacotron2_model import Tacotron2, TextMelCollate, Tacotron2Loss
-from training.tacotron2_model.utils import parse_batch
+from training.tacotron2_model.utils import parse_batch, get_sizes, get_y
 
 
 MINIMUM_MEMORY_GB = 4
@@ -166,11 +166,9 @@ def train(
         model = warm_start_model(transfer_learning_path, model)
         logging.info("Loaded transfer learning model '{}'".format(transfer_learning_path))
 
-    parallel = False
     if torch.cuda.device_count() > 1 and len(gpus) > 1:
         logging.info(f"Using {len(gpus)} GPUs")
         model = nn.DataParallel(model, device_ids=gpus, output_device=device)
-        parallel = True
 
     # Check available memory
     if not overwrite_checkpoints:
@@ -189,8 +187,9 @@ def train(
 
             # Backpropogation
             model.zero_grad()
-            x, y, mask_size, alignment_mask_size = parse_batch(batch)
-            y_pred = model(x, mask_size=mask_size, alignment_mask_size=alignment_mask_size, device=device if not parallel else None)
+            input_length_size, output_length_size = get_sizes(batch)
+            y = get_y(batch)
+            y_pred = model(batch, mask_size=output_length_size, alignment_mask_size=input_length_size)
 
             loss = criterion(y_pred, y)
             reduced_loss = loss.item()

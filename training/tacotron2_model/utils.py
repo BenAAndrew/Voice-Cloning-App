@@ -58,15 +58,23 @@ def to_gpu(x):
     x = x.contiguous().cuda()
     return torch.autograd.Variable(x)
 
-def parse_batch(batch):
-    text_padded, input_lengths, mel_padded, gate_padded, output_lengths = batch
-    text_padded = to_gpu(text_padded).long()
-    input_lengths = to_gpu(input_lengths).long()
-    max_len = torch.max(input_lengths.data).item()
+def get_sizes(data):
+    _, input_lengths, _, _, output_lengths = data
+    output_length_size = torch.max(output_lengths.data).item()
+    input_length_size = torch.max(input_lengths.data).item()
+    return input_length_size, output_length_size
+
+def get_y(data):
+    _, _, mel_padded, gate_padded, _ = data
     mel_padded = to_gpu(mel_padded).float()
     gate_padded = to_gpu(gate_padded).float()
-    output_lengths = to_gpu(output_lengths).long()
-    mask_size = torch.max(output_lengths.data).item()
-    alignment_mask_size = torch.max(input_lengths.data).item()
+    return mel_padded, gate_padded
 
-    return ((text_padded, input_lengths, mel_padded, max_len, output_lengths), (mel_padded, gate_padded), mask_size, alignment_mask_size)
+def get_x(data):
+    text_padded, input_lengths, mel_padded, _, output_lengths = data
+    text_padded = to_gpu(text_padded).long()
+    input_lengths = to_gpu(input_lengths).long()
+    mel_padded = to_gpu(mel_padded).float()
+    output_lengths = to_gpu(output_lengths).long()
+
+    return text_padded, input_lengths, mel_padded, output_lengths

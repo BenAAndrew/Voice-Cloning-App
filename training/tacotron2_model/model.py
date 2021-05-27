@@ -35,7 +35,7 @@ from torch.autograd import Variable
 from torch import nn
 from torch.nn import functional as F
 from training.tacotron2_model.layers import ConvNorm, LinearNorm
-from training.tacotron2_model.utils import to_gpu, get_mask_from_lengths
+from training.tacotron2_model.utils import to_gpu, get_mask_from_lengths, get_x
 
 
 class LocationLayer(nn.Module):
@@ -570,10 +570,9 @@ class Tacotron2(nn.Module):
 
         return outputs
 
-    def forward(self, inputs, mask_size, alignment_mask_size, device=None):
-        text_inputs, text_lengths, mels, max_len, output_lengths = inputs
-        if not device:
-            device = text_inputs.device
+    def forward(self, inputs, mask_size, alignment_mask_size):
+        text_inputs, text_lengths, mels, output_lengths = get_x(inputs)
+        device = text_inputs.device
         print("PROCESSING BATCH WITH ", device)
 
         text_lengths, output_lengths = text_lengths.data, output_lengths.data
