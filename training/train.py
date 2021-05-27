@@ -18,7 +18,7 @@ from training.checkpoint import load_checkpoint, save_checkpoint, get_latest_che
 from training.validate import validate
 from training.utils import get_available_memory, get_batch_size, get_learning_rate, check_space
 from training.tacotron2_model import Tacotron2, TextMelCollate, Tacotron2Loss
-from training.tacotron2_model.utils import parse_batch, get_sizes, get_y
+from training.tacotron2_model.utils import get_sizes, get_y
 
 
 MINIMUM_MEMORY_GB = 4
