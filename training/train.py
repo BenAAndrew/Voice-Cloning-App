@@ -10,6 +10,7 @@ sys.path.append(dirname(dirname(abspath(__file__))))
 logging.getLogger().setLevel(logging.INFO)
 
 import torch
+import torch.nn as nn
 from torch.utils.data import DataLoader
 
 from training.dataset import VoiceDataset
@@ -157,6 +158,11 @@ def train(
     if not overwrite_checkpoints:
         num_iterations = len(train_loader) * epochs - epoch_offset
         check_space(num_iterations // iters_per_checkpoint)
+
+    # Enable Multi GPU
+    if torch.cuda.device_count() > 1:
+        logging.info(f"Using {len(gpus)} GPUs")
+        model = nn.DataParallel(model)
 
     model.train()
     validation_losses = []
