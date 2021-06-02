@@ -207,7 +207,7 @@ def train(
 
             # Validate & save checkpoint
             if iteration % iters_per_checkpoint == 0:
-                val_loss = validate(model, val_loader, criterion, iteration, device)
+                val_loss = validate(model, val_loader, criterion, iteration)
                 validation_losses.append(val_loss)
                 logging.info(
                     "Saving model and optimizer state at iteration {} to {}. Scored {}".format(

@@ -2,7 +2,7 @@ import torch
 from training.tacotron2_model.utils import get_sizes, get_y
 
 
-def validate(model, val_loader, criterion, iteration, device):
+def validate(model, val_loader, criterion, iteration):
     """
     Credit: https://github.com/NVIDIA/tacotron2
 
