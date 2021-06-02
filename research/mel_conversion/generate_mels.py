@@ -35,7 +35,7 @@ def wav_to_mel(path, output_path, sample_rate):
 
 
 if __name__ == "__main__":
-    """ Script to generate MELs from wavs """
+    """Script to generate MELs from wavs"""
     parser = argparse.ArgumentParser(description="Convert WAVs to MEL spectograms")
     parser.add_argument("-w", "--wavs", help="Text file path", type=str, required=True)
     parser.add_argument("-o", "--output", help="Output path", type=str, required=True)

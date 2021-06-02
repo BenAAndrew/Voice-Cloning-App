@@ -164,7 +164,7 @@ def add_silence(input_path, silence):
 
 
 if __name__ == "__main__":
-    """ Audio conversion enabled from CLI """
+    """Audio conversion enabled from CLI"""
     parser = argparse.ArgumentParser(description="Convert audio to required format")
     parser.add_argument("-i", "--input_path", type=str, help="audio path")
     args = parser.parse_args()

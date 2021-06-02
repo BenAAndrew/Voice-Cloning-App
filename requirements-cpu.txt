@@ -4,7 +4,6 @@ librosa==0.6.0
 numpy==1.16.4
 inflect==0.2.5
 Unidecode==1.0.22
-tacotron2-model==0.2.4
 Flask==1.1.2
 Flask-SocketIO==5.0.1
 matplotlib==3.3.4

@@ -75,7 +75,7 @@ def transcribe(path):
 
 
 if __name__ == "__main__":
-    """ Transcribe a clip """
+    """Transcribe a clip"""
     parser = argparse.ArgumentParser(description="Transcribe a clip")
     parser.add_argument("-i", "--input_path", help="Path to audio file", type=str, required=True)
     args = parser.parse_args()

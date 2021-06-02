@@ -59,7 +59,7 @@ def transcribe_clips(folder, labels, output_path):
 
 
 if __name__ == "__main__":
-    """ Script to transcribe a folder of audio """
+    """Script to transcribe a folder of audio"""
     parser = argparse.ArgumentParser(description="Clean & improve text for training")
     parser.add_argument("-f", "--folder", help="Audio folder", type=str, required=True)
     parser.add_argument("-l", "--labels", help="Labels path", type=str, required=True)

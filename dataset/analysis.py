@@ -137,7 +137,7 @@ def validate_dataset(folder, metadata_file="metadata.csv", audio_folder="wavs", 
 
 
 if __name__ == "__main__":
-    """ Script to analyse dataset """
+    """Script to analyse dataset"""
     parser = argparse.ArgumentParser(description="Analyse dataset")
     parser.add_argument("-w", "--wavs", help="Path to wavs folder", type=str, required=True)
     parser.add_argument("-m", "--metadata", help="Path to metadata file", type=str, required=True)

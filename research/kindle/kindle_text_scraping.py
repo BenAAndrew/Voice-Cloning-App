@@ -5,7 +5,7 @@ from selenium import webdriver
 from html2text import html2text
 
 if __name__ == "__main__":
-    """ Script to extract an Kindle book to text file. """
+    """Script to extract an Kindle book to text file."""
     parser = argparse.ArgumentParser(description="Extract text from Kindle audio books")
     parser.add_argument(
         "-b",

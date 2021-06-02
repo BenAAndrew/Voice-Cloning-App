@@ -89,7 +89,7 @@ def clean_text(text, inflect_engine):
 
 
 if __name__ == "__main__":
-    """ Script to clean text for training """
+    """Script to clean text for training"""
     parser = argparse.ArgumentParser(description="Clean & improve text for training")
     parser.add_argument("-f", "--file", help="Text file path", type=str, required=True)
     parser.add_argument("-o", "--output", help="Output text file path", type=str, required=True)
