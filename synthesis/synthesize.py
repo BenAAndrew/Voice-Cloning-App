@@ -2,7 +2,7 @@ import argparse
 import os
 import inflect
 import matplotlib.pyplot as plt
-from tacotron2_model import Tacotron2
+from training.tacotron2_model import Tacotron2
 import torch
 import numpy as np
 import glow
