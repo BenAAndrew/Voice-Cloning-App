@@ -71,6 +71,7 @@ def get_y(data):
     gate_padded = to_gpu(gate_padded).float()
     return mel_padded, gate_padded
 
+
 def get_x(data):
     text_padded, input_lengths, mel_padded, _, output_lengths = data
     text_padded = to_gpu(text_padded).long()
@@ -79,6 +80,7 @@ def get_x(data):
     output_lengths = to_gpu(output_lengths).long()
 
     return text_padded, input_lengths, mel_padded, output_lengths
+
 
 def process_batch(batch, model):
     input_length_size, output_length_size = get_sizes(batch)
