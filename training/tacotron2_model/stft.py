@@ -36,7 +36,11 @@ from torch.autograd import Variable
 from scipy.signal import get_window
 from librosa.util import pad_center, tiny
 from librosa.filters import mel as librosa_mel_fn
-from training.tacotron2_model.audio_processing import window_sumsquare, dynamic_range_compression, dynamic_range_decompression
+from training.tacotron2_model.audio_processing import (
+    window_sumsquare,
+    dynamic_range_compression,
+    dynamic_range_decompression,
+)
 
 
 class STFT(torch.nn.Module):

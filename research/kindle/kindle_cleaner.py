@@ -4,7 +4,7 @@ import re
 
 
 if __name__ == "__main__":
-    """ Script to clean Kindle book text file"""
+    """Script to clean Kindle book text file"""
     parser = argparse.ArgumentParser(description="Script to clean Kindle book text file")
     parser.add_argument("-i", "--input", help="Input path", type=str, required=True)
     parser.add_argument("-o", "--output", help="Output text file path", type=str, required=True)

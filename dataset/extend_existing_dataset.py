@@ -71,7 +71,7 @@ def extend_existing_dataset(
 
 
 if __name__ == "__main__":
-    """ Extend existing dataset """
+    """Extend existing dataset"""
     parser = argparse.ArgumentParser(description="Extend existing dataset")
     parser.add_argument("-t", "--text_path", help="Path to text file", type=str, required=True)
     parser.add_argument("-a", "--audio_path", help="Path to audio file", type=str, required=True)

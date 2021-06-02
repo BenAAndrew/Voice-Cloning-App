@@ -217,7 +217,7 @@ def train(
 
 
 if __name__ == "__main__":
-    """ Train a tacotron2 model """
+    """Train a tacotron2 model"""
     parser = argparse.ArgumentParser(description="Train a tacotron2 model")
     parser.add_argument("-m", "--metadata_path", type=str, help="metadata path")
     parser.add_argument("-d", "--dataset_directory", type=str, help="directory to dataset")

@@ -228,7 +228,7 @@ def extend_dataset(
 
 
 if __name__ == "__main__":
-    """ Generate clips """
+    """Generate clips"""
     parser = argparse.ArgumentParser(description="Split audio into snippets using forced align timings")
     parser.add_argument("-a", "--audio_path", help="Path to WAV file", type=str, required=True)
     parser.add_argument("-s", "--script_path", help="Path to text file", type=str, required=True)
