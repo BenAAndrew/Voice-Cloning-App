@@ -34,9 +34,10 @@ from scipy.io.wavfile import read
 import torch
 
 
-def get_mask_from_lengths(lengths):
-    max_len = torch.max(lengths).item()
-    ids = torch.arange(0, max_len, out=torch.cuda.LongTensor(max_len))
+def get_mask_from_lengths(lengths, device, max_len=None):
+    if not max_len:
+        max_len = torch.max(lengths).item()
+    ids = torch.arange(0, max_len, out=torch.cuda.LongTensor(max_len)).to(device)
     mask = (ids < lengths.unsqueeze(1)).bool()
     return mask
 
@@ -53,8 +54,35 @@ def load_filepaths_and_text(filename, split="|"):
 
 
 def to_gpu(x):
-    x = x.contiguous()
-
-    if torch.cuda.is_available():
-        x = x.cuda(non_blocking=True)
+    x = x.contiguous().cuda()
     return torch.autograd.Variable(x)
+
+
+def get_sizes(data):
+    _, input_lengths, _, _, output_lengths = data
+    output_length_size = torch.max(output_lengths.data).item()
+    input_length_size = torch.max(input_lengths.data).item()
+    return input_length_size, output_length_size
+
+
+def get_y(data):
+    _, _, mel_padded, gate_padded, _ = data
+    mel_padded = to_gpu(mel_padded).float()
+    gate_padded = to_gpu(gate_padded).float()
+    return mel_padded, gate_padded
+
+def get_x(data):
+    text_padded, input_lengths, mel_padded, _, output_lengths = data
+    text_padded = to_gpu(text_padded).long()
+    input_lengths = to_gpu(input_lengths).long()
+    mel_padded = to_gpu(mel_padded).float()
+    output_lengths = to_gpu(output_lengths).long()
+
+    return text_padded, input_lengths, mel_padded, output_lengths
+
+def process_batch(batch, model):
+    input_length_size, output_length_size = get_sizes(batch)
+    y = get_y(batch)
+    y_pred = model(batch, mask_size=output_length_size, alignment_mask_size=input_length_size)
+
+    return y, y_pred

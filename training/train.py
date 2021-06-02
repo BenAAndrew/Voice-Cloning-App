@@ -18,6 +18,7 @@ from training.checkpoint import load_checkpoint, save_checkpoint, get_latest_che
 from training.validate import validate
 from training.utils import get_available_memory, get_batch_size, get_learning_rate, check_space
 from training.tacotron2_model import Tacotron2, TextMelCollate, Tacotron2Loss
+from training.tacotron2_model.utils import process_batch
 
 
 MINIMUM_MEMORY_GB = 4
@@ -161,7 +162,7 @@ def train(
 
     # Enable Multi GPU
     if torch.cuda.device_count() > 1:
-        logging.info(f"Using {len(gpus)} GPUs")
+        logging.info(f"Using {torch.cuda.device_count()} GPUs")
         model = nn.DataParallel(model)
 
     model.train()
@@ -176,8 +177,7 @@ def train(
 
             # Backpropogation
             model.zero_grad()
-            x, y = model.parse_batch(batch)
-            y_pred = model(x)
+            y, y_pred = process_batch(batch, model)
 
             loss = criterion(y_pred, y)
             reduced_loss = loss.item()
