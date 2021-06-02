@@ -570,8 +570,8 @@ class Tacotron2(nn.Module):
 
         return outputs
 
-    def forward(self, inputs, mask_size, alignment_mask_size):
-        text_inputs, text_lengths, mels, output_lengths = get_x(inputs)
+    def forward(self, inputs, mask_size, alignment_mask_size, device=None):
+        text_inputs, text_lengths, mels, output_lengths = get_x(inputs, device)
         device = text_inputs.device
         print("PROCESSING BATCH WITH ", device)
 

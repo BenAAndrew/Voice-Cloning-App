@@ -54,8 +54,9 @@ def load_filepaths_and_text(filename, split="|"):
     return filepaths_and_text
 
 
-def to_gpu(x):
-    x = x.contiguous().cuda()
+def to_gpu(x, device=None):
+    x = x.contiguous()
+    x = x.cuda() if not device else x.to(device)
     return torch.autograd.Variable(x)
 
 def get_sizes(data):
@@ -64,17 +65,17 @@ def get_sizes(data):
     input_length_size = torch.max(input_lengths.data).item()
     return input_length_size, output_length_size
 
-def get_y(data):
+def get_y(data, device=None):
     _, _, mel_padded, gate_padded, _ = data
-    mel_padded = to_gpu(mel_padded).float()
-    gate_padded = to_gpu(gate_padded).float()
+    mel_padded = to_gpu(mel_padded, device).float()
+    gate_padded = to_gpu(gate_padded, device).float()
     return mel_padded, gate_padded
 
-def get_x(data):
+def get_x(data, device=None):
     text_padded, input_lengths, mel_padded, _, output_lengths = data
-    text_padded = to_gpu(text_padded).long()
-    input_lengths = to_gpu(input_lengths).long()
-    mel_padded = to_gpu(mel_padded).float()
-    output_lengths = to_gpu(output_lengths).long()
+    text_padded = to_gpu(text_padded, device).long()
+    input_lengths = to_gpu(input_lengths, device).long()
+    mel_padded = to_gpu(mel_padded, device).float()
+    output_lengths = to_gpu(output_lengths, device).long()
 
     return text_padded, input_lengths, mel_padded, output_lengths
