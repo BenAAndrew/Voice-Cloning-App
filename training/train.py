@@ -116,6 +116,7 @@ def train(
     else:
         main_gpu = 0
     device = torch.device(f"cuda:{main_gpu}")
+    logging.info(f"Main GPU: {main_gpu}")
 
     # Load model & optimizer
     logging.info("Loading model...")
@@ -167,7 +168,7 @@ def train(
         logging.info("Loaded transfer learning model '{}'".format(transfer_learning_path))
 
     if torch.cuda.device_count() > 1 and len(gpus) > 1:
-        logging.info(f"Using {len(gpus)} GPUs")
+        logging.info(f"Using {len(gpus)} GPUs ({gpus.join(',')}")
         model = nn.DataParallel(model, device_ids=gpus, output_device=device)
 
     # Check available memory
