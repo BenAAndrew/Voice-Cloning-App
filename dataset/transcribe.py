@@ -1,16 +1,13 @@
 import argparse
 import torch
 import os
-import librosa
-import torchaudio
-import omegaconf
-
-model, device, decoder = None, None, None
+import wave
+import numpy as np
 
 
 def load_audio(path):
     """
-    Loads the audio from a given path into a tensor for transcription.
+    Loads the audio from a given path into an array for transcription.
 
     Parameters
     ----------
@@ -25,25 +22,27 @@ def load_audio(path):
         If the audio file was empty
     """
     try:
-        wav, _ = librosa.load(path, sr=16000)
+        audio = wave.open(path, 'r')
     except Exception:
         raise Exception(f"Cannot load audio file {path}")
 
-    assert len(wav) > 0, f"{path} wav file is empty"
-    return torch.tensor([wav])
+    frames = audio.getnframes()
+    buffer = audio.readframes(frames)
+    return np.frombuffer(buffer, dtype=np.int16)
 
 
-def transcribe(path):
+def transcribe(path, model):
     """
-    Credit: https://github.com/snakers4/silero-models
+    Credit: https://github.com/mozilla/DeepSpeech
 
     Transcribes a given audio file.
-    Loads silero into a global variable to save time in future calls.
 
     Parameters
     ----------
     path : str
         Path to audio file
+    model : Deepspeech model
+        Deepspeech model
 
     Raises
     -------
@@ -57,21 +56,11 @@ def transcribe(path):
     str
         Text transcription of audio file
     """
-    global model, device, decoder, read_batch, split_into_batches, prepare_model_input
     assert os.path.isfile(path), f"{path} not found. Cannot transcribe"
 
-    if not model:
-        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        model, decoder, _ = torch.hub.load(
-            repo_or_dir="snakers4/silero-models", model="silero_stt", language="en", device=device
-        )
-
     data = load_audio(path)
-    data = data.to(device)
-    output = model(data)
-
-    for example in output:
-        return decoder(example.cpu())
+    output = model.stt(data)
+    return output
 
 
 if __name__ == "__main__":
