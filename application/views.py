@@ -285,7 +285,7 @@ def synthesis_post():
         return render_template(
             "synthesis.html",
             text=text.strip(),
-            alertnative_words=get_alternative_word_suggestions(audio_path, text),
+            alertnative_words=get_alternative_word_suggestions(text),
             graph=graph_web_path,
             audio=audio_web_path,
         )

@@ -1,5 +1,3 @@
-from dataset.transcribe import transcribe
-
 import nltk
 
 nltk.download("wordnet")
@@ -29,49 +27,20 @@ def get_synonyms(word):
     return list(synonyms)
 
 
-def evalulate_audio(audio, text):
+def get_alternative_word_suggestions(text):
     """
-    Gets list of words not recognised in the audio.
-    Compares the transcription and given text.
-
-    Parameters
-    ----------
-    audio : str
-        Path to audio file
-    text : str
-        Synthesised text
-
-    Returns
-    -------
-    set
-        Set of words not recognised in the audio
-    """
-    results = transcribe(audio)
-    original_words = text.split(" ")
-    produced_words = results.split(" ")
-    return set(original_words) - set(produced_words)
-
-
-def get_alternative_word_suggestions(audio, text):
-    """
-    Produces a list of synonyms for each word not recognised in audio.
+    Produces a list of synonyms for each word.
     This can be used to suggest word replacements to the user.
 
     Parameters
     ----------
-    audio : str
-        Path to audio file
     text : str
         Synthesised text
 
     Returns
     -------
     dict
-        Words with a list of synonyms if the word was not recognised in the audio
+        Words with a list of synonyms
     """
     all_words = text.split(" ")
-    result = {word: [] for word in all_words}
-    poor_words = evalulate_audio(audio, text)
-    for word in poor_words:
-        result[word] = get_synonyms(word)
-    return result
+    return {word: get_synonyms(word) for word in all_words}
