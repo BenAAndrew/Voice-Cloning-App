@@ -404,3 +404,13 @@ def delete_dataset_post():
 def delete_model_post():
     delete_folder(os.path.join(paths["models"], request.values["model"]))
     return redirect("/settings")
+
+
+@app.route("/upload-language", methods=["POST"])
+def upload_language():
+    language = request.values["name"]
+    language_dir = os.path.join(paths["languages"], language)
+    os.makedirs(language_dir, exist_ok=True)
+    request.files["model"].save(os.path.join(language_dir, TRANSCRIPTION_MODEL))
+    request.files["alphabet"].save(os.path.join(language_dir, ALPHABET_FILE))
+    return redirect("/settings")

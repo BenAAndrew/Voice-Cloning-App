@@ -1,7 +1,7 @@
 {% extends "simplebase.html" %}
 {% block content %}
 <h3>Add a language</h3>
-<form method="POST" action="/add-language">
+<form method="POST" action="/upload-language" enctype="multipart/form-data">
     <div class="form-group">
         <div class="form-group">
             <label for="name">Language</label>

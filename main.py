@@ -8,6 +8,7 @@ from flask_socketio import SocketIO
 from flask import Flask
 
 from application.check_ffmpeg import check_ffmpeg
+from application.download_language import download_english
 
 
 def load_paths():
@@ -50,5 +51,6 @@ from application.views import *
 if __name__ == "__main__":
     cleanup_mei()
     check_ffmpeg()
+    download_english(paths)
     webbrowser.open_new_tab("http://localhost:5000")
     socketio.run(app)
