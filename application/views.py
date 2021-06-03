@@ -77,6 +77,8 @@ def get_datasource():
 @app.route("/", methods=["POST"])
 def create_dataset_post():
     min_confidence = request.form["confidence"]
+    transcription_model_path = "transcribe.pbmm"
+    request.files["transcription_model"].save(transcription_model_path)
 
     if request.form["name"]:
         output_folder = os.path.join(paths["datasets"], request.form["name"])
@@ -100,6 +102,7 @@ def create_dataset_post():
             create_dataset,
             text_path=text_path,
             audio_path=audio_path,
+            transcription_model_path=transcription_model_path,
             forced_alignment_path=forced_alignment_path,
             output_path=output_path,
             label_path=label_path,
@@ -125,6 +128,7 @@ def create_dataset_post():
             extend_existing_dataset,
             text_path=text_path,
             audio_path=audio_path,
+            transcription_model_path=transcription_model_path,
             forced_alignment_path=forced_alignment_path,
             output_path=existing_output_path,
             label_path=existing_label_path,

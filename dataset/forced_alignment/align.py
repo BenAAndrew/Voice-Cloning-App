@@ -67,7 +67,7 @@ def get_segments(audio_path):
     return [segment for segment in segments]
 
 
-def process_segments(audio_path, output_path, segments, min_length, max_length, logging=logging):
+def process_segments(audio_path, transcription_model, output_path, segments, min_length, max_length, logging=logging):
     """
     Generates audio clips and reduces segments to only valid ones.
     This includes removing segements which are too long, too short or cannot be transcribed.
@@ -76,6 +76,8 @@ def process_segments(audio_path, output_path, segments, min_length, max_length, 
     ----------
     audio_path : str
         Path to audio file
+    transcription_model : DeepSpeech model
+        DeepSpeech transcription model
     output_path : str
         Path to save clips to
     segments : list
@@ -106,7 +108,7 @@ def process_segments(audio_path, output_path, segments, min_length, max_length, 
             clip_path = os.path.join(output_path, name)
 
             try:
-                transcript = transcribe(clip_path)
+                transcript = transcribe(clip_path, transcription_model)
             except:
                 logging.info(f"Could not transcribe {clip_path}")
                 transcript = None

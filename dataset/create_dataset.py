@@ -13,6 +13,7 @@ from dataset.analysis import save_dataset_info
 def create_dataset(
     text_path,
     audio_path,
+    transcription_model_path,
     forced_alignment_path,
     output_path,
     label_path,
@@ -30,6 +31,8 @@ def create_dataset(
         Path to source text
     audio_path : str
         Path to source audio
+    transcription_model_path : str
+        Path to DeepSpeech transcription model
     forced_alignment_path : str
         Path to save alignment JSON to
     output_path : str
@@ -53,6 +56,7 @@ def create_dataset(
     clip_generator(
         converted_audio,
         text_path,
+        transcription_model_path,
         forced_alignment_path,
         output_path,
         label_path,
