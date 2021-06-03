@@ -4,6 +4,7 @@ import torch
 CHECKPOINT_SIZE_MB = 333
 BATCH_SIZE_PER_GB = 2.5
 LEARNING_RATE_PER_BATCH = 3.125e-5
+PUNCTUATION = list("_-!'(),.:;? ")
 
 
 def get_available_memory():
@@ -76,3 +77,16 @@ def check_space(num_checkpoints):
     assert (
         free_mb >= required_mb
     ), f"Insufficent storage space (requires {required_mb}mb). Reduce checkpoint frequency or free up space"
+
+
+def load_symbols(alphabet_file):
+    symbols = PUNCTUATION.copy()
+
+    with open(alphabet_file) as f:
+        lines = [l.strip() for l in f.readlines() if l.strip() and not l.startswith('#')]
+    
+    for line in lines:
+        if line not in symbols:
+            symbols.append(line)
+
+    return symbols

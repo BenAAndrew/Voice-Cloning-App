@@ -18,6 +18,7 @@ def load_paths():
         "waveglow": os.path.join("data", "waveglow"),
         "hifigan": os.path.join("data", "hifigan"),
         "results": os.path.join("data", "results"),
+        "languages": os.path.join("data", "languages"),
     }
     for path in paths.values():
         os.makedirs(path, exist_ok=True)

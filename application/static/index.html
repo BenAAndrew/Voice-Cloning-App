@@ -44,8 +44,12 @@
         <input type="file" id="audio_file" name="audio_file" required> 
     </div>
     <div class="form-group">
-        <label for="transcription_model">Transcription model (.pbmm) <a href="https://coqui.ai/models">download</a></label>
-        <input type="file" id="transcription_model" name="transcription_model" required> 
+        <label for="language">Language <a href="/settings">Add more</a></label>
+        <select class="form-control" id="language" name="language" required>
+            {% for language in languages %}
+                <option value="{{language}}">{{language}}</option>
+            {% endfor %}
+        </select>
     </div>
     <button type="button" class="collapsible" id="advanced">Advanced Options ∨</button>
     <div class="content">

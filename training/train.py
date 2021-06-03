@@ -15,7 +15,7 @@ from torch.utils.data import DataLoader
 from training.dataset import VoiceDataset
 from training.checkpoint import load_checkpoint, save_checkpoint, get_latest_checkpoint, warm_start_model
 from training.validate import validate
-from training.utils import get_available_memory, get_batch_size, get_learning_rate, check_space
+from training.utils import get_available_memory, get_batch_size, get_learning_rate, check_space, load_symbols
 from training.tacotron2_model import Tacotron2, TextMelCollate, Tacotron2Loss
 
 
@@ -26,13 +26,13 @@ GRAD_CLIP_THRESH = 1.0
 EARLY_STOPPING_WINDOW = 10
 EARLY_STOPPING_MIN_DIFFERENCE = 0.0005
 SEED = 1234
-SYMBOLS = "_-!'(),.:;? ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
 
 
 def train(
     metadata_path,
     dataset_directory,
     output_directory,
+    alphabet_path,
     find_checkpoint=True,
     checkpoint_path=None,
     transfer_learning_path=None,
@@ -54,6 +54,8 @@ def train(
         Path to dataset clips
     output_directory : str
         Path to save checkpoints to
+    alphabet_path : str
+        Path to alphabet file (default is English)
     find_checkpoint : bool (optional)
         Search for latest checkpoint to continue training from (default is True)
     checkpoint_path : str (optional)
@@ -123,8 +125,9 @@ def train(
     test_files = filepaths_and_text[train_cutoff:]
     print(f"{len(train_files)} train files, {len(test_files)} test files")
 
-    trainset = VoiceDataset(train_files, dataset_directory, SYMBOLS, SEED)
-    valset = VoiceDataset(test_files, dataset_directory, SYMBOLS, SEED)
+    symbols = load_symbols(alphabet_path)
+    trainset = VoiceDataset(train_files, dataset_directory, symbols, SEED)
+    valset = VoiceDataset(test_files, dataset_directory, symbols, SEED)
     collate_fn = TextMelCollate()
 
     # Data loaders

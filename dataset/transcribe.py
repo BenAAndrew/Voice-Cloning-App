@@ -1,5 +1,4 @@
 import argparse
-import torch
 import os
 import wave
 import numpy as np

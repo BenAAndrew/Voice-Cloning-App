@@ -25,7 +25,7 @@ from dataset.extend_existing_dataset import extend_existing_dataset
 from dataset.analysis import get_total_audio_duration, validate_dataset, save_dataset_info
 from training.train import train
 from training.checkpoint import get_latest_checkpoint
-from training.utils import get_available_memory, get_batch_size
+from training.utils import get_available_memory, get_batch_size, load_symbols
 from synthesis.synthesize import load_model, synthesize
 from synthesis.waveglow import load_waveglow_model
 from synthesis.hifigan import load_hifigan_model
@@ -44,11 +44,14 @@ CHECKPOINT_FOLDER = "checkpoints"
 GRAPH_FILE = "graph.png"
 RESULTS_FILE = "out.wav"
 TEMP_DATASET_UPLOAD = "temp.zip"
+TRANSCRIPTION_MODEL = "model.pbmm"
+ALPHABET_FILE = "alphabet.txt"
 
 model = None
 vocoder = None
 vocoder_type = ""
 inflect_engine = inflect.engine()
+symbols = None
 
 
 @app.errorhandler(Exception)
@@ -66,7 +69,7 @@ def inject_data():
 # Dataset
 @app.route("/", methods=["GET"])
 def get_create_dataset():
-    return render_template("index.html", datasets=os.listdir(paths["datasets"]))
+    return render_template("index.html", datasets=os.listdir(paths["datasets"]), languages=os.listdir(paths["languages"]))
 
 
 @app.route("/datasource", methods=["GET"])
@@ -77,8 +80,8 @@ def get_datasource():
 @app.route("/", methods=["POST"])
 def create_dataset_post():
     min_confidence = request.form["confidence"]
-    transcription_model_path = "transcribe.pbmm"
-    request.files["transcription_model"].save(transcription_model_path)
+    language = request.form["language"]
+    transcription_model_path = os.path.join(paths["languages"], language, TRANSCRIPTION_MODEL)
 
     if request.form["name"]:
         output_folder = os.path.join(paths["datasets"], request.form["name"])
@@ -165,12 +168,14 @@ def get_train():
         batch_size = None
 
     return render_template(
-        "train.html", cuda_enabled=cuda_enabled, batch_size=batch_size, datasets=os.listdir(paths["datasets"])
+        "train.html", cuda_enabled=cuda_enabled, batch_size=batch_size, datasets=os.listdir(paths["datasets"]), languages=os.listdir(paths["languages"])
     )
 
 
 @app.route("/train", methods=["POST"])
 def train_post():
+    language = request.form["language"]
+    alphabet_path = os.path.join(paths["languages"], language, ALPHABET_FILE)
     dataset_name = request.form["path"]
     epochs = request.form["epochs"]
     batch_size = request.form["batch_size"]
@@ -194,6 +199,7 @@ def train_post():
         metadata_path=metadata_path,
         dataset_directory=audio_folder,
         output_directory=checkpoint_folder,
+        alphabet_path=alphabet_path,
         transfer_learning_path=transfer_learning_path,
         epochs=int(epochs),
         batch_size=int(batch_size),
@@ -212,12 +218,13 @@ def get_synthesis_setup():
         waveglow_models=os.listdir(paths["waveglow"]),
         hifigan_models=os.listdir(paths["hifigan"]),
         models=os.listdir(paths["models"]),
+        languages=os.listdir(paths["languages"])
     )
 
 
 @app.route("/synthesis-setup", methods=["POST"])
 def synthesis_setup_post():
-    global model, vocoder, vocoder_type
+    global model, vocoder, vocoder_type, symbols
 
     vocoder_type = request.form["vocoder"]
     if vocoder_type == "hifigan":
@@ -252,6 +259,9 @@ def synthesis_setup_post():
         return render_template("synthesis-setup.html", error="Invalid vocoder selected")
 
     dataset_name = request.form["path"]
+    language = request.form["language"]
+    alphabet_path = os.path.join(paths["languages"], language, ALPHABET_FILE)
+    symbols = load_symbols(alphabet_path)
     checkpoint_folder = os.path.join(paths["models"], dataset_name)
     checkpoint = get_latest_checkpoint(checkpoint_folder)
     model = load_model(checkpoint)
@@ -269,8 +279,8 @@ def get_result_file(path):
 
 @app.route("/synthesis", methods=["GET", "POST"])
 def synthesis_post():
-    global model, vocoder
-    if not model or not vocoder:
+    global model, vocoder, symbols
+    if not model or not vocoder or not symbols:
         return redirect("/synthesis-setup")
 
     if request.method == "GET":
@@ -285,7 +295,7 @@ def synthesis_post():
         graph_web_path = graph_path.replace("\\", "/")
         audio_web_path = audio_path.replace("\\", "/")
 
-        synthesize(model, text, inflect_engine, graph_path, audio_path, vocoder, vocoder_type)
+        synthesize(model, text, inflect_engine, symbols, graph_path, audio_path, vocoder, vocoder_type)
         return render_template(
             "synthesis.html",
             text=text.strip(),
