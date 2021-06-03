@@ -10,7 +10,6 @@ research/timelapse/
 data/
 ffmpeg/
 config.ini
-transcribe.pbmm
 
 build/
 dist/
