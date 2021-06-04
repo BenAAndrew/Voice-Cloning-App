@@ -2,8 +2,8 @@ import argparse
 import torch
 import os
 import librosa
-import torchaudio
-import omegaconf
+import torchaudio  # noqa
+import omegaconf  # noqa
 
 model, device, decoder = None, None, None
 

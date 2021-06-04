@@ -1,6 +1,5 @@
 import os
 import sys
-import re
 import inflect
 import io
 import zipfile
@@ -19,7 +18,7 @@ from application.utils import (
 )
 from dataset.create_dataset import create_dataset
 from dataset.extend_existing_dataset import extend_existing_dataset
-from dataset.analysis import get_total_audio_duration, validate_dataset, save_dataset_info
+from dataset.analysis import get_total_audio_duration, validate_dataset
 from training.train import train
 from training.checkpoint import get_latest_checkpoint
 from training.utils import get_available_memory, get_batch_size
@@ -28,7 +27,7 @@ from synthesis.waveglow import load_waveglow_model
 from synthesis.hifigan import load_hifigan_model
 from synthesis.synonyms import get_alternative_word_suggestions
 
-from flask import Flask, request, render_template, redirect, url_for, send_file
+from flask import redirect, render_template, request, send_file
 
 
 URLS = {"/": "Build dataset", "/train": "Train", "/synthesis-setup": "Synthesis"}
@@ -338,7 +337,6 @@ def download_dataset():
 
 @app.route("/upload-model", methods=["POST"])
 def upload_model():
-    model = request.files["model"]
     model_name = request.values["name"]
     model_directory = os.path.join(paths["models"], model_name)
     os.makedirs(model_directory, exist_ok=False)

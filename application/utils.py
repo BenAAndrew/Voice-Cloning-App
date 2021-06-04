@@ -1,19 +1,13 @@
 import logging
-from threading import Thread
 import os
 from datetime import datetime
-import requests
 import traceback
-import configparser
 import shutil
 import zipfile
 import librosa
-import time
-from unidecode import unidecode
 
 from main import socketio
 from dataset.audio_processing import convert_audio
-from dataset.clip_generator import clip_generator
 from dataset.analysis import save_dataset_info
 
 

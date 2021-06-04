@@ -1,7 +1,6 @@
 import argparse
 import os
 
-import matplotlib.pyplot as plt
 import librosa
 from tqdm import tqdm
 import numpy as np

@@ -1,4 +1,3 @@
-import shutil
 import inflect
 from unittest import mock
 

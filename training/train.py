@@ -177,7 +177,7 @@ def train(
             reduced_loss = loss.item()
             loss.backward()
 
-            grad_norm = torch.nn.utils.clip_grad_norm_(model.parameters(), GRAD_CLIP_THRESH)
+            torch.nn.utils.clip_grad_norm_(model.parameters(), GRAD_CLIP_THRESH)
             optimizer.step()
 
             duration = time.perf_counter() - start

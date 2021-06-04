@@ -27,7 +27,6 @@
 
 # This file has been modified to enable CPU inference!
 
-import copy
 import torch
 from torch.autograd import Variable
 import torch.nn.functional as F

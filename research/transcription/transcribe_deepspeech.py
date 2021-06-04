@@ -1,4 +1,3 @@
-import torch
 import os
 import wave
 import numpy as np
@@ -50,7 +49,7 @@ def load_audio(path):
     else:
         audio = np.frombuffer(fin.readframes(fin.getnframes()), np.int16)
 
-    audio_length = fin.getnframes() * (1 / fs_orig)
+    fin.getnframes() * (1 / fs_orig)
     fin.close()
     return audio
 

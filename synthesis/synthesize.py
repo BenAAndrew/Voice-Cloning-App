@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from training.tacotron2_model import Tacotron2
 import torch
 import numpy as np
-import glow
+import glow  # noqa
 import matplotlib
 from os.path import dirname, abspath
 import sys

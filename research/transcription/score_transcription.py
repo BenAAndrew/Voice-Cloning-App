@@ -1,5 +1,4 @@
 import re
-import os
 
 REGEX = re.compile("[^a-zA-Z ]")
 TOTAL_SAMPLES = 100
