@@ -17,7 +17,7 @@ expected_duration = 7
 expected_total_clips = 3
 
 
-def fake_transcribe(path):
+def fake_transcribe(path, transcribe_model):
     filename = Path(path).name
     return expected_clips[filename]
 
