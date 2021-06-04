@@ -14,7 +14,7 @@ jobs:
           name: Install os libraries
           command: sudo apt-get install -y ffmpeg libsndfile1
       - restore_cache:
-          key: deps-{{ .Environment.CACHE_VERSION }}
+          key: deps-lang-{{ .Environment.CACHE_VERSION }}
       - run:
           name: Install dependencies
           command: sudo pip install -r requirements.txt
