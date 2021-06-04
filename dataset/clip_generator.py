@@ -18,7 +18,7 @@ from dataset.audio_processing import change_sample_rate, add_silence
 def clip_generator(
     audio_path,
     script_path,
-    transcription_model_path,
+    transcription_model,
     forced_alignment_path,
     output_path,
     label_path,
@@ -37,8 +37,8 @@ def clip_generator(
         Path to audio file (must have been converted using convert_audio)
     script_path : str
         Path to source text
-    transcription_model_path : str
-        Path to DeepSpeech transcription model
+    transcription_model : DeepSpeech
+        DeepSpeech transcription model
     forced_alignment_path : str
         Path to save alignment JSON to
     output_path : str
@@ -70,7 +70,6 @@ def clip_generator(
     os.makedirs(output_path, exist_ok=False)
     assert os.path.isfile(audio_path), "Audio file not found"
     assert os.path.isfile(script_path), "Script file not found"
-    assert os.path.isfile(transcription_model_path), "Transcription model not found"
     assert audio_path.endswith(".wav"), "Must be a WAV file"
 
     logging.info(f"Loading script from {script_path}...")
@@ -91,7 +90,6 @@ def clip_generator(
     logging.info("Matching segments...")
     min_length_ms = min_length * 1000
     max_length_ms = max_length * 1000
-    transcription_model = deepspeech.Model(transcription_model_path)
     processed_segments = align.process_segments(
         audio_path, transcription_model, output_path, segments, min_length_ms, max_length_ms, logging
     )
@@ -164,7 +162,7 @@ def get_filename(filename, suffix):
 def extend_dataset(
     audio_path,
     script_path,
-    transcription_model_path,
+    transcription_model,
     forced_alignment_path,
     output_path,
     label_path,
@@ -182,8 +180,8 @@ def extend_dataset(
         Path to audio file (must have been converted using convert_audio)
     script_path : str
         Path to source text
-    transcription_model_path : str
-        Path to DeepSpeech transcription model
+    transcription_model : DeepSpeech
+        DeepSpeech transcription model
     forced_alignment_path : str
         Path to save alignment JSON to
     output_path : str
@@ -211,7 +209,7 @@ def extend_dataset(
     clip_generator(
         audio_path,
         script_path,
-        transcription_model_path,
+        transcription_model,
         forced_alignment_path,
         temp_wavs_folder,
         temp_label_path,

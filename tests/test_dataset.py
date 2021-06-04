@@ -36,7 +36,7 @@ def test_create_dataset():
         create_dataset(
             text_path=text_path,
             audio_path=audio_path,
-            transcription_model_path="",
+            transcription_model=None,
             forced_alignment_path=forced_alignment_path,
             output_path=output_directory,
             label_path=label_path,
