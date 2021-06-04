@@ -17,3 +17,4 @@ torch===1.7.1
 torchvision===0.8.2
 torchaudio===0.7.2
 deepspeech==0.9.3
+llvmlite==0.32.1
