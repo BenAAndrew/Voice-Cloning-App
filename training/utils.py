@@ -83,8 +83,8 @@ def load_symbols(alphabet_file):
     symbols = PUNCTUATION.copy()
 
     with open(alphabet_file) as f:
-        lines = [l.strip() for l in f.readlines() if l.strip() and not l.startswith('#')]
-    
+        lines = [l.strip() for l in f.readlines() if l.strip() and not l.startswith("#")]
+
     for line in lines:
         if line not in symbols:
             symbols.append(line)

@@ -70,7 +70,9 @@ def inject_data():
 # Dataset
 @app.route("/", methods=["GET"])
 def get_create_dataset():
-    return render_template("index.html", datasets=os.listdir(paths["datasets"]), languages=os.listdir(paths["languages"]))
+    return render_template(
+        "index.html", datasets=os.listdir(paths["datasets"]), languages=os.listdir(paths["languages"])
+    )
 
 
 @app.route("/datasource", methods=["GET"])
@@ -170,7 +172,11 @@ def get_train():
         batch_size = None
 
     return render_template(
-        "train.html", cuda_enabled=cuda_enabled, batch_size=batch_size, datasets=os.listdir(paths["datasets"]), languages=os.listdir(paths["languages"])
+        "train.html",
+        cuda_enabled=cuda_enabled,
+        batch_size=batch_size,
+        datasets=os.listdir(paths["datasets"]),
+        languages=os.listdir(paths["languages"]),
     )
 
 
@@ -220,7 +226,7 @@ def get_synthesis_setup():
         waveglow_models=os.listdir(paths["waveglow"]),
         hifigan_models=os.listdir(paths["hifigan"]),
         models=os.listdir(paths["models"]),
-        languages=os.listdir(paths["languages"])
+        languages=os.listdir(paths["languages"]),
     )
 
 

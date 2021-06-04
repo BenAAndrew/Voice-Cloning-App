@@ -21,7 +21,7 @@ def load_audio(path):
         If the audio file was empty
     """
     try:
-        audio = wave.open(path, 'r')
+        audio = wave.open(path, "r")
     except Exception:
         raise Exception(f"Cannot load audio file {path}")
 

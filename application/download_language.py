@@ -6,6 +6,7 @@ ENGLISH_ALPHABET_URL = "https://github.com/coqui-ai/STT-models/releases/download
 TRANSCRIPTION_MODEL = "model.pbmm"
 ALPHABET_FILE = "alphabet.txt"
 
+
 def download_english(paths):
     """Downloads English transcription model"""
     language_path = os.path.join(paths["languages"], "English")
