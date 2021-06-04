@@ -14,7 +14,6 @@ sys.path.append(dirname(dirname(abspath(__file__))))
 matplotlib.use("Agg")
 
 from training.clean_text import clean_text
-from training.utils import load_symbols
 from synthesis.waveglow import load_waveglow_model, generate_audio_waveglow
 from synthesis.hifigan import generate_audio_hifigan
 
