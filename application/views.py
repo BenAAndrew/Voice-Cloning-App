@@ -14,9 +14,6 @@ from application.utils import (
     start_progress_thread,
     get_next_url,
     get_suffix,
-    send_error_log,
-    update_config,
-    can_send_logs,
     delete_folder,
     import_dataset,
 )
@@ -54,7 +51,6 @@ inflect_engine = inflect.engine()
 @app.errorhandler(Exception)
 def handle_bad_request(e):
     error = {"type": e.__class__.__name__, "text": str(e), "stacktrace": traceback.format_exc()}
-    send_error_log(error)
     return render_template("error.html", error=error)
 
 
@@ -364,20 +360,11 @@ def download_model():
 # Settings
 @app.route("/settings", methods=["GET"])
 def get_settings():
-    print(can_send_logs())
     return render_template(
         "settings.html",
-        send_logs=can_send_logs(),
         datasets=os.listdir(paths["datasets"]),
         models=os.listdir(paths["models"]),
     )
-
-
-@app.route("/update-config", methods=["POST"])
-def update_config_post():
-    send_logs = request.values["send_logs"]
-    update_config({"send_logs": send_logs})
-    return redirect("/settings")
 
 
 @app.route("/delete-dataset", methods=["POST"])
