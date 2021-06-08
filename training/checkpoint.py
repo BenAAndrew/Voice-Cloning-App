@@ -95,6 +95,13 @@ def warm_start_model(checkpoint_path, model, ignore_layers=["embedding.weight"])
     return model
 
 
+def get_state_dict(model):
+    if isinstance(model, torch.nn.DataParallel):
+        return model.module.state_dict()
+    else:
+        return model.state_dict()
+
+
 def save_checkpoint(model, optimizer, learning_rate, iteration, epoch, output_directory, overwrite_checkpoints=True):
     """
     Save training checkpoint.
@@ -121,7 +128,7 @@ def save_checkpoint(model, optimizer, learning_rate, iteration, epoch, output_di
     torch.save(
         {
             "iteration": iteration,
-            "state_dict": model.state_dict(),
+            "state_dict": get_state_dict(model),
             "optimizer": optimizer.state_dict(),
             "learning_rate": learning_rate,
             "epoch": epoch,
