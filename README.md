@@ -18,6 +18,7 @@ A Python/Pytorch app for easily synthesising human voices
 - Simplified training & synthesis
 - Word replacement suggestion
 - Windows & Linux support
+- Multi GPU support
 
 ## Video guide
 
@@ -39,7 +40,6 @@ A Python/Pytorch app for easily synthesising human voices
 
 ## Experimental/In-Development features
 Please try them out and give feedback on the discord so that they can be added to production.
-- [Multi-GPU](https://github.com/BenAAndrew/Voice-Cloning-App/pull/38)
 - [Additional language support](https://github.com/BenAAndrew/Voice-Cloning-App/pull/39)
 - [Google Colab Training](https://github.com/BenAAndrew/Voice-Cloning-App/pull/36)
 
