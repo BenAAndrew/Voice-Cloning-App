@@ -9,6 +9,7 @@ import librosa
 from main import socketio
 from dataset.audio_processing import convert_audio
 from dataset.analysis import save_dataset_info
+from dataset.clip_generator import MIN_LENGTH, MAX_LENGTH
 
 
 class SocketIOHandler(logging.Handler):
@@ -191,7 +192,10 @@ def import_dataset(dataset, dataset_directory, audio_folder, logging):
                 with open(path, "wb") as f:
                     f.write(data)
                     new_path = convert_audio(path)
-                    clip_lengths.append(librosa.get_duration(filename=new_path))
+                    duration = librosa.get_duration(filename=new_path)
+                    assert duration >= MIN_LENGTH and duration <= MAX_LENGTH, f"{wav} is an invalid duration (must be {MIN_LENGTH}-{MAX_LENGTH}, is {duration})"
+                    clip_lengths.append(duration)
+                    
                     filenames[path] = new_path
                 logging.info(f"Progress - {i+1}/{total_wavs}")
 
