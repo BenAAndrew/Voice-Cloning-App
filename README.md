@@ -24,9 +24,7 @@ A Python/Pytorch app for easily synthesising human voices
 - Easy train start/stop
 - Tools for extracting kindle & audible as data sources
 - Data importing/exporting
-- Simplified training & synthesis
 - Word replacement suggestion
-- Windows & Linux support
 - Multi GPU support
 
 ## Manual Guides
@@ -46,7 +44,6 @@ Please try them out and give feedback on the discord so that they can be added t
 - AMD GPU support
 
 ## Other resources
-
 - Try out existing voices at [uberduck.ai](https://uberduck.ai/) and [Vocodes](https://vo.codes/)
 - [Synthesize in Colab](https://colab.research.google.com/drive/18IJZZDW1NO7KOslg_WMOCrMeiqz9jOYF?usp=sharing) (created by mega b#6696)
 - [Generate youtube transcription](https://colab.research.google.com/drive/1KfAJig2jekpjJ5QS8Lpjy8sTd8w_ZuFv?usp=sharing) (created by mega b#6696)

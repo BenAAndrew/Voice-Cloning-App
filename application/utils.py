@@ -193,9 +193,11 @@ def import_dataset(dataset, dataset_directory, audio_folder, logging):
                     f.write(data)
                     new_path = convert_audio(path)
                     duration = librosa.get_duration(filename=new_path)
-                    assert duration >= MIN_LENGTH and duration <= MAX_LENGTH, f"{wav} is an invalid duration (must be {MIN_LENGTH}-{MAX_LENGTH}, is {duration})"
+                    assert (
+                        duration >= MIN_LENGTH and duration <= MAX_LENGTH
+                    ), f"{wav} is an invalid duration (must be {MIN_LENGTH}-{MAX_LENGTH}, is {duration})"
                     clip_lengths.append(duration)
-                    
+
                     filenames[path] = new_path
                 logging.info(f"Progress - {i+1}/{total_wavs}")
 
