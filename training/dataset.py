@@ -5,7 +5,6 @@ import torch
 from training.tacotron2_model import TacotronSTFT
 from scipy.io.wavfile import read
 import inflect
-from unidecode import unidecode
 
 from training.clean_text import clean_text
 

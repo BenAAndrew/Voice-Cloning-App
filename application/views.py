@@ -1,6 +1,5 @@
 import os
 import sys
-import re
 import inflect
 import io
 import zipfile
@@ -15,15 +14,12 @@ from application.utils import (
     start_progress_thread,
     get_next_url,
     get_suffix,
-    send_error_log,
-    update_config,
-    can_send_logs,
     delete_folder,
     import_dataset,
 )
 from dataset.create_dataset import create_dataset
 from dataset.extend_existing_dataset import extend_existing_dataset
-from dataset.analysis import get_total_audio_duration, validate_dataset, save_dataset_info
+from dataset.analysis import get_total_audio_duration, validate_dataset
 from training.train import train
 from training.checkpoint import get_latest_checkpoint
 from training.utils import get_available_memory, get_batch_size, load_symbols
@@ -32,7 +28,7 @@ from synthesis.waveglow import load_waveglow_model
 from synthesis.hifigan import load_hifigan_model
 from synthesis.synonyms import get_alternative_word_suggestions
 
-from flask import Flask, request, render_template, redirect, url_for, send_file
+from flask import redirect, render_template, request, send_file
 
 
 URLS = {"/": "Build dataset", "/train": "Train", "/synthesis-setup": "Synthesis"}
@@ -58,7 +54,6 @@ symbols = None
 @app.errorhandler(Exception)
 def handle_bad_request(e):
     error = {"type": e.__class__.__name__, "text": str(e), "stacktrace": traceback.format_exc()}
-    send_error_log(error)
     return render_template("error.html", error=error)
 
 
@@ -364,7 +359,6 @@ def download_dataset():
 
 @app.route("/upload-model", methods=["POST"])
 def upload_model():
-    model = request.files["model"]
     model_name = request.values["name"]
     model_directory = os.path.join(paths["models"], model_name)
     os.makedirs(model_directory, exist_ok=False)
@@ -386,20 +380,11 @@ def download_model():
 # Settings
 @app.route("/settings", methods=["GET"])
 def get_settings():
-    print(can_send_logs())
     return render_template(
         "settings.html",
-        send_logs=can_send_logs(),
         datasets=os.listdir(paths["datasets"]),
         models=os.listdir(paths["models"]),
     )
-
-
-@app.route("/update-config", methods=["POST"])
-def update_config_post():
-    send_logs = request.values["send_logs"]
-    update_config({"send_logs": send_logs})
-    return redirect("/settings")
 
 
 @app.route("/delete-dataset", methods=["POST"])

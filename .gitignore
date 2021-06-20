@@ -9,7 +9,6 @@ test_samples/
 research/timelapse/
 data/
 ffmpeg/
-config.ini
 
 build/
 dist/

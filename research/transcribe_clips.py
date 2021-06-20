@@ -2,8 +2,6 @@ import argparse
 import os
 import re
 
-import torch
-from glob import glob
 from tqdm import tqdm
 
 from dataset.transcribe import transcribe

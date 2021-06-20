@@ -1,9 +1,8 @@
 import os
-import logging
 import sys
 import shutil
 import webbrowser
-from engineio.async_drivers import threading
+from engineio.async_drivers import threading  # noqa
 from flask_socketio import SocketIO
 from flask import Flask
 
@@ -46,7 +45,7 @@ paths = load_paths()
 static = os.path.join("application", "static")
 app = Flask(__name__, template_folder=static, static_folder=static)
 socketio = SocketIO(app, async_mode="threading", logger=True, engineio_logger=True, debug=True)
-from application.views import *
+from application.views import *  # noqa
 
 if __name__ == "__main__":
     cleanup_mei()

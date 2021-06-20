@@ -8,6 +8,12 @@
 
 <div id="import" class="tabcontent" style="display: block;">
 <h3>Upload dataset</h3>
+<p>Before uploading, check the following:</p>
+<ul>
+    <li>You have a metadata.csv file and wavs folder in the root of the zip</li>
+    <li>Each wav file has a transcription in metadata.csv</li>
+    <li>Each wav file is 1-10 seconds in duration</li>
+</ul>
 <form method="POST" action="/upload-dataset" enctype="multipart/form-data">
     <div class="form-group">
         <label for="name">Name</label>
@@ -22,6 +28,7 @@
 
 <hr>
 <h3>Upload model</h3>
+<p>Please ensure the model is Tacotron2 based or created by this app</p>
 <form method="POST" action="/upload-model" enctype="multipart/form-data">
     <div class="form-group">
         <label for="name">Name</label>

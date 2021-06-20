@@ -10,6 +10,7 @@ sys.path.append(dirname(dirname(abspath(__file__))))
 logging.getLogger().setLevel(logging.INFO)
 
 import torch
+import torch.nn as nn
 from torch.utils.data import DataLoader
 
 from training.dataset import VoiceDataset
@@ -17,6 +18,7 @@ from training.checkpoint import load_checkpoint, save_checkpoint, get_latest_che
 from training.validate import validate
 from training.utils import get_available_memory, get_batch_size, get_learning_rate, check_space, load_symbols
 from training.tacotron2_model import Tacotron2, TextMelCollate, Tacotron2Loss
+from training.tacotron2_model.utils import process_batch
 
 
 MINIMUM_MEMORY_GB = 4
@@ -161,6 +163,11 @@ def train(
         num_iterations = len(train_loader) * epochs - epoch_offset
         check_space(num_iterations // iters_per_checkpoint)
 
+    # Enable Multi GPU
+    if torch.cuda.device_count() > 1:
+        logging.info(f"Using {torch.cuda.device_count()} GPUs")
+        model = nn.DataParallel(model)
+
     model.train()
     validation_losses = []
     for epoch in range(epoch_offset, epochs):
@@ -173,14 +180,13 @@ def train(
 
             # Backpropogation
             model.zero_grad()
-            x, y = model.parse_batch(batch)
-            y_pred = model(x)
+            y, y_pred = process_batch(batch, model)
 
             loss = criterion(y_pred, y)
             reduced_loss = loss.item()
             loss.backward()
 
-            grad_norm = torch.nn.utils.clip_grad_norm_(model.parameters(), GRAD_CLIP_THRESH)
+            torch.nn.utils.clip_grad_norm_(model.parameters(), GRAD_CLIP_THRESH)
             optimizer.step()
 
             duration = time.perf_counter() - start

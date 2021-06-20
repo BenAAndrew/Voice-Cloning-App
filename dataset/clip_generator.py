@@ -1,6 +1,5 @@
 import argparse
 import os
-import re
 import logging
 import json
 import uuid
@@ -14,6 +13,10 @@ from dataset.forced_alignment.audio import DEFAULT_RATE
 from dataset.audio_processing import change_sample_rate, add_silence
 
 
+MIN_LENGTH = 1.0
+MAX_LENGTH = 10.0
+
+
 def clip_generator(
     audio_path,
     script_path,
@@ -22,8 +25,8 @@ def clip_generator(
     output_path,
     label_path,
     logging=logging,
-    min_length=1.0,
-    max_length=10.0,
+    min_length=MIN_LENGTH,
+    max_length=MAX_LENGTH,
     silence_padding=0.1,
     min_confidence=0.85,
 ):

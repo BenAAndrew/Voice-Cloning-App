@@ -13,7 +13,7 @@ Also ensure the following:
 3. The feature works in the executable (which can be built with the command below)
 
 ## Build command
-Before builing the executable you will need to create a python environment with the requirements installed (`requirements.txt`) as well as `pyinstaller`.
+Before building the executable you will need to create a python environment with the requirements installed (`requirements.txt`) as well as `pyinstaller`.
 Run this command from the root of the project.
 
 `pyinstaller main.py --onefile --hidden-import="sklearn.utils._weight_vector" --add-data "application/static;application/static" --icon application\static\favicon\app-icon.ico --clean`
@@ -31,9 +31,9 @@ The frontend application is build using `flask` and `flask-socketio`.
 
 `main.py` starts the app and opens the browser but the majority of the app is handled in the `application` folder.
 
-`check_ffmpeg.py` checks that an ffmpeg install is found and if not will install. For linux it runs the install command. For windows it downloads and extracts an ffmpeg zip folder. This could fail if the URL is no longer supported, so should be wrapped in the executable if possible.
+`check_ffmpeg.py` checks that an ffmpeg install is found and if not will install. For linux it runs the install command. For windows it downloads and extracts an ffmpeg zip folder. This could fail if the URL is no longer supported.
 
-`views.py` contains all of the endpoints. Depending on the complexity of the task it may call `start_progress_thread`. This takes a function and runs it in a background thread using `flask-socketio`. These tasks must do the following to be supported by  `start_progress_thread`:
+`views.py` contains all of the endpoints. Depending on the complexity of the task it may call `start_progress_thread`. This takes a function and runs it in a background thread using `flask-socketio`. These tasks must do the following to be supported by `start_progress_thread`:
 - The function must write info to the passed logger (called `logging`)
 - To update the progress bar it must write a log in the format "Progress - x/y" where x is the current iteration and y is the total iterations (i.e. "Progress - 25/100")
 - To pin a message it must write a log in the format "Status - text" where text is the message (i.e. "Status - Score is 0.5")
@@ -69,8 +69,8 @@ Found in `train.py` it add a few additions the existing project did not have:
 4. It can enable early-stopping which will stop training if the loss over the last 10 checkpoints has not sufficently decreased (minimum loss reached) 
 
 ## Synthesis
-The synthsis script implements https://github.com/NVIDIA/waveglow.
+The synthsis script implements https://github.com/NVIDIA/waveglow and https://github.com/jik876/hifi-gan, either of which can be selected.
 
-The synthesis process is implemented in `synthesize.py`. It firstly loads the feature predictor model (from training) and a pretrained waveglow model. It then cleans the text and infers the results. Audio & an alignment graph can be produced from this.
+The synthesis process is implemented in `synthesize.py`. It firstly loads the feature predictor model (from training) and a pretrained vocoder model (waveglow/hifi-gan). It then cleans the text and infers the results. Audio & an alignment graph can be produced from this.
 
-In the app `synonyms.py` is also used to suggest synonyms for poorly synthsised words. It uses the `trainscribe.py` script to estimate which words were non-audible, and the `nltk` library to list synonyms.
+In the app `synonyms.py` is also used to suggest synonyms for words using the `nltk` library.

@@ -1,4 +1,5 @@
 import torch
+from training.tacotron2_model.utils import process_batch
 
 
 def validate(model, val_loader, criterion, iteration):
@@ -27,8 +28,7 @@ def validate(model, val_loader, criterion, iteration):
     with torch.no_grad():
         val_loss = 0.0
         for i, batch in enumerate(val_loader):
-            x, y = model.parse_batch(batch)
-            y_pred = model(x)
+            y, y_pred = process_batch(batch, model)
             loss = criterion(y_pred, y)
             reduced_val_loss = loss.item()
             val_loss += reduced_val_loss

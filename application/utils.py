@@ -1,24 +1,15 @@
 import logging
-from threading import Thread
 import os
 from datetime import datetime
-import requests
 import traceback
-import configparser
 import shutil
 import zipfile
 import librosa
-import time
-from unidecode import unidecode
 
 from main import socketio
 from dataset.audio_processing import convert_audio
-from dataset.clip_generator import clip_generator
 from dataset.analysis import save_dataset_info
-
-
-LOGGING_URL = "https://voice-cloning-app-logging.herokuapp.com/"
-CONFIG_FILE = "config.ini"
+from dataset.clip_generator import MIN_LENGTH, MAX_LENGTH
 
 
 class SocketIOHandler(logging.Handler):
@@ -46,71 +37,6 @@ logger.addHandler(SocketIOHandler())
 thread = None
 
 
-def update_config(data):
-    """
-    Writes data to a config file
-
-    Parameters
-    ----------
-    data : dict
-        Dictionary data to write to config file
-    """
-    config = configparser.ConfigParser()
-    config["DEFAULT"] = data
-
-    with open(CONFIG_FILE, "w") as f:
-        config.write(f)
-
-
-def get_config():
-    """
-    Gets data from config file
-
-    Returns
-    -------
-    dict
-        Data returned from config file
-    """
-    config = configparser.ConfigParser()
-    config.read(CONFIG_FILE)
-    return config["DEFAULT"]
-
-
-def can_send_logs():
-    """
-    Checks whether logging is allowed.
-    Uses config file. If config is not found, defaults to True
-
-    Returns
-    -------
-    bool
-        Whether logging is allowed
-    """
-    config = get_config()
-    if config.get("send_logs") and config["send_logs"] == "False":
-        return False
-    else:
-        return True
-
-
-def send_error_log(error):
-    """
-    Sends error log to server if allowed.
-
-    Parameters
-    ----------
-    error : dict
-        Error object to send (contains type, text & stacktrace)
-    """
-    if can_send_logs():
-        try:
-            response = requests.post(LOGGING_URL, data=error)
-            if response.status_code != 201:
-                print("error logging recieved invalid response")
-        except:
-            print("error logging failed")
-
-
 def background_task(func, **kwargs):
     """
     Runs a background task.
@@ -124,13 +50,11 @@ def background_task(func, **kwargs):
     kwargs : kwargs
         Kwargs to pass to function
     """
-    exception = False
     try:
         socketio.sleep(5)
         func(logging=logger, **kwargs)
     except Exception as e:
         error = {"type": e.__class__.__name__, "text": str(e), "stacktrace": traceback.format_exc()}
-        send_error_log(error)
         socketio.emit("error", error, namespace="/voice")
         raise e
 
@@ -268,7 +192,10 @@ def import_dataset(dataset, dataset_directory, audio_folder, logging):
                 with open(path, "wb") as f:
                     f.write(data)
                     new_path = convert_audio(path)
-                    clip_lengths.append(librosa.get_duration(filename=new_path))
+                    duration = librosa.get_duration(filename=new_path)
+                    assert duration >= MIN_LENGTH and duration <= MAX_LENGTH, f"{wav} is an invalid duration (must be {MIN_LENGTH}-{MAX_LENGTH}, is {duration})"
+                    clip_lengths.append(duration)
+                    
                     filenames[path] = new_path
                 logging.info(f"Progress - {i+1}/{total_wavs}")
 

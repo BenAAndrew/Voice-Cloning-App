@@ -13,8 +13,8 @@ numba==0.47
 webrtcvad==2.0.10
 nltk==3.5
 requests==2.25.1
-torch===1.7.1
-torchvision===0.8.2
+torch===1.7.1+cu110
+torchvision===0.8.2+cu110
 torchaudio===0.7.2
 deepspeech==0.9.3
 llvmlite==0.32.1

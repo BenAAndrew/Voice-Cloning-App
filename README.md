@@ -8,6 +8,7 @@ A Python/Pytorch app for easily synthesising human voices
 ## System Requirements
 - **Windows 10 or Ubuntu 20.04+ operating system**
 - **NVIDIA GPU with at least 4GB of memory**
+- **5GB+ Disk space**
 - **Up-to-date NVIDIA driver (version 450.36+)**
 
 ## Key features
@@ -18,6 +19,7 @@ A Python/Pytorch app for easily synthesising human voices
 - Simplified training & synthesis
 - Word replacement suggestion
 - Windows & Linux support
+- Multi GPU support
 
 ## Video guide
 
@@ -37,17 +39,15 @@ A Python/Pytorch app for easily synthesising human voices
 2. [Training](training/training.md)
 3. [Synthesis](synthesis/synthesis.md)
 
+## Experimental/In-Development features
+Please try them out and give feedback on the discord so that they can be added to production.
+- [Additional language support](https://github.com/BenAAndrew/Voice-Cloning-App/pull/39)
+- [Google Colab Training](https://github.com/BenAAndrew/Voice-Cloning-App/pull/36)
+
 ## Future Improvements
 - Add support for alternative models
 - Improved batch size estimation
-- Multi-GPU support
 - AMD GPU support
-- Additional language support
-
-## Experimental/In-Development features
-Available for those with a manual install
-- [Google Colab Training](https://github.com/BenAAndrew/Voice-Cloning-App/pull/36)
-- [Multi-GPU](https://github.com/BenAAndrew/Voice-Cloning-App/pull/32)
 
 ## [How to make changes](maintenance.md)
 
@@ -55,7 +55,6 @@ Available for those with a manual install
 
 - Try out existing voices at [uberduck.ai](https://uberduck.ai/) and [Vocodes](https://vo.codes/)
 - [Synthesize in Colab](https://colab.research.google.com/drive/18IJZZDW1NO7KOslg_WMOCrMeiqz9jOYF?usp=sharing) (created by mega b#6696)
-- [Train in Colab](https://colab.research.google.com/drive/1jP9jUtXt_hA1e2Upd4uJfYsGD34vbSA6?usp=sharing) (created by ericstheguy)
 - [Generate youtube transcription](https://colab.research.google.com/drive/1KfAJig2jekpjJ5QS8Lpjy8sTd8w_ZuFv?usp=sharing) (created by mega b#6696)
 - [Wit.ai transcription](https://colab.research.google.com/drive/1i5hJRZVc0S-tgt5XM8kSoTu2nHBPOPrF#scrollTo=dk689PtThOjn)
 

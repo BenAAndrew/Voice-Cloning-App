@@ -1,6 +1,5 @@
 import os
 import random
-import time
 import argparse
 import logging
 from tqdm import tqdm
@@ -15,9 +14,6 @@ import torch
 from torch.utils.data import DataLoader
 
 from training.dataset import VoiceDataset
-from training.checkpoint import load_checkpoint, save_checkpoint, get_latest_checkpoint, warm_start_model
-from training.validate import validate
-from training.utils import get_available_memory, get_batch_size, get_learning_rate, check_space
 from training.tacotron2_model import Tacotron2, TextMelCollate, Tacotron2Loss
 
 
@@ -28,9 +24,6 @@ def eval_checkpoint(
 ):
     # Hyperparams
     train_size = 0.8
-    weight_decay = 1e-6
-    grad_clip_thresh = 1.0
-    iters_per_checkpoint = 1000
     seed = 1234
     symbols = "_-!'(),.:;? ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
 
@@ -50,7 +43,7 @@ def eval_checkpoint(
         filepaths_and_text = [line.strip().split("|") for line in f]
 
     random.shuffle(filepaths_and_text)
-    train_cutoff = int(len(filepaths_and_text) * train_size)
+    int(len(filepaths_and_text) * train_size)
     test_files = filepaths_and_text[-100:]
     valset = VoiceDataset(test_files, dataset_directory, symbols, seed)
     collate_fn = TextMelCollate()

@@ -4,7 +4,6 @@ import re
 import logging
 
 from pydub import AudioSegment
-from tqdm import tqdm
 
 ALHPANUMERIC = re.compile(r"\W+")
 
