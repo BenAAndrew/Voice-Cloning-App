@@ -7,14 +7,14 @@ A Python/Pytorch app for easily synthesising human voices
 
 ## System Requirements
 - **Windows 10 or Ubuntu 20.04+ operating system**
-- **NVIDIA GPU with at least 4GB of memory**
 - **5GB+ Disk space**
-- **Up-to-date NVIDIA driver (version 450.36+)**
+- NVIDIA GPU with at least 4GB of memory & driver version 450.36+ (optional)
 
 ## Key features
 - Automatic dataset generation
+- Local & remote training
 - Easy train start/stop
-- Support for kindle & audible as data sources
+- Tools for extracting kindle & audible as data sources
 - Data importing/exporting
 - Simplified training & synthesis
 - Word replacement suggestion
@@ -42,7 +42,6 @@ A Python/Pytorch app for easily synthesising human voices
 ## Experimental/In-Development features
 Please try them out and give feedback on the discord so that they can be added to production.
 - [Additional language support](https://github.com/BenAAndrew/Voice-Cloning-App/pull/39)
-- [Google Colab Training](https://github.com/BenAAndrew/Voice-Cloning-App/pull/36)
 
 ## Future Improvements
 - Add support for alternative models
