@@ -15,6 +15,6 @@ numba==0.48
 webrtcvad==2.0.10
 nltk==3.5
 requests==2.25.1
-torch===1.7.1
-torchvision===0.8.2
-torchaudio===0.7.2
+torch==1.9.0+cu102 
+torchvision==0.10.0+cu102 
+torchaudio===0.9.0
