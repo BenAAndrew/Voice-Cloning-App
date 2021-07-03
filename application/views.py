@@ -18,6 +18,7 @@ from application.utils import (
     import_dataset,
 )
 from dataset.create_dataset import create_dataset
+from dataset.clip_generator import CHARACTER_ENCODING
 from dataset.extend_existing_dataset import extend_existing_dataset
 from dataset.analysis import get_total_audio_duration, validate_dataset
 from training.train import train
@@ -96,8 +97,8 @@ def create_dataset_post():
         label_path = os.path.join(output_folder, METADATA_FILE)
         info_path = os.path.join(output_folder, INFO_FILE)
 
-        with open(text_path, "w", encoding="utf-8") as f:
-            f.write(request.files["text_file"].read().decode("utf-8", "ignore").replace("\r\n", "\n"))
+        with open(text_path, "w", encoding=CHARACTER_ENCODING) as f:
+            f.write(request.files["text_file"].read().decode(CHARACTER_ENCODING, "ignore").replace("\r\n", "\n"))
         request.files["audio_file"].save(audio_path)
 
         start_progress_thread(
@@ -119,8 +120,8 @@ def create_dataset_post():
         forced_alignment_path = os.path.join(output_folder, f"align-{suffix}.json")
         info_path = os.path.join(output_folder, INFO_FILE)
 
-        with open(text_path, "w", encoding="utf-8") as f:
-            f.write(request.files["text_file"].read().decode("utf-8", "ignore").replace("\r\n", "\n"))
+        with open(text_path, "w", encoding=CHARACTER_ENCODING) as f:
+            f.write(request.files["text_file"].read().decode(CHARACTER_ENCODING, "ignore").replace("\r\n", "\n"))
         request.files["audio_file"].save(audio_path)
 
         existing_output_path = os.path.join(output_folder, AUDIO_FOLDER)

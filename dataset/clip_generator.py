@@ -15,6 +15,7 @@ from dataset.audio_processing import change_sample_rate, add_silence
 
 MIN_LENGTH = 1.0
 MAX_LENGTH = 10.0
+CHARACTER_ENCODING = "latin_1"
 
 
 def clip_generator(
@@ -75,7 +76,7 @@ def clip_generator(
     assert audio_path.endswith(".wav"), "Must be a WAV file"
 
     logging.info(f"Loading script from {script_path}...")
-    with open(script_path, "r", encoding="utf-8") as script_file:
+    with open(script_path, "r", encoding=CHARACTER_ENCODING) as script_file:
         clean_text = script_file.read().lower().strip().replace("\n", " ").replace("  ", " ")
 
     logging.info("Searching text for matching fragments...")
@@ -129,11 +130,11 @@ def clip_generator(
 
     # Produce alignment file
     logging.info(f"Produced {len(result_fragments)} final fragments")
-    with open(forced_alignment_path, "w", encoding="utf-8") as result_file:
+    with open(forced_alignment_path, "w", encoding=CHARACTER_ENCODING) as result_file:
         result_file.write(json.dumps(result_fragments, ensure_ascii=False, indent=4))
 
     # Produce metadata file
-    with open(label_path, "w", encoding="utf-8") as f:
+    with open(label_path, "w", encoding=CHARACTER_ENCODING) as f:
         for fragment in result_fragments:
             f.write(f"{fragment['name']}|{fragment['aligned']}\n")
     logging.info("Generated clips")

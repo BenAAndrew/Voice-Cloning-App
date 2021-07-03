@@ -13,6 +13,7 @@ import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
 
+from dataset.clip_generator import CHARACTER_ENCODING
 from training.dataset import VoiceDataset
 from training.checkpoint import load_checkpoint, save_checkpoint, get_latest_checkpoint, warm_start_model
 from training.validate import validate
@@ -118,7 +119,7 @@ def train(
 
     # Load data
     logging.info("Loading data...")
-    with open(metadata_path, encoding="utf-8") as f:
+    with open(metadata_path, encoding=CHARACTER_ENCODING) as f:
         filepaths_and_text = [line.strip().split("|") for line in f]
 
     random.shuffle(filepaths_and_text)
