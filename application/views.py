@@ -77,7 +77,7 @@ def get_datasource():
 
 @app.route("/", methods=["POST"])
 def create_dataset_post():
-    min_confidence = request.form["confidence"]
+    min_confidence = float(request.form["confidence"])
     language = request.form["language"]
     transcription_model_path = os.path.join(paths["languages"], language, TRANSCRIPTION_MODEL)
     transcription_model = deepspeech.Model(transcription_model_path)
@@ -109,7 +109,7 @@ def create_dataset_post():
             output_path=output_path,
             label_path=label_path,
             info_path=info_path,
-            min_confidence=float(min_confidence),
+            min_confidence=min_confidence,
         )
     else:
         output_folder = os.path.join(paths["datasets"], request.form["path"])
@@ -136,7 +136,7 @@ def create_dataset_post():
             label_path=existing_label_path,
             suffix=suffix,
             info_path=info_path,
-            min_confidence=float(min_confidence),
+            min_confidence=min_confidence,
         )
 
     return render_template("progress.html", next_url=get_next_url(URLS, request.path))
