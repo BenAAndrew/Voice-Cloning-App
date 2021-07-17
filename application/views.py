@@ -5,7 +5,6 @@ import io
 import zipfile
 import traceback
 import torch
-import deepspeech
 
 sys.path.append("synthesis/waveglow/")
 
@@ -21,6 +20,7 @@ from dataset.create_dataset import create_dataset
 from dataset.clip_generator import CHARACTER_ENCODING
 from dataset.extend_existing_dataset import extend_existing_dataset
 from dataset.analysis import get_total_audio_duration, validate_dataset
+from dataset.transcribe import create_transcription_model
 from training.train import train
 from training.checkpoint import get_latest_checkpoint
 from training.utils import get_available_memory, get_batch_size, load_symbols
@@ -52,6 +52,10 @@ inflect_engine = inflect.engine()
 symbols = None
 
 
+def get_languages():
+    return os.listdir(paths["languages"])+["English"]
+
+
 @app.errorhandler(Exception)
 def handle_bad_request(e):
     error = {"type": e.__class__.__name__, "text": str(e), "stacktrace": traceback.format_exc()}
@@ -67,7 +71,7 @@ def inject_data():
 @app.route("/", methods=["GET"])
 def get_create_dataset():
     return render_template(
-        "index.html", datasets=os.listdir(paths["datasets"]), languages=os.listdir(paths["languages"])
+        "index.html", datasets=os.listdir(paths["datasets"]), languages=get_languages()
     )
 
 
@@ -80,8 +84,8 @@ def get_datasource():
 def create_dataset_post():
     min_confidence = float(request.form["confidence"])
     language = request.form["language"]
-    transcription_model_path = os.path.join(paths["languages"], language, TRANSCRIPTION_MODEL)
-    transcription_model = deepspeech.Model(transcription_model_path)
+    transcription_model_path = os.path.join(paths["languages"], language, TRANSCRIPTION_MODEL) if language != "English" else None
+    transcription_model = create_transcription_model(transcription_model_path)
 
     if request.form["name"]:
         output_folder = os.path.join(paths["datasets"], request.form["name"])
@@ -172,7 +176,7 @@ def get_train():
         cuda_enabled=cuda_enabled,
         batch_size=batch_size,
         datasets=os.listdir(paths["datasets"]),
-        languages=os.listdir(paths["languages"]),
+        languages=get_languages(),
     )
 
 
@@ -222,7 +226,7 @@ def get_synthesis_setup():
         waveglow_models=os.listdir(paths["waveglow"]),
         hifigan_models=os.listdir(paths["hifigan"]),
         models=os.listdir(paths["models"]),
-        languages=os.listdir(paths["languages"]),
+        languages=get_languages(),
     )
 
 

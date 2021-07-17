@@ -3,7 +3,6 @@ import logging
 
 from dataset.forced_alignment.audio import DEFAULT_RATE, read_frames_from_file, vad_split
 from dataset.audio_processing import cut_audio
-from dataset.transcribe import transcribe
 
 
 logging.getLogger().setLevel(logging.INFO)
@@ -108,7 +107,7 @@ def process_segments(audio_path, transcription_model, output_path, segments, min
             clip_path = os.path.join(output_path, name)
 
             try:
-                transcript = transcribe(clip_path, transcription_model)
+                transcript = transcription_model.transcribe(clip_path)
             except:
                 logging.info(f"Could not transcribe {clip_path}")
                 transcript = None

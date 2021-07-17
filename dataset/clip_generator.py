@@ -15,7 +15,7 @@ from dataset.audio_processing import change_sample_rate, add_silence
 
 MIN_LENGTH = 1.0
 MAX_LENGTH = 10.0
-CHARACTER_ENCODING = "latin_1"
+CHARACTER_ENCODING = "utf-8"
 
 
 def clip_generator(
