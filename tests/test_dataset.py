@@ -2,10 +2,10 @@ import os
 import shutil
 import json
 from pathlib import Path
-from unittest import mock
 import json
 
 from dataset.create_dataset import create_dataset
+from dataset.transcribe import TranscriptionModel
 
 
 expected_clips = {
@@ -17,9 +17,13 @@ expected_duration = 7
 expected_total_clips = 3
 
 
-def fake_transcribe(path, transcribe_model):
-    filename = Path(path).name
-    return expected_clips[filename]
+class FakeTranscriptionModel(TranscriptionModel):
+    def load_audio(self, path):
+        pass
+
+    def transcribe(self, path):
+        filename = Path(path).name
+        return expected_clips[filename]
 
 
 def test_create_dataset():
@@ -32,16 +36,15 @@ def test_create_dataset():
     info_path = "info.json"
     min_confidence = 0.85
 
-    with mock.patch("dataset.clip_generator.align.transcribe", wraps=fake_transcribe) as mock_transcribe:
-        create_dataset(
-            text_path=text_path,
-            audio_path=audio_path,
-            transcription_model=None,
-            forced_alignment_path=forced_alignment_path,
-            output_path=output_directory,
-            label_path=label_path,
-            info_path=info_path,
-        )
+    create_dataset(
+        text_path=text_path,
+        audio_path=audio_path,
+        transcription_model=FakeTranscriptionModel(),
+        forced_alignment_path=forced_alignment_path,
+        output_path=output_directory,
+        label_path=label_path,
+        info_path=info_path,
+    )
 
     assert os.listdir(output_directory) == list(expected_clips.keys()), "Unexpected audio clips"
 
