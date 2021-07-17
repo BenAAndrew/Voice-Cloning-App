@@ -42,6 +42,7 @@ def train(
     epochs=8000,
     batch_size=None,
     early_stopping=True,
+    multi_gpu=True,
     iters_per_checkpoint=1000,
     logging=logging,
 ):
@@ -70,6 +71,8 @@ def train(
         Training batch size (calculated automatically if None)
     early_stopping : bool (optional)
         Whether to stop training when loss stops significantly decreasing (default is True)
+    multi_gpu : bool (optional)
+        Use multiple GPU's in parallel if available (default is True)
     iters_per_checkpoint : int (optional)
         How often checkpoints are saved (number of iterations)
     logging : logging (optional)
@@ -161,7 +164,7 @@ def train(
         check_space(num_iterations // iters_per_checkpoint)
 
     # Enable Multi GPU
-    if torch.cuda.device_count() > 1:
+    if multi_gpu and torch.cuda.device_count() > 1:
         logging.info(f"Using {torch.cuda.device_count()} GPUs")
         model = nn.DataParallel(model)
 
