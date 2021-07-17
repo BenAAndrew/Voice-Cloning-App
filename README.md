@@ -5,54 +5,45 @@ A Python/Pytorch app for easily synthesising human voices
 
 ![Preview](preview.png "Preview")
 
-## System Requirements
-- **Windows 10 or Ubuntu 20.04+ operating system**
-- **NVIDIA GPU with at least 4GB of memory**
-- **5GB+ Disk space**
-- **Up-to-date NVIDIA driver (version 450.36+)**
-
-## Key features
-- Automatic dataset generation
-- Easy train start/stop
-- Support for kindle & audible as data sources
-- Data importing/exporting
-- Simplified training & synthesis
-- Word replacement suggestion
-- Windows & Linux support
-- Multi GPU support
-
-## Video guide
-
-**https://www.youtube.com/playlist?list=PLk5I7EvFL13GjBIDorh5yE1SaPGRG-i2l**
-
-## Voice Sharing Hub
-
-**https://voice-sharing-hub.herokuapp.com/**
-
 ## [Discord Server](https://discord.gg/wQd7zKCWxT)
+
+## [Video guide](https://www.youtube.com/playlist?list=PLk5I7EvFL13GjBIDorh5yE1SaPGRG-i2l)
+
+## [Voice Sharing Hub](https://voice-sharing-hub.herokuapp.com/)
 
 ## [FAQ's](faqs.md)
 
+## System Requirements
+- **Windows 10 or Ubuntu 20.04+ operating system**
+- **5GB+ Disk space**
+- NVIDIA GPU with at least 4GB of memory & driver version 450.36+ (optional)
+
+## Key features
+- Automatic dataset generation
+- Local & remote training
+- Easy train start/stop
+- Tools for extracting kindle & audible as data sources
+- Data importing/exporting
+- Word replacement suggestion
+- Multi GPU support
+
 ## Manual Guides
-1. [Installation](install.md)
-1. [Building the dataset](dataset/dataset.md)
-2. [Training](training/training.md)
-3. [Synthesis](synthesis/synthesis.md)
+- [Installation](install.md)
+- [Building the dataset](dataset/dataset.md)
+- [Training](training/training.md)
+- [Synthesis](synthesis/synthesis.md)
+- [Making changes](maintenance.md)
 
 ## Experimental/In-Development features
 Please try them out and give feedback on the discord so that they can be added to production.
 - [Additional language support](https://github.com/BenAAndrew/Voice-Cloning-App/pull/39)
-- [Google Colab Training](https://github.com/BenAAndrew/Voice-Cloning-App/pull/36)
 
 ## Future Improvements
 - Add support for alternative models
 - Improved batch size estimation
 - AMD GPU support
 
-## [How to make changes](maintenance.md)
-
 ## Other resources
-
 - Try out existing voices at [uberduck.ai](https://uberduck.ai/) and [Vocodes](https://vo.codes/)
 - [Synthesize in Colab](https://colab.research.google.com/drive/18IJZZDW1NO7KOslg_WMOCrMeiqz9jOYF?usp=sharing) (created by mega b#6696)
 - [Generate youtube transcription](https://colab.research.google.com/drive/1KfAJig2jekpjJ5QS8Lpjy8sTd8w_ZuFv?usp=sharing) (created by mega b#6696)
