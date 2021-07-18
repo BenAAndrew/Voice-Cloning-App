@@ -190,6 +190,7 @@ def train_post():
     early_stopping = request.form.get("early_stopping") is not None
     iters_per_checkpoint = request.form["checkpoint_frequency"]
     overwrite_checkpoints = request.form.get("overwrite_checkpoints") is not None
+    multi_gpu = request.form.get("multi_gpu") is not None
 
     metadata_path = os.path.join(paths["datasets"], dataset_name, METADATA_FILE)
     audio_folder = os.path.join(paths["datasets"], dataset_name, AUDIO_FOLDER)
@@ -213,7 +214,8 @@ def train_post():
         epochs=int(epochs),
         batch_size=int(batch_size),
         early_stopping=early_stopping,
-        overwrite_checkpoint=overwrite_checkpoints,
+        multi_gpu=multi_gpu,
+        overwrite_checkpoints=overwrite_checkpoints,
         iters_per_checkpoint=int(iters_per_checkpoint),
     )
 
