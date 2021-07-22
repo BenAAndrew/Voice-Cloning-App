@@ -2,10 +2,8 @@ import argparse
 import os
 import inflect
 import matplotlib.pyplot as plt
-from training.tacotron2_model import Tacotron2
 import torch
 import numpy as np
-import glow  # noqa
 import matplotlib
 from os.path import dirname, abspath
 import sys
@@ -13,9 +11,11 @@ import sys
 sys.path.append(dirname(dirname(abspath(__file__))))
 matplotlib.use("Agg")
 
+import glow  # noqa
+from training.tacotron2_model import Tacotron2
 from training.clean_text import clean_text
 from synthesis.waveglow import load_waveglow_model, generate_audio_waveglow
-from synthesis.hifigan import generate_audio_hifigan
+from synthesis.hifigan import load_hifigan_model, generate_audio_hifigan
 
 
 SYMBOLS = "_-!'(),.:;? ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
@@ -126,19 +126,28 @@ if __name__ == "__main__":
     """Synthesize audio using model and vocoder"""
     parser = argparse.ArgumentParser(description="Synthesize audio using model and vocoder")
     parser.add_argument("-m", "--model_path", type=str, help="tacotron2 model path", required=True)
-    parser.add_argument("-w", "--waveglow_model_path", type=str, help="waveglow model path", required=True)
+    parser.add_argument("-vt", "--vocoder_type", type=str, help="vocoder type(waveglow or hifigan)", required=True)
+    parser.add_argument("-vm", "--vocoder_model_path", type=str, help="vocoder model path", required=True)
+    parser.add_argument("-hc", "--hifigan_config_path", type=str, help="hifigan_config path", required=False)
     parser.add_argument("-t", "--text", type=str, help="text to synthesize", required=True)
     parser.add_argument("-g", "--graph_output_path", type=str, help="path to save alignment graph to", required=False)
     parser.add_argument("-a", "--audio_output_path", type=str, help="path to save output audio to", required=False)
     args = parser.parse_args()
 
     assert os.path.isfile(args.model_path), "Model not found"
-    assert os.path.isfile(args.waveglow_model_path), "Waveglow model not found"
+    assert os.path.isfile(args.vocoder_model_path), "vocoder model not found"
 
     model = load_model(args.model_path)
-    waveglow_model = load_waveglow_model(args.waveglow_path)
+    vocoder_type = args.vocoder_type
+    vocoder_model = None
+    if vocoder_type == "hifigan":
+        assert os.path.isfile(args.hifigan_config_path), "hifigan config not found"
+        vocoder_model = load_hifigan_model(args.vocoder_model_path, args.hifigan_config_path)
+    elif vocoder_type == "waveglow":
+        vocoder_model = load_waveglow_model(args.vocoder_model_path)
+
     inflect_engine = inflect.engine()
 
     synthesize(
-        model, args.text, inflect_engine, args.graph_output_path, args.audio_output_path, waveglow_model, "waveglow"
+        model, args.text, inflect_engine, args.graph_output_path, args.audio_output_path, vocoder_model, vocoder_type
     )
