@@ -20,6 +20,7 @@ A Python/Pytorch app for easily synthesising human voices
 
 ## Key features
 - Automatic dataset generation
+- Additional language support
 - Local & remote training
 - Easy train start/stop
 - Tools for extracting kindle & audible as data sources
@@ -33,10 +34,6 @@ A Python/Pytorch app for easily synthesising human voices
 - [Training](training/training.md)
 - [Synthesis](synthesis/synthesis.md)
 - [Making changes](maintenance.md)
-
-## Experimental/In-Development features
-Please try them out and give feedback on the discord so that they can be added to production.
-- [Additional language support](https://github.com/BenAAndrew/Voice-Cloning-App/pull/39)
 
 ## Future Improvements
 - Add support for alternative models
