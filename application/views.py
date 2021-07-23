@@ -44,6 +44,7 @@ RESULTS_FILE = "out.wav"
 TEMP_DATASET_UPLOAD = "temp.zip"
 TRANSCRIPTION_MODEL = "model.pbmm"
 ALPHABET_FILE = "alphabet.txt"
+ENGLISH_LANGUAGE = "English"
 
 model = None
 vocoder = None
@@ -53,7 +54,7 @@ symbols = None
 
 
 def get_languages():
-    return os.listdir(paths["languages"])+["English"]
+    return [ENGLISH_LANGUAGE] + os.listdir(paths["languages"])
 
 
 @app.errorhandler(Exception)
@@ -70,9 +71,7 @@ def inject_data():
 # Dataset
 @app.route("/", methods=["GET"])
 def get_create_dataset():
-    return render_template(
-        "index.html", datasets=os.listdir(paths["datasets"]), languages=get_languages()
-    )
+    return render_template("index.html", datasets=os.listdir(paths["datasets"]), languages=get_languages())
 
 
 @app.route("/datasource", methods=["GET"])
@@ -84,7 +83,9 @@ def get_datasource():
 def create_dataset_post():
     min_confidence = float(request.form["confidence"])
     language = request.form["language"]
-    transcription_model_path = os.path.join(paths["languages"], language, TRANSCRIPTION_MODEL) if language != "English" else None
+    transcription_model_path = (
+        os.path.join(paths["languages"], language, TRANSCRIPTION_MODEL) if language != ENGLISH_LANGUAGE else None
+    )
     transcription_model = create_transcription_model(transcription_model_path)
 
     if request.form["name"]:

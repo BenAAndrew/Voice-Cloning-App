@@ -75,8 +75,8 @@ def process_segments(audio_path, transcription_model, output_path, segments, min
     ----------
     audio_path : str
         Path to audio file
-    transcription_model : DeepSpeech model
-        DeepSpeech transcription model
+    transcription_model : TranscriptionModel model
+        TranscriptionModel transcription model
     output_path : str
         Path to save clips to
     segments : list

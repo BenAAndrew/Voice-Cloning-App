@@ -25,6 +25,7 @@ class DeepSpeech(TranscriptionModel):
     """
     Credit: https://github.com/mozilla/DeepSpeech
     """
+
     def __init__(self, model_path):
         self.model = deepspeech.Model(model_path)
 
@@ -50,10 +51,11 @@ class Silero(TranscriptionModel):
     """
     Credit: https://github.com/snakers4/silero-models
     """
-    def __init__(self):
+
+    def __init__(self, language="en"):
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.model, self.decoder, _ = torch.hub.load(
-            repo_or_dir="snakers4/silero-models", model="silero_stt", language="en", device=self.device
+            repo_or_dir="snakers4/silero-models", model="silero_stt", language=language, device=self.device
         )
 
     def load_audio(self, path):
@@ -78,7 +80,7 @@ class Silero(TranscriptionModel):
 def create_transcription_model(model_path=None):
     if model_path:
         return DeepSpeech(model_path)
-    # If no model path, default to English
+    # If no model path, default to English Sliero
     else:
         return Silero()
 
