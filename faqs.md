@@ -14,7 +14,9 @@ For this model I would recommend at least 2 hours of data and training for 2000 
 Every dataset is different and will produce different results so the scoring on the training page is a very rough guess.
 
 ## "Can I generate other languages?"
-Experimental support is available [here](https://github.com/BenAAndrew/Voice-Cloning-App/pull/39). Once this has been tested by several users it will be added to the app.
+Yes, but you will need to add a deepspeech voice of that language in settings. These can be found on sites such as [coqui](https://coqui.ai/models).
+
+Some of these perform better than others so quality may vary.
 
 ## "Can I make changes to the project?"
 Everyone is welcome to open pull requests or suggest changes by raising an "enhancement" issue.
