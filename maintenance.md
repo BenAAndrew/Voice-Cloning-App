@@ -53,7 +53,7 @@ The main entry for the builder is `dataset/create_dataset.py`. It does 3 things:
 
 The forced alignment process used in `clip_generator.py` can be found in the `forced_alignment` folder and is based on https://github.com/mozilla/DSAlign. This library is able to take the source audio and text and split into clips. 
 
-It uses a `TranscriptionModel` object from `transcribe.py` (currently supporting [silero](https://github.com/snakers4/silero-models) or [deepspeech](https://github.com/mozilla/DeepSpeech))  to convert speech-to-text and will delete clips which do not meet a minimum similarity score.
+It uses a `TranscriptionModel` object from `transcribe.py` (currently supporting [silero](https://github.com/snakers4/silero-models) or [deepspeech](https://github.com/mozilla/DeepSpeech)) to convert speech-to-text and will delete clips which do not meet a minimum similarity score.
 
 `clip_generator.py` will also remove clips with an invalid duration and save the resulting filenames and text to a metadata file (typically called "metadata.csv") in the format filename|text (i.e. "clip_1.wav|Hello, how are you?").
 

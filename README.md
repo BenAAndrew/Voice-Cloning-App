@@ -49,7 +49,7 @@ A Python/Pytorch app for easily synthesising human voices
 ## Acknowledgements
 This project uses a reworked version of [Tacotron2](https://github.com/NVIDIA/tacotron2) & [Waveglow](https://github.com/NVIDIA/waveglow). All rights for belong to NVIDIA and follow the requirements of their BSD-3 licence.
 
-Additionally, the project uses [DSAlign](https://github.com/mozilla/DSAlign), [Silero](https://github.com/snakers4/silero-models) & [hifi-gan](https://github.com/jik876/hifi-gan).
+Additionally, the project uses [DSAlign](https://github.com/mozilla/DSAlign), [Silero](https://github.com/snakers4/silero-models), [DeepSpeech](https://github.com/mozilla/DeepSpeech) & [hifi-gan](https://github.com/jik876/hifi-gan).
 
 Thank you to Dr. John Bustard at Queen's University Belfast for his support throughout the project.
 
