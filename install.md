@@ -9,7 +9,7 @@ Download and Run latest executable from [Releases](https://github.com/BenAAndrew
 ### Linux
 1. Clone this repository
 2. Run `./install.sh` from the root of the repository
-3. Run `python3.8 main.py`
+3. Run `python3.6 main.py`
 
 ### Docker
 1. Clone this repository
@@ -18,7 +18,7 @@ Download and Run latest executable from [Releases](https://github.com/BenAAndrew
 
 ### Manual Install (Linux/ Windows)
 1. Clone this repository
-2. Install [Python](https://www.python.org/) (version 3.8)
+2. Install [Python](https://www.python.org/) (version 3.6)
 3. Run `pip install -r requirements.txt`
 4. Run `python main.py`
 
@@ -30,7 +30,7 @@ Download and Run latest executable from [Releases](https://github.com/BenAAndrew
 
 ### Linux
 1. Clone this repository
-2. Install [Python](https://www.python.org/) (version 3.8)
+2. Install [Python](https://www.python.org/) (version 3.6)
 3. Run `pip install -r requirements-cpu.txt`
 4. Run `python main.py`
 
