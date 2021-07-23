@@ -29,13 +29,14 @@ GRAD_CLIP_THRESH = 1.0
 EARLY_STOPPING_WINDOW = 10
 EARLY_STOPPING_MIN_DIFFERENCE = 0.0005
 SEED = 1234
+DEFAULT_ALPHABET = "_-!'(),.:;? ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
 
 
 def train(
     metadata_path,
     dataset_directory,
     output_directory,
-    alphabet_path,
+    alphabet_path=None,
     find_checkpoint=True,
     checkpoint_path=None,
     transfer_learning_path=None,
@@ -131,7 +132,7 @@ def train(
     test_files = filepaths_and_text[train_cutoff:]
     print(f"{len(train_files)} train files, {len(test_files)} test files")
 
-    symbols = load_symbols(alphabet_path)
+    symbols = load_symbols(alphabet_path) if alphabet_path else DEFAULT_ALPHABET
     trainset = VoiceDataset(train_files, dataset_directory, symbols, SEED)
     valset = VoiceDataset(test_files, dataset_directory, symbols, SEED)
     collate_fn = TextMelCollate()
@@ -161,6 +162,8 @@ def train(
     elif transfer_learning_path:
         model = warm_start_model(transfer_learning_path, model)
         logging.info("Loaded transfer learning model '{}'".format(transfer_learning_path))
+    else:
+        logging.info("Generating first checkpoint...")
 
     # Check available memory
     if not overwrite_checkpoints:

@@ -575,7 +575,6 @@ class Tacotron2(nn.Module):
     def forward(self, inputs, mask_size, alignment_mask_size):
         text_inputs, text_lengths, mels, output_lengths = get_x(inputs)
         device = text_inputs.device
-        print("PROCESSING BATCH WITH ", device)
 
         text_lengths, output_lengths = text_lengths.data, output_lengths.data
         embedded_inputs = self.embedding(text_inputs).transpose(1, 2)

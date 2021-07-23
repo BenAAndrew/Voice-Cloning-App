@@ -184,7 +184,7 @@ def get_train():
 @app.route("/train", methods=["POST"])
 def train_post():
     language = request.form["language"]
-    alphabet_path = os.path.join(paths["languages"], language, ALPHABET_FILE)
+    alphabet_path = os.path.join(paths["languages"], language, ALPHABET_FILE) if language != ENGLISH_LANGUAGE else None
     dataset_name = request.form["path"]
     epochs = request.form["epochs"]
     batch_size = request.form["batch_size"]
