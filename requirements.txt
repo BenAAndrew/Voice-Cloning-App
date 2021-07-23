@@ -1,8 +1,8 @@
 -f https://download.pytorch.org/whl/torch_stable.html
 pydub==0.24.1
 librosa==0.6.0
-scipy==1.4.1
-numpy==1.14.4
+scipy==1.5.4
+numpy>=1.14
 inflect==0.2.5
 Unidecode==1.0.22
 Flask==1.1.2
