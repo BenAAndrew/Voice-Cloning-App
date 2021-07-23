@@ -15,11 +15,13 @@ from dataset.audio_processing import change_sample_rate, add_silence
 
 MIN_LENGTH = 1.0
 MAX_LENGTH = 10.0
+CHARACTER_ENCODING = "utf-8"
 
 
 def clip_generator(
     audio_path,
     script_path,
+    transcription_model,
     forced_alignment_path,
     output_path,
     label_path,
@@ -38,6 +40,8 @@ def clip_generator(
         Path to audio file (must have been converted using convert_audio)
     script_path : str
         Path to source text
+    transcription_model : DeepSpeech
+        DeepSpeech transcription model
     forced_alignment_path : str
         Path to save alignment JSON to
     output_path : str
@@ -72,7 +76,7 @@ def clip_generator(
     assert audio_path.endswith(".wav"), "Must be a WAV file"
 
     logging.info(f"Loading script from {script_path}...")
-    with open(script_path, "r", encoding="utf-8") as script_file:
+    with open(script_path, "r", encoding=CHARACTER_ENCODING) as script_file:
         clean_text = script_file.read().lower().strip().replace("\n", " ").replace("  ", " ")
 
     logging.info("Searching text for matching fragments...")
@@ -90,7 +94,7 @@ def clip_generator(
     min_length_ms = min_length * 1000
     max_length_ms = max_length * 1000
     processed_segments = align.process_segments(
-        audio_path, output_path, segments, min_length_ms, max_length_ms, logging
+        audio_path, transcription_model, output_path, segments, min_length_ms, max_length_ms, logging
     )
     matched_segments = align.split_match(processed_segments, search)
     matched_segments = list(filter(lambda f: f is not None, matched_segments))
@@ -126,11 +130,11 @@ def clip_generator(
 
     # Produce alignment file
     logging.info(f"Produced {len(result_fragments)} final fragments")
-    with open(forced_alignment_path, "w", encoding="utf-8") as result_file:
+    with open(forced_alignment_path, "w", encoding=CHARACTER_ENCODING) as result_file:
         result_file.write(json.dumps(result_fragments, ensure_ascii=False, indent=4))
 
     # Produce metadata file
-    with open(label_path, "w", encoding="utf-8") as f:
+    with open(label_path, "w", encoding=CHARACTER_ENCODING) as f:
         for fragment in result_fragments:
             f.write(f"{fragment['name']}|{fragment['aligned']}\n")
     logging.info("Generated clips")
@@ -161,6 +165,7 @@ def get_filename(filename, suffix):
 def extend_dataset(
     audio_path,
     script_path,
+    transcription_model,
     forced_alignment_path,
     output_path,
     label_path,
@@ -178,6 +183,8 @@ def extend_dataset(
         Path to audio file (must have been converted using convert_audio)
     script_path : str
         Path to source text
+    transcription_model : DeepSpeech
+        DeepSpeech transcription model
     forced_alignment_path : str
         Path to save alignment JSON to
     output_path : str
@@ -205,6 +212,7 @@ def extend_dataset(
     clip_generator(
         audio_path,
         script_path,
+        transcription_model,
         forced_alignment_path,
         temp_wavs_folder,
         temp_label_path,

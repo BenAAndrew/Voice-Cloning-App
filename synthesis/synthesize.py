@@ -18,10 +18,6 @@ from synthesis.waveglow import load_waveglow_model, generate_audio_waveglow
 from synthesis.hifigan import load_hifigan_model, generate_audio_hifigan
 
 
-SYMBOLS = "_-!'(),.:;? ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
-SYMBOL_TO_ID = {s: i for i, s in enumerate(SYMBOLS)}
-
-
 def load_model(model_path):
     """
     Loads the Tacotron2 model.
@@ -63,29 +59,26 @@ def generate_graph(alignments, filepath):
     plt.savefig(filepath)
 
 
-def text_to_sequence(text):
+def text_to_sequence(text, symbols):
     """
-    Generates synthesised audio file.
+    Generates text sequence for audio file
 
     Parameters
     ----------
-    mel : list
-        Synthesised mel data
-    waveglow : Torch
-        Waveglow model
-    filepath : str
-        Path to save generated audio to
-    sample_rate : int (optional)
-        Sample rate of audio (default is 22050)
+    text : str
+        Text to synthesize
+    symbols : list
+        List of valid symbols
     """
-    sequence = np.array([[SYMBOL_TO_ID[s] for s in text if s in SYMBOL_TO_ID]])
+    symbol_to_id = {s: i for i, s in enumerate(symbols)}
+    sequence = np.array([[symbol_to_id[s] for s in text if s in symbol_to_id]])
     if torch.cuda.is_available():
         return torch.autograd.Variable(torch.from_numpy(sequence)).cuda().long()
     else:
         return torch.autograd.Variable(torch.from_numpy(sequence)).cpu().long()
 
 
-def synthesize(model, text, inflect_engine, graph=None, audio=None, vocoder=None, vocoder_type=None):
+def synthesize(model, text, inflect_engine, symbols, graph=None, audio=None, vocoder=None, vocoder_type=None):
     """
     Synthesise text for a given model.
     Produces graph and/or audio file when given.
@@ -94,19 +87,23 @@ def synthesize(model, text, inflect_engine, graph=None, audio=None, vocoder=None
     ----------
     model : Tacotron2
         Tacotron2 model
-    waveglow_model : Torch
-        Waveglow model
     text : str
         Text to synthesize
     inflect_engine : Inflect
         Inflect.engine() object
+    symbols : list
+        List of symbols
     graph : str (optional)
         Path to save alignment graph to
     audio : str (optional)
         Path to save audio file to
+    vocoder : Object (optional)
+        Vocoder model (required if generating audio)
+    vocoder_type : str (optional)
+        Vocoder type (required if generating audio)
     """
     text = clean_text(text, inflect_engine)
-    sequence = text_to_sequence(text)
+    sequence = text_to_sequence(text, symbols)
     _, mel_outputs_postnet, _, alignments = model.inference(sequence)
 
     if graph:

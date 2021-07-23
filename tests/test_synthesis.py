@@ -3,7 +3,7 @@ import inflect
 
 from synthesis.synthesize import load_model, synthesize
 from synthesis.waveglow import load_waveglow_model
-from dataset.transcribe import transcribe
+from dataset.transcribe import create_transcription_model
 
 
 def text_similarity(a, b):
@@ -15,6 +15,7 @@ def test_synthesize():
     waveglow_path = os.path.join("files", "waveglow_256channels_universal_v5.pt")
     graph_path = "graph.png"
     audio_path = "synthesized_audio.wav"
+    transcription_model = create_transcription_model()
 
     model = load_model(model_path)
     assert model
@@ -26,7 +27,7 @@ def test_synthesize():
     inflect_engine = inflect.engine()
     synthesize(model, waveglow, text, inflect_engine, graph=graph_path, audio=audio_path)
 
-    assert text_similarity(text, transcribe(audio_path)) > 0.5
+    assert text_similarity(text, transcription_model.transcribe(audio_path)) > 0.5
     assert os.path.isfile(graph_path)
     assert os.path.isfile(audio_path)
 

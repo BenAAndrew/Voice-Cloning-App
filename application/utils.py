@@ -9,7 +9,7 @@ import librosa
 from main import socketio
 from dataset.audio_processing import convert_audio
 from dataset.analysis import save_dataset_info
-from dataset.clip_generator import MIN_LENGTH, MAX_LENGTH
+from dataset.clip_generator import MIN_LENGTH, MAX_LENGTH, CHARACTER_ENCODING
 
 
 class SocketIOHandler(logging.Handler):
@@ -166,7 +166,7 @@ def import_dataset(dataset, dataset_directory, audio_folder, logging):
             wavs = [x for x in files_list if x.startswith("wavs/") and x.endswith(".wav")]
             assert wavs, "No wavs found in wavs folder"
 
-            metadata = z.read("metadata.csv").decode("utf-8", "ignore").replace("\r\n", "\n")
+            metadata = z.read("metadata.csv").decode(CHARACTER_ENCODING, "ignore").replace("\r\n", "\n")
             num_metadata_rows = len([row for row in metadata.split("\n") if row])
             assert (
                 len(wavs) == num_metadata_rows
@@ -178,7 +178,7 @@ def import_dataset(dataset, dataset_directory, audio_folder, logging):
 
             # Save metadata
             logging.info("Saving files")
-            with open(os.path.join(dataset_directory, "metadata.csv"), "w", encoding="utf-8") as f:
+            with open(os.path.join(dataset_directory, "metadata.csv"), "w", encoding=CHARACTER_ENCODING) as f:
                 f.write(metadata)
 
             # Save wavs

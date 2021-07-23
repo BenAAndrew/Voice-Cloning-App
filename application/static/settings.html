@@ -1,5 +1,26 @@
 {% extends "simplebase.html" %}
 {% block content %}
+<h3>Add a language</h3>
+<form method="POST" action="/upload-language" enctype="multipart/form-data">
+    <a href="https://coqui.ai/models">Download models</a>
+    <div class="form-group">
+        <div class="form-group">
+            <label for="name">Language</label>
+            <input type="text" id="name" name="name" required>
+        </div>
+        <div class="form-group">
+            <label for="model">Model (.pbmm)</label>
+            <input type="file" id="model" name="model" required>
+        </div>
+        <div class="form-group">
+            <label for="alphabet">Alphabet (.txt)</label>
+            <input type="file" id="alphabet" name="alphabet" required>
+        </div>
+    </div>
+    <input type="submit" class="btn btn-primary">
+</form>
+<hr>
+
 <h3>Delete dataset</h3>
 <form method="POST" action="/delete-dataset">
     <div class="form-group">

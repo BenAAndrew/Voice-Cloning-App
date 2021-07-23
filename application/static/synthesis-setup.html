@@ -11,6 +11,15 @@
     </div>
     <br>
     <div class="form-group">
+        <label for="language">Language <a href="/settings">Add more</a></label>
+        <select class="form-control" id="language" name="language" required>
+            {% for language in languages %}
+                <option value="{{language}}">{{language}}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <br>
+    <div class="form-group">
         <h5>Vocoder</h5>
         <select class="form-control" id="vocoder" name="vocoder" onchange="selectVocoder()">
             <option value="hifigan">Hifi-gan</option>

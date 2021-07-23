@@ -1,77 +1,88 @@
+from abc import ABC, abstractmethod
 import argparse
-import torch
 import os
+
 import librosa
+import wave
+import numpy as np
+import deepspeech
+import torch
 import torchaudio  # noqa
 import omegaconf  # noqa
 
-model, device, decoder = None, None, None
+
+class TranscriptionModel(ABC):
+    @abstractmethod
+    def load_audio(self, path):
+        pass
+
+    @abstractmethod
+    def transcribe(self, path):
+        pass
 
 
-def load_audio(path):
+class DeepSpeech(TranscriptionModel):
     """
-    Loads the audio from a given path into a tensor for transcription.
-
-    Parameters
-    ----------
-    path : str
-        Path to audio file
-
-    Raises
-    -------
-    Exception
-        If the audio file could not be loaded
-    AssertionError
-        If the audio file was empty
+    Credit: https://github.com/mozilla/DeepSpeech
     """
-    try:
-        wav, _ = librosa.load(path, sr=16000)
-    except Exception:
-        raise Exception(f"Cannot load audio file {path}")
 
-    assert len(wav) > 0, f"{path} wav file is empty"
-    return torch.tensor([wav])
+    def __init__(self, model_path):
+        self.model = deepspeech.Model(model_path)
+
+    def load_audio(self, path):
+        try:
+            audio = wave.open(path, "r")
+        except Exception:
+            raise Exception(f"Cannot load audio file {path}")
+
+        frames = audio.getnframes()
+        buffer = audio.readframes(frames)
+        return np.frombuffer(buffer, dtype=np.int16)
+
+    def transcribe(self, path):
+        assert os.path.isfile(path), f"{path} not found. Cannot transcribe"
+
+        data = self.load_audio(path)
+        output = self.model.stt(data)
+        return output
 
 
-def transcribe(path):
+class Silero(TranscriptionModel):
     """
     Credit: https://github.com/snakers4/silero-models
-
-    Transcribes a given audio file.
-    Loads silero into a global variable to save time in future calls.
-
-    Parameters
-    ----------
-    path : str
-        Path to audio file
-
-    Raises
-    -------
-    Exception
-        If the audio file could not be loaded
-    AssertionError
-        If the audio file was not found or was empty
-
-    Returns
-    -------
-    str
-        Text transcription of audio file
     """
-    global model, device, decoder, read_batch, split_into_batches, prepare_model_input
-    assert os.path.isfile(path), f"{path} not found. Cannot transcribe"
 
-    if not model:
-        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        model, decoder, _ = torch.hub.load(
-            repo_or_dir="snakers4/silero-models", model="silero_stt", language="en", device=device
+    def __init__(self, language="en"):
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.model, self.decoder, _ = torch.hub.load(
+            repo_or_dir="snakers4/silero-models", model="silero_stt", language=language, device=self.device
         )
 
-    data = load_audio(path)
-    data = data.to(device)
-    output = model(data)
+    def load_audio(self, path):
+        try:
+            wav, _ = librosa.load(path, sr=16000)
+        except Exception:
+            raise Exception(f"Cannot load audio file {path}")
 
-    for example in output:
-        return decoder(example.cpu())
+        assert len(wav) > 0, f"{path} wav file is empty"
+        return torch.tensor([wav])
+
+    def transcribe(self, path):
+        assert os.path.isfile(path), f"{path} not found. Cannot transcribe"
+        data = self.load_audio(path)
+        data = data.to(self.device)
+        output = self.model(data)
+
+        for example in output:
+            return self.decoder(example.cpu())
+
+
+def create_transcription_model(model_path=None):
+    if model_path:
+        return DeepSpeech(model_path)
+    # If no model path, default to English Sliero
+    else:
+        return Silero()
 
 
 if __name__ == "__main__":

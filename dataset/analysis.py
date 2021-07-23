@@ -4,6 +4,9 @@ import re
 import librosa
 import json
 
+from dataset.clip_generator import CHARACTER_ENCODING
+
+
 ALLOWED_CHARACTERS_RE = re.compile("[^a-zA-Z ]+")
 
 
@@ -22,7 +25,7 @@ def get_text(metadata_file):
         All words in text file
     """
     text = []
-    with open(metadata_file, encoding="utf-8") as f:
+    with open(metadata_file, encoding=CHARACTER_ENCODING) as f:
         lines = f.readlines()
         for line in lines:
             line = re.sub(ALLOWED_CHARACTERS_RE, "", line.split("|")[1].lower().strip())

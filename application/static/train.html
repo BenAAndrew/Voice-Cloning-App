@@ -26,6 +26,14 @@
             </div>
         </div>
         <div class="form-group">
+            <label for="language">Language <a href="/settings">Add more</a></label>
+            <select class="form-control" id="language" name="language" required>
+                {% for language in languages %}
+                    <option value="{{language}}">{{language}}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
             <label for="pretrained_model"><a href="#" data-toggle="tooltip" data-placement="top" title="Using a pretrained model may reduce the number of required epochs and improve quality">Pretrained model</a> (recommended) <a href="https://drive.google.com/file/d/1c5ZTuT7J08wLUoVZ2KkUs_VdZuJ86ZqA/view">default</a></label>
             <input type="file" id="pretrained_model" name="pretrained_model"> 
         </div>
