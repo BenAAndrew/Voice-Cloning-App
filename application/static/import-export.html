@@ -35,8 +35,8 @@
         <input type="text" id="name" name="name" required> 
     </div>
     <div class="form-group">
-        <label for="model">Model (.pt)</label>
-        <input type="file" id="model" name="model" required> 
+        <label for="model_upload">Model (.pt)</label>
+        <input type="file" id="model_upload" name="model_upload" required> 
     </div>
     <input type="submit" class="btn btn-primary">
 </form>
@@ -59,14 +59,23 @@
 <hr>
 <h3>Export model</h3>
 <form method="POST" action="/download-model" enctype="multipart/form-data">
+    <h5>Voice</h5>
     <div class="form-group">
-        <select class="form-control" id="model" name="model">
+        <select class="form-control" id="model" name="model" onchange="selectModel()">
             {% for model in models %}
                 <option value="{{model}}">{{model}}</option>
             {% endfor %}
         </select>
     </div>
+    <div class="form-group">
+        <h5>Checkpoint</h5>
+        <select class="form-control" id="checkpoint" name="checkpoint" required></select>
+    </div>
     <input type="submit" class="btn btn-primary">
 </form>
 </div>
+<script>
+let checkpoints = {{ checkpoints|safe }};
+</script>
+<script src="{{ url_for('static', filename='synthesis.js') }}"></script>
 {% endblock %}

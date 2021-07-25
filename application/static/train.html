@@ -12,8 +12,8 @@
     {% if cuda_enabled %}
     <form method="POST" action="/train" enctype="multipart/form-data">
         <div class="form-group">
-            <label for="path">Dataset path</label>
-            <select class="form-control" id="path" name="path" onchange="showDatasetInfo()" required>
+            <label for="dataset">Dataset path</label>
+            <select class="form-control" id="dataset" name="dataset" onchange="showDatasetInfo()" required>
                 {% for dataset in datasets %}
                     <option value="{{dataset}}">{{dataset}}</option>
                 {% endfor %}

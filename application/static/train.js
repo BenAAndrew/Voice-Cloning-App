@@ -66,7 +66,7 @@ medium_dataset_threshold = 180 * 60;
 high_dataset_threshold = 300 * 60;
 
 function showDatasetInfo(){
-    datasetpath = document.getElementById("path").value;
+    datasetpath = document.getElementById("dataset").value;
     
     var xmlhttp = new XMLHttpRequest();
     xmlhttp.onreadystatechange = function() {

@@ -128,7 +128,7 @@ def create_dataset_post():
             min_confidence=min_confidence,
         )
     else:
-        output_folder = os.path.join(paths["datasets"], request.form["path"])
+        output_folder = os.path.join(paths["datasets"], request.form["dataset"])
         suffix = get_suffix()
         text_path = os.path.join(output_folder, f"text-{suffix}.txt")
         audio_path = os.path.join(output_folder, f"audio-{suffix}.mp3")
@@ -195,7 +195,7 @@ def get_train():
 def train_post():
     language = request.form["language"]
     alphabet_path = os.path.join(paths["languages"], language, ALPHABET_FILE) if language != ENGLISH_LANGUAGE else None
-    dataset_name = request.form["path"]
+    dataset_name = request.form["dataset"]
     epochs = request.form["epochs"]
     batch_size = request.form["batch_size"]
     early_stopping = request.form.get("early_stopping") is not None
@@ -282,7 +282,7 @@ def synthesis_setup_post():
     else:
         return render_template("synthesis-setup.html", error="Invalid vocoder selected")
 
-    dataset_name = request.form["path"]
+    dataset_name = request.form["model"]
     language = request.form["language"]
     alphabet_path = os.path.join(paths["languages"], language, ALPHABET_FILE)
     symbols = load_symbols(alphabet_path) if language != ENGLISH_LANGUAGE else DEFAULT_ALPHABET
@@ -333,7 +333,7 @@ def synthesis_post():
 @app.route("/import-export", methods=["GET"])
 def import_export():
     return render_template(
-        "import-export.html", datasets=os.listdir(paths["datasets"]), models=os.listdir(paths["models"])
+        "import-export.html", datasets=os.listdir(paths["datasets"]), models=os.listdir(paths["models"]), checkpoints=get_checkpoints()
     )
 
 
@@ -385,7 +385,7 @@ def upload_model():
     os.makedirs(model_directory, exist_ok=False)
 
     model_path = os.path.join(model_directory, "model.pt")
-    request.files["model"].save(model_path)
+    request.files["model_upload"].save(model_path)
 
     return render_template("import-export.html", message=f"Successfully uploaded {model_name} model")
 
@@ -393,9 +393,9 @@ def upload_model():
 @app.route("/download-model", methods=["POST"])
 def download_model():
     model_name = request.values["model"]
-    model_path = get_latest_checkpoint(os.path.join(paths["models"], model_name))
+    model_path = os.path.join(paths["models"], model_name, request.values["checkpoint"])
 
-    return send_file(model_path, as_attachment=True, attachment_filename=f'{model_name.replace(" ", "_")}.pt')
+    return send_file(model_path, as_attachment=True, attachment_filename=request.values["checkpoint"])
 
 
 # Settings
