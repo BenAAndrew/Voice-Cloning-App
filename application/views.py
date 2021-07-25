@@ -57,6 +57,16 @@ def get_languages():
     return [ENGLISH_LANGUAGE] + os.listdir(paths["languages"])
 
 
+def get_checkpoints():
+    # Checkpoints ordered by name (i.e. checkpoint_0, checkpoint_1000 etc.)
+    return {
+        model: sorted(
+            os.listdir(os.path.join(paths["models"], model)), key=lambda name: name.split("_")[1] if "_" in name else 0
+        )
+        for model in os.listdir(paths["models"])
+    }
+
+
 @app.errorhandler(Exception)
 def handle_bad_request(e):
     error = {"type": e.__class__.__name__, "text": str(e), "stacktrace": traceback.format_exc()}
@@ -231,6 +241,7 @@ def get_synthesis_setup():
         waveglow_models=os.listdir(paths["waveglow"]),
         hifigan_models=os.listdir(paths["hifigan"]),
         models=os.listdir(paths["models"]),
+        checkpoints=get_checkpoints(),
         languages=get_languages(),
     )
 
@@ -276,7 +287,7 @@ def synthesis_setup_post():
     alphabet_path = os.path.join(paths["languages"], language, ALPHABET_FILE)
     symbols = load_symbols(alphabet_path) if language != ENGLISH_LANGUAGE else DEFAULT_ALPHABET
     checkpoint_folder = os.path.join(paths["models"], dataset_name)
-    checkpoint = get_latest_checkpoint(checkpoint_folder)
+    checkpoint = os.path.join(checkpoint_folder, request.form["checkpoint"])
     model = load_model(checkpoint)
     return redirect("/synthesis")
 
