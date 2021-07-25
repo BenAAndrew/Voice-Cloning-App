@@ -187,6 +187,7 @@ def get_train():
         cuda_enabled=cuda_enabled,
         batch_size=batch_size,
         datasets=os.listdir(paths["datasets"]),
+        checkpoints=get_checkpoints(),
         languages=get_languages(),
     )
 
@@ -202,6 +203,7 @@ def train_post():
     iters_per_checkpoint = request.form["checkpoint_frequency"]
     overwrite_checkpoints = request.form.get("overwrite_checkpoints") is not None
     multi_gpu = request.form.get("multi_gpu") is not None
+    checkpoint_path = os.path.join(paths["models"], dataset_name, request.form["checkpoint"]) if request.form["checkpoint"] else None
 
     metadata_path = os.path.join(paths["datasets"], dataset_name, METADATA_FILE)
     audio_folder = os.path.join(paths["datasets"], dataset_name, AUDIO_FOLDER)
@@ -221,6 +223,7 @@ def train_post():
         dataset_directory=audio_folder,
         output_directory=checkpoint_folder,
         alphabet_path=alphabet_path,
+        checkpoint_path=checkpoint_path,
         transfer_learning_path=transfer_learning_path,
         epochs=int(epochs),
         batch_size=int(batch_size),

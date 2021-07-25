@@ -25,6 +25,10 @@
                 <span id="dataset_label"></span>
             </div>
         </div>
+        <div class="form-group" id="checkpoint_field">
+            <label for="checkpoint">Checkpoint</label>
+            <select class="form-control" id="checkpoint" name="checkpoint" required></select>
+        </div>
         <div class="form-group">
             <label for="language">Language <a href="/settings">Add more</a></label>
             <select class="form-control" id="language" name="language" required>
@@ -81,6 +85,9 @@
         <br>
         <input type="submit" class="btn btn-primary">
     </form>
+    <script>
+    let checkpoints = {{ checkpoints|safe }};
+    </script>
     <script src="{{ url_for('static', filename='advanced.js') }}"></script>
     <script src="{{ url_for('static', filename='train.js') }}"></script>
     {% else %}
@@ -108,5 +115,4 @@
     <b>2. Follow the steps in the training notebook</b>
     <a class="btn btn-success" href="https://colab.research.google.com/drive/1hWumSuaZjommzkhyGKpxrm_KBSJAY68q?usp=sharing" target="_blank">Open notebook</a>
 </div>
-
 {% endblock %}

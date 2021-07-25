@@ -60,6 +60,28 @@ function showEpochsLabel(){
 document.getElementById("pretrained_model").addEventListener("change", showEpochsLabel, false);
 showEpochsLabel();
 
+// Checkpoints
+function showCheckpoints(dataset){
+    if(dataset in checkpoints){
+        select = document.getElementById("checkpoint");
+        // Delete options
+        for (i = select.options.length-1; i >= 0; i--) {
+            select.options[i] = null;
+        }
+        matching_checkpoints = checkpoints[dataset];
+        // Add checkpoint options
+        for (i = 0; i < matching_checkpoints.length; i++) {
+            option = document.createElement("option");
+            option.value = matching_checkpoints[i];
+            option.text = matching_checkpoints[i];
+            select.appendChild(option);
+        }
+        document.getElementById("checkpoint_field").style.display = "block";
+    } else {
+        document.getElementById("checkpoint_field").style.display = "none";
+    }
+}
+
 // Dataset
 low_dataset_threshold = 60 * 60;
 medium_dataset_threshold = 180 * 60;
@@ -88,6 +110,7 @@ function showDatasetInfo(){
                 document.getElementById("dataset_label").innerHTML = text;
             }
             estimateTime();
+            showCheckpoints(datasetpath);
         }
     };
     xmlhttp.open("GET", "/dataset-duration?dataset="+datasetpath, true);
