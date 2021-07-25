@@ -21,7 +21,7 @@ from dataset.clip_generator import CHARACTER_ENCODING
 from dataset.extend_existing_dataset import extend_existing_dataset
 from dataset.analysis import get_total_audio_duration, validate_dataset
 from dataset.transcribe import create_transcription_model
-from training.train import train
+from training.train import train, DEFAULT_ALPHABET
 from training.checkpoint import get_latest_checkpoint
 from training.utils import get_available_memory, get_batch_size, load_symbols
 from synthesis.synthesize import load_model, synthesize
@@ -274,7 +274,7 @@ def synthesis_setup_post():
     dataset_name = request.form["path"]
     language = request.form["language"]
     alphabet_path = os.path.join(paths["languages"], language, ALPHABET_FILE)
-    symbols = load_symbols(alphabet_path)
+    symbols = load_symbols(alphabet_path) if language != ENGLISH_LANGUAGE else DEFAULT_ALPHABET
     checkpoint_folder = os.path.join(paths["models"], dataset_name)
     checkpoint = get_latest_checkpoint(checkpoint_folder)
     model = load_model(checkpoint)
