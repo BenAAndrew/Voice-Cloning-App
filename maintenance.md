@@ -20,6 +20,12 @@ Run this command from the root of the project.
 
 This will add the executable to the `dist` folder.
 
+## Unit tests
+To run the unit tests you will need to download the [Test samples zip](https://drive.google.com/file/d/1CJpYcwoQ9zNA8f9gLpNxEijT9yKTqdcT/view?usp=sharing) and extract to a directory called `test_samples` within the project.
+You will also need to install `pytest`.
+
+You can then run tests with the command `pytest`.
+
 ## Project Structure
 - [Application](#application)
 - [Dataset](#dataset)
@@ -72,5 +78,3 @@ Found in `train.py` it add a few additions the existing project did not have:
 The synthsis script implements https://github.com/NVIDIA/waveglow and https://github.com/jik876/hifi-gan, either of which can be selected.
 
 The synthesis process is implemented in `synthesize.py`. It firstly loads the feature predictor model (from training) and a pretrained vocoder model (waveglow/hifi-gan). It then cleans the text and infers the results. Audio & an alignment graph can be produced from this.
-
-In the app `synonyms.py` is also used to suggest synonyms for words using the `nltk` library.

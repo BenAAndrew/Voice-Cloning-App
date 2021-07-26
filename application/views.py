@@ -22,12 +22,10 @@ from dataset.extend_existing_dataset import extend_existing_dataset
 from dataset.analysis import get_total_audio_duration, validate_dataset
 from dataset.transcribe import create_transcription_model
 from training.train import train, DEFAULT_ALPHABET
-from training.checkpoint import get_latest_checkpoint
 from training.utils import get_available_memory, get_batch_size, load_symbols
 from synthesis.synthesize import load_model, synthesize
 from synthesis.waveglow import load_waveglow_model
 from synthesis.hifigan import load_hifigan_model
-from synthesis.synonyms import get_alternative_word_suggestions
 
 from flask import redirect, render_template, request, send_file
 
@@ -62,7 +60,7 @@ def get_checkpoints():
     return {
         model: sorted(
             os.listdir(os.path.join(paths["models"], model)),
-            key=lambda name: int(name.split("_")[1]) if "_" in name else 0,
+            key=lambda name: int(name.split("_")[1]) if "_" in name and name.split("_")[1].isdigit() else 0,
             reverse=True,
         )
         for model in os.listdir(paths["models"])
@@ -330,7 +328,6 @@ def synthesis_post():
         return render_template(
             "synthesis.html",
             text=text.strip(),
-            alertnative_words=get_alternative_word_suggestions(text),
             graph=graph_web_path,
             audio=audio_web_path,
         )
