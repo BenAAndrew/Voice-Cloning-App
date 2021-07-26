@@ -21,6 +21,41 @@
 </form>
 <hr>
 
+<h3>Add a vocoder</h3>
+<form method="POST" action="/add-vocoder" enctype="multipart/form-data">
+    <div class="form-group">
+        <label for="vocoder">Vocoder type</label>
+        <select class="form-control" id="vocoder" name="vocoder" onchange="selectVocoderType()">
+            <option value="hifigan">Hifi-gan</option>
+            <option value="waveglow">Waveglow</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="name">Name</label>
+        <input type="text" id="name" name="name" required>
+    </div>
+    <div id="hifigan-fields">
+        <p>If you don't have one: <a href="https://drive.google.com/drive/folders/1YuOoV3lO2-Hhn1F2HJ2aQ4S0LC1JdKLd">Download pretrained (use 'g_' model)</a></p>
+        <div class="form-group">
+            <label for="hifigan-model">Hifi-gan model</label>
+            <input type="file" id="hifigan-model" name="hifigan-model">
+        </div>
+        <div class="form-group">
+            <label for="hifigan-config">Hifi-gan config</label>
+            <input type="file" id="hifigan-config" name="hifigan-config">
+        </div>
+    </div>
+    <div id="waveglow-fields">
+        <p>If you don't have one: <a href="https://drive.google.com/file/d/1rpK8CzAAirq9sWZhe9nlfvxMF1dRgFbF/view">Download pretrained</a></p>
+        <div class="form-group">
+            <label for="waveglow">Waveglow</label>
+            <input type="file" id="waveglow" name="waveglow">
+        </div>
+    </div>
+    <input type="submit" class="btn btn-primary">
+</form>
+<hr>
+
 <h3>Delete dataset</h3>
 <form method="POST" action="/delete-dataset">
     <div class="form-group">
@@ -45,4 +80,6 @@
     </div>
     <input type="submit" class="btn btn-primary">
 </form>
+
+<script src="{{ url_for('static', filename='settings.js') }}"></script>
 {% endblock %}

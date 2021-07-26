@@ -2,7 +2,7 @@
 {% block content %}
 <form method="POST" action="/synthesis-setup" enctype="multipart/form-data">
     <div class="form-group">
-        <h5>Model</h5>
+        <label for="model">Model</label>
         <select class="form-control" id="model" name="model" onchange="selectModel()" required>
             {% for model in models %}
                 <option value="{{model}}">{{model}}</option>
@@ -11,12 +11,12 @@
     </div>
     <br>
     <div class="form-group">
-        <h5>Checkpoint</h5>
+        <label for="checkpoint">Checkpoint</label>
         <select class="form-control" id="checkpoint" name="checkpoint" required></select>
     </div>
     <br>
     <div class="form-group">
-        <h5 for="language">Language</h5><a href="/settings">Add more</a>
+        <label for="language">Language <a href="/settings">Add more</a></label>
         <select class="form-control" id="language" name="language" required>
             {% for language in languages %}
                 <option value="{{language}}">{{language}}</option>
@@ -25,54 +25,21 @@
     </div>
     <br>
     <div class="form-group">
-        <h5>Vocoder</h5>
-        <select class="form-control" id="vocoder" name="vocoder" onchange="selectVocoder()">
+        <label for="vocoder_type">Vocoder <a href="/settings">Add more</a></label>
+        <select class="form-control" id="vocoder_type" name="vocoder_type" onchange="selectVocoder()">
             <option value="hifigan">Hifi-gan</option>
             <option value="waveglow">Waveglow</option>
         </select>
-    </div>
-    <div id="hifigan-fields">
-        <div class="form-group">
-            <h5>Hifi-gan model</h5>
-            <p>If you don't have one: <a href="https://drive.google.com/drive/folders/1YuOoV3lO2-Hhn1F2HJ2aQ4S0LC1JdKLd">Download pretrained (pick 'g_' model)</a></p>
-            <input type="file" name="hifigan-model">
-        </div>
-        <div class="form-group">
-            <h5>Hifi-gan config</h5>
-            <input type="file" name="hifigan-config">
-        </div>
-        {% if hifigan_models %}
-            <div class="form-group">
-                Or
-                <select class="form-control" name="existing_hifigan">
-                    {% for model in hifigan_models %}
-                        <option value="{{model}}">{{model}}</option>
-                    {% endfor %}
-                </select>
-            </div>
-        {% endif %}
-    </div>
-    <div id="waveglow-fields">
-        <div class="form-group">
-            <h5>Waveglow model</h5>
-            <p>If you don't have one: <a href="https://drive.google.com/file/d/1rpK8CzAAirq9sWZhe9nlfvxMF1dRgFbF/view">Download pretrained</a></p>
-            <input type="file" id="waveglow" name="waveglow">
-        </div>
-        {% if waveglow_models %}
-            <div class="form-group">
-                Or
-                <select class="form-control" id="existing_waveglow" name="existing_waveglow">
-                    {% for model in waveglow_models %}
-                        <option value="{{model}}">{{model}}</option>
-                    {% endfor %}
-                </select>
-            </div>
-        {% endif %}
+        <br>
+        <select class="form-control" id="vocoder" name="vocoder">
+        </select>
     </div>
     <input type="submit" class="btn btn-primary">
 </form>
 <script>
 let checkpoints = {{ checkpoints|safe }};
+let hifigan_models = {{ hifigan_models|safe }};
+let waveglow_models = {{ waveglow_models|safe }};
 </script>
 <script src="{{ url_for('static', filename='synthesis.js') }}"></script>
 {% endblock %}

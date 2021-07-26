@@ -254,35 +254,14 @@ def get_synthesis_setup():
 @app.route("/synthesis-setup", methods=["POST"])
 def synthesis_setup_post():
     global model, vocoder, vocoder_type, symbols
-
-    vocoder_type = request.form["vocoder"]
+    vocoder_type = request.form["vocoder_type"]
     if vocoder_type == "hifigan":
-        if request.files.get("hifigan-model") and request.files.get("hifigan-config"):
-            model_name = request.files["hifigan-model"].filename.split(".")[0]
-            model_config = request.files["hifigan-config"].filename.split(".")[0]
-            hifigan_folder = os.path.join(paths["hifigan"], model_name + "-" + model_config)
-            os.makedirs(hifigan_folder, exist_ok=False)
-            model_path = os.path.join(hifigan_folder, "model.pt")
-            model_config_path = os.path.join(hifigan_folder, "config.json")
-            request.files["hifigan-model"].save(model_path)
-            request.files["hifigan-config"].save(model_config_path)
-        elif request.form.get("existing_hifigan"):
-            hifigan_folder = os.path.join(paths["hifigan"], request.form["existing_hifigan"])
-            model_path = os.path.join(hifigan_folder, "model.pt")
-            model_config_path = os.path.join(hifigan_folder, "config.json")
-        else:
-            return render_template("synthesis-setup.html", error="No hifigan model chosen")
-
+        hifigan_folder = os.path.join(paths["hifigan"], request.form["vocoder"])
+        model_path = os.path.join(hifigan_folder, "model.pt")
+        model_config_path = os.path.join(hifigan_folder, "config.json")
         vocoder = load_hifigan_model(model_path, model_config_path)
     elif vocoder_type == "waveglow":
-        if request.files.get("waveglow"):
-            model_path = os.path.join(paths["waveglow"], request.files["waveglow"].filename)
-            request.files["waveglow"].save(model_path)
-        elif request.form.get("existing_waveglow"):
-            model_path = os.path.join(paths["waveglow"], request.form["existing_waveglow"])
-        else:
-            return render_template("synthesis-setup.html", error="No waveglow model chosen")
-
+        model_path = os.path.join(paths["waveglow"], request.form["vocoder"])
         vocoder = load_waveglow_model(model_path)
     else:
         return render_template("synthesis-setup.html", error="Invalid vocoder selected")
@@ -434,4 +413,23 @@ def upload_language():
     os.makedirs(language_dir, exist_ok=True)
     request.files["model"].save(os.path.join(language_dir, TRANSCRIPTION_MODEL))
     request.files["alphabet"].save(os.path.join(language_dir, ALPHABET_FILE))
+    return redirect("/settings")
+
+
+@app.route("/add-vocoder", methods=["POST"])
+def add_vocoder():
+    vocoder_type = request.values["vocoder"]
+    name = request.values["name"]
+
+    if vocoder_type == "hifigan":
+        hifigan_folder = os.path.join(paths["hifigan"], name)
+        os.makedirs(hifigan_folder)
+        model_path = os.path.join(hifigan_folder, "model.pt")
+        model_config_path = os.path.join(hifigan_folder, "config.json")
+        request.files["hifigan-model"].save(model_path)
+        request.files["hifigan-config"].save(model_config_path)
+    else:
+        model_path = os.path.join(paths["waveglow"], name+".pt")
+        request.files["waveglow"].save(model_path)
+
     return redirect("/settings")
