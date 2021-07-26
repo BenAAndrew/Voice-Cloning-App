@@ -4,15 +4,14 @@ import json
 from pathlib import Path
 import json
 
-from tests import download_if_not_exists
 from dataset.analysis import get_total_audio_duration, validate_dataset
-from dataset.clip_generator import get_filename, extend_dataset
+from dataset.clip_generator import get_filename
 from dataset.create_dataset import create_dataset
+from dataset.extend_existing_dataset import extend_existing_dataset
 from dataset.forced_alignment.search import similarity
 from dataset.transcribe import create_transcription_model, TranscriptionModel, DeepSpeech, Silero
 
 
-ENGLISH_MODEL_ID = "1MMyNfje9WZ7_Zu3SaPUnq_QKQTQrLOvY"
 TEXT = "the examination and testimony of the experts enabled the commission to conclude that five shots may have been fired"
 EXPECTED_CLIPS = {
     "0_2730.wav": "the examination and testimony of the experts",
@@ -32,9 +31,9 @@ class FakeTranscriptionModel(TranscriptionModel):
 
 # Dataset creation
 def test_create_dataset():
-    audio_path = os.path.join("tests", "files", "audio.wav")
-    converted_audio_path = os.path.join("tests", "files", "audio-converted.wav")
-    text_path = os.path.join("tests", "files", "text.txt")
+    audio_path = os.path.join("test_samples", "audio.wav")
+    converted_audio_path = os.path.join("test_samples", "audio-converted.wav")
+    text_path = os.path.join("test_samples", "text.txt")
     dataset_directory = "test-dataset"
     forced_alignment_path = os.path.join(dataset_directory, "align.json")
     output_directory = os.path.join(dataset_directory, "wavs")
@@ -77,7 +76,7 @@ def test_create_dataset():
 
 
 # Extend dataset
-def test_extend_dataset():
+def test_extend_existing_dataset():
     dataset_directory = "test-dataset"
     audio_folder = os.path.join(dataset_directory, "wavs")
     metadata_file = os.path.join(dataset_directory, "metadata.csv")
@@ -86,19 +85,22 @@ def test_extend_dataset():
     with open(metadata_file, "w") as f:
         pass
 
-    audio_path = os.path.join("tests", "files", "audio.wav")
-    text_path = os.path.join("tests", "files", "text.txt")
+    audio_path = os.path.join("test_samples", "audio.wav")
+    converted_audio_path = os.path.join("test_samples", "audio-converted.wav")
+    text_path = os.path.join("test_samples", "text.txt")
     forced_alignment_path = os.path.join(dataset_directory, "align.json")
     label_path = os.path.join(dataset_directory, "metadata.csv")
+    info_path = os.path.join(dataset_directory, "info.json")
     suffix = "extend"
-    extend_dataset(
+    extend_existing_dataset(
+        text_path=text_path,
         audio_path=audio_path,
-        script_path=text_path,
         transcription_model=FakeTranscriptionModel(),
         forced_alignment_path=forced_alignment_path,
         output_path=audio_folder,
         label_path=label_path,
         suffix=suffix,
+        info_path=info_path
     )
 
     assert os.listdir(audio_folder) == [name.split('.')[0]+"-"+suffix+".wav" for name in EXPECTED_CLIPS.keys()], "Unexpected audio clips"
@@ -108,6 +110,7 @@ def test_extend_dataset():
         expected_text = [f"{name.split('.')[0]}-{suffix}.wav|{text}\n" for name, text in EXPECTED_CLIPS.items()]
         assert lines == expected_text, "Unexpected metadata contents"
 
+    os.remove(converted_audio_path)
     shutil.rmtree(dataset_directory)
 
 
@@ -118,7 +121,7 @@ def test_get_filename():
 
 # Analysis
 def test_get_total_audio_duration():
-    info_path = os.path.join("tests", "files", "info.json")
+    info_path = os.path.join("test_samples", "info.json")
     duration, total_clips = get_total_audio_duration(info_path)
     assert duration == 10000
     assert total_clips == 100
@@ -155,11 +158,10 @@ def test_validate_dataset():
 # Transcription
 def test_deepspeech():
     model_path = os.path.join("test_samples", "english.pbmm")
-    download_if_not_exists(model_path, ENGLISH_MODEL_ID)
     deepspeech = create_transcription_model(model_path)
     assert isinstance(deepspeech, DeepSpeech)
 
-    audio_path = os.path.join("tests", "files", "audio.wav")
+    audio_path = os.path.join("test_samples", "audio.wav")
     transcription = deepspeech.transcribe(audio_path)
     assert similarity(TEXT, transcription) > 0.5
 
@@ -168,6 +170,6 @@ def test_silero():
     silero = create_transcription_model()
     assert isinstance(silero, Silero)
 
-    audio_path = os.path.join("tests", "files", "audio.wav")
+    audio_path = os.path.join("test_samples", "audio.wav")
     transcription = silero.transcribe(audio_path)
     assert similarity(TEXT, transcription) > 0.5

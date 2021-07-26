@@ -1,11 +1,11 @@
-version: 2
+version: 2.1
+orbs:
+  codecov: codecov/codecov@1.2.5
 jobs:
   build:
     docker:
       - image: circleci/python:3.6
-
     working_directory: ~/repo
-
     steps:
       - checkout
       - run: sudo chown -R circleci:circleci /usr/local/bin
@@ -17,22 +17,25 @@ jobs:
           key: deps-{{ .Environment.CIRCLE_BRANCH }}-{{ .Environment.CACHE_VERSION }}
       - run:
           name: Install dependencies
-          command: sudo pip install -r requirements.txt
+          command: sudo pip install -r requirements-cpu.txt
       - run:
           name: Install pytest
           command: sudo pip install pytest==6.2.2
       - run:
-          name: Install google drive downloader
-          command: sudo pip install googledrivedownloader==0.4
+          name: Install gdown
+          command: sudo pip install gdown==3.13.0
       - run:
-          name: Install code coverage
+          name: Install pytest-cov
           command: sudo pip install pytest-cov==2.12.1
       - run:
-          name: Tests
-          command: pytest -k "not waveglow" --cov=./
+          name: Download resources
+          command: gdown https://drive.google.com/uc?id=1CJpYcwoQ9zNA8f9gLpNxEijT9yKTqdcT && unzip test_samples.zip -d test_samples && ls test_samples/
       - save_cache:
-          key: deps-{{ .Environment.CACHE_VERSION }}
+          key: deps-{{ .Environment.CIRCLE_BRANCH }}-{{ .Environment.CACHE_VERSION }}
           paths:
             - "/usr/local/bin"
             - "/usr/local/lib/python3.6/site-packages"
-            - "test_samples"
+      - run:
+          name: Tests
+          command: pytest -k "not waveglow" --cov=./ --cov-config=.coveragerc
+      - codecov/upload
