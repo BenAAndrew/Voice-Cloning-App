@@ -21,6 +21,9 @@ jobs:
       - run:
           name: Install pytest
           command: sudo pip install pytest==6.2.2
+      - run:
+          name: Install google drive downloader
+          command: sudo pip install googledrivedownloader==0.4
       - save_cache:
           key: deps-{{ .Environment.CACHE_VERSION }}
           paths:
@@ -28,4 +31,4 @@ jobs:
             - "/usr/local/lib/python3.6/site-packages"
       - run:
           name: Tests
-          command: pytest -k "not test_synthesis"
+          command: pytest
