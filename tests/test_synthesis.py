@@ -8,6 +8,9 @@ from synthesis.waveglow import load_waveglow_model
 from synthesis.hifigan import load_hifigan_model
 
 
+MIN_SYNTHESIS_SCORE = 0.3
+
+
 def test_waveglow_synthesis():
     model_path = os.path.join("test_samples", "model.pt")
     waveglow_path = os.path.join("test_samples", "waveglow_256channels_universal_v5.pt")
@@ -27,7 +30,7 @@ def test_waveglow_synthesis():
 
     assert os.path.isfile(graph_path)
     assert os.path.isfile(audio_path)
-    assert similarity(text, transcription_model.transcribe(audio_path)) > 0.5
+    assert similarity(text, transcription_model.transcribe(audio_path)) > MIN_SYNTHESIS_SCORE
 
     os.remove(graph_path)
     os.remove(audio_path)
@@ -53,7 +56,7 @@ def test_hifigan_synthesis():
 
     assert os.path.isfile(graph_path)
     assert os.path.isfile(audio_path)
-    assert similarity(text, transcription_model.transcribe(audio_path)) > 0.5
+    assert similarity(text, transcription_model.transcribe(audio_path)) > MIN_SYNTHESIS_SCORE
 
     os.remove(graph_path)
     os.remove(audio_path)

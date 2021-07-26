@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 import json
 
+from tests.test_synthesis import MIN_SYNTHESIS_SCORE
 from dataset.analysis import get_total_audio_duration, validate_dataset
 from dataset.clip_generator import get_filename
 from dataset.create_dataset import create_dataset
@@ -163,7 +164,7 @@ def test_deepspeech():
 
     audio_path = os.path.join("test_samples", "audio.wav")
     transcription = deepspeech.transcribe(audio_path)
-    assert similarity(TEXT, transcription) > 0.5
+    assert similarity(TEXT, transcription) > MIN_SYNTHESIS_SCORE
 
 
 def test_silero():
@@ -172,4 +173,4 @@ def test_silero():
 
     audio_path = os.path.join("test_samples", "audio.wav")
     transcription = silero.transcribe(audio_path)
-    assert similarity(TEXT, transcription) > 0.5
+    assert similarity(TEXT, transcription) > MIN_SYNTHESIS_SCORE
