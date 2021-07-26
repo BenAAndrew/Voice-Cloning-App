@@ -26,7 +26,7 @@ jobs:
           command: sudo pip install googledrivedownloader==0.4 gdown==3.13.0
       - run:
           name: Download resources
-          command: gdown https://drive.google.com/uc?id=1XRVE31lJ7-CfcVUwlTDcRY6nIelHT8WD && unzip test_samples.zip && ls test_samples/
+          command: gdown https://drive.google.com/uc?id=1XRVE31lJ7-CfcVUwlTDcRY6nIelHT8WD && unzip test_samples.zip -d test_samples && ls test_samples/
       - run:
           name: Install code coverage
           command: sudo pip install pytest-cov==2.12.1
