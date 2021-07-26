@@ -4,15 +4,11 @@ import random
 from string import ascii_lowercase
 from unittest import mock
 
-from tests import download_if_not_exists
 from dataset.clip_generator import CHARACTER_ENCODING
 from training.clean_text import clean_text
 from training.dataset import VoiceDataset
 from training.train import DEFAULT_ALPHABET
 from training.utils import check_space, load_symbols, CHECKPOINT_SIZE_MB, PUNCTUATION
-
-
-ALPHABET_FILE_ID = "1WzBbC0wUJWYNXKVk9TeJTZ4yOfHEE2_n"
 
 
 # Clean text
@@ -25,8 +21,8 @@ def test_clean_text():
 def test_voice_dataset():
     random.seed(1234)
 
-    metadata_path = os.path.join("tests", "files", "dataset", "metadata.csv")
-    audio_directory = os.path.join("tests", "files", "dataset", "wavs")
+    metadata_path = os.path.join("test_samples", "dataset", "metadata.csv")
+    audio_directory = os.path.join("test_samples", "dataset", "wavs")
     with open(metadata_path, encoding=CHARACTER_ENCODING) as f:
         filepaths_and_text = [line.strip().split("|") for line in f]
     
@@ -39,10 +35,8 @@ def test_voice_dataset():
 
 # Symbols
 def test_load_symbols():
-    alhpabet_path = os.path.join("test_samples", "english.txt")
-    download_if_not_exists(alhpabet_path, ALPHABET_FILE_ID)
-
-    symbols = set(load_symbols(alhpabet_path))
+    alphabet_path = os.path.join("test_samples", "english.txt")
+    symbols = set(load_symbols(alphabet_path))
     assert set(ascii_lowercase).issubset(symbols)
     assert set(PUNCTUATION).issubset(symbols)
 

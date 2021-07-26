@@ -23,19 +23,19 @@ jobs:
           command: sudo pip install pytest==6.2.2
       - run:
           name: Install google drive downloader
-          command: sudo pip install googledrivedownloader==0.4 gdown==3.13.0
-      - run:
-          name: Download resources
-          command: gdown https://drive.google.com/uc?id=1XRVE31lJ7-CfcVUwlTDcRY6nIelHT8WD && unzip test_samples.zip -d test_samples && ls test_samples/
+          command: sudo pip install gdown==3.13.0
       - run:
           name: Install code coverage
           command: sudo pip install pytest-cov==2.12.1
       - run:
-          name: Tests
-          command: pytest -k "not waveglow" --cov=./
+          name: Download resources
+          command: gdown https://drive.google.com/uc?id=1CJpYcwoQ9zNA8f9gLpNxEijT9yKTqdcT && unzip test_samples.zip -d test_samples && ls test_samples/
       - save_cache:
           key: deps-{{ .Environment.CACHE_VERSION }}
           paths:
             - "/usr/local/bin"
             - "/usr/local/lib/python3.6/site-packages"
-            - "test_samples"
+      - run:
+          name: Tests
+          command: pytest -k "not waveglow" --cov=./
+
