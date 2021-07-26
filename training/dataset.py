@@ -40,7 +40,7 @@ class VoiceDataset(torch.utils.data.Dataset):
     3) computes mel-spectrograms from audio files.
     """
 
-    def __init__(self, filepaths_and_text, dataset_path, symbols, seed):
+    def __init__(self, filepaths_and_text, dataset_path, symbols):
         self.filepaths_and_text = filepaths_and_text
         self.dataset_path = dataset_path
         self.inflect_engine = inflect.engine()

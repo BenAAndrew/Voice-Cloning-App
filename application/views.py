@@ -61,7 +61,9 @@ def get_checkpoints():
     # Checkpoints ordered by name (i.e. checkpoint_0, checkpoint_1000 etc.)
     return {
         model: sorted(
-            os.listdir(os.path.join(paths["models"], model)), key=lambda name: name.split("_")[1] if "_" in name else 0
+            os.listdir(os.path.join(paths["models"], model)),
+            key=lambda name: int(name.split("_")[1]) if "_" in name else 0,
+            reverse=True,
         )
         for model in os.listdir(paths["models"])
     }
@@ -203,7 +205,9 @@ def train_post():
     iters_per_checkpoint = request.form["checkpoint_frequency"]
     overwrite_checkpoints = request.form.get("overwrite_checkpoints") is not None
     multi_gpu = request.form.get("multi_gpu") is not None
-    checkpoint_path = os.path.join(paths["models"], dataset_name, request.form["checkpoint"]) if request.form["checkpoint"] else None
+    checkpoint_path = (
+        os.path.join(paths["models"], dataset_name, request.form["checkpoint"]) if request.form["checkpoint"] else None
+    )
 
     metadata_path = os.path.join(paths["datasets"], dataset_name, METADATA_FILE)
     audio_folder = os.path.join(paths["datasets"], dataset_name, AUDIO_FOLDER)
@@ -336,7 +340,10 @@ def synthesis_post():
 @app.route("/import-export", methods=["GET"])
 def import_export():
     return render_template(
-        "import-export.html", datasets=os.listdir(paths["datasets"]), models=os.listdir(paths["models"]), checkpoints=get_checkpoints()
+        "import-export.html",
+        datasets=os.listdir(paths["datasets"]),
+        models=os.listdir(paths["models"]),
+        checkpoints=get_checkpoints(),
     )
 
 

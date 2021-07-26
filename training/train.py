@@ -133,8 +133,8 @@ def train(
     print(f"{len(train_files)} train files, {len(test_files)} test files")
 
     symbols = load_symbols(alphabet_path) if alphabet_path else DEFAULT_ALPHABET
-    trainset = VoiceDataset(train_files, dataset_directory, symbols, SEED)
-    valset = VoiceDataset(test_files, dataset_directory, symbols, SEED)
+    trainset = VoiceDataset(train_files, dataset_directory, symbols)
+    valset = VoiceDataset(test_files, dataset_directory, symbols)
     collate_fn = TextMelCollate()
 
     # Data loaders

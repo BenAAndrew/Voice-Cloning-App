@@ -14,6 +14,7 @@ matplotlib.use("Agg")
 import glow  # noqa
 from training.tacotron2_model import Tacotron2
 from training.clean_text import clean_text
+from training.train import DEFAULT_ALPHABET
 from synthesis.waveglow import load_waveglow_model, generate_audio_waveglow
 from synthesis.hifigan import load_hifigan_model, generate_audio_hifigan
 
@@ -78,7 +79,7 @@ def text_to_sequence(text, symbols):
         return torch.autograd.Variable(torch.from_numpy(sequence)).cpu().long()
 
 
-def synthesize(model, text, inflect_engine, symbols, graph=None, audio=None, vocoder=None, vocoder_type=None):
+def synthesize(model, text, inflect_engine, symbols=DEFAULT_ALPHABET, graph=None, audio=None, vocoder=None, vocoder_type=None):
     """
     Synthesise text for a given model.
     Produces graph and/or audio file when given.
@@ -92,7 +93,7 @@ def synthesize(model, text, inflect_engine, symbols, graph=None, audio=None, voc
     inflect_engine : Inflect
         Inflect.engine() object
     symbols : list
-        List of symbols
+        List of symbols (default is English)
     graph : str (optional)
         Path to save alignment graph to
     audio : str (optional)

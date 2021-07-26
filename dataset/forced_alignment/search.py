@@ -61,57 +61,6 @@ class FuzzySearch(object):
                 ngram_bucket = self.ngrams[ngram] = []
             ngram_bucket.append(i)
 
-    @staticmethod
-    def char_pair(a, b):
-        if a > b:
-            a, b = b, a
-        return "" + a + b
-
-    def char_similarity(self, a, b):
-        key = FuzzySearch.char_pair(a, b)
-        if self.char_similarities and key in self.char_similarities:
-            return self.char_similarities[key]
-        return self.match_score if a == b else self.mismatch_score
-
-    # def sw_align(self, a, start, end):
-    #     b = self.text[start:end]
-    #     n, m = len(a), len(b)
-    #     # building scoring matrix
-    #     f = [[0]] * (n + 1)
-    #     for i in range(0, n + 1):
-    #         f[i] = [0] * (m + 1)
-    #     for i in range(1, n + 1):
-    #         f[i][0] = self.gap_score * i
-    #     for j in range(1, m + 1):
-    #         f[0][j] = self.gap_score * j
-    #     max_score = 0
-    #     start_i, start_j = 0, 0
-    #     for i in range(1, n + 1):
-    #         for j in range(1, m + 1):
-    #             match = f[i - 1][j - 1] + self.char_similarity(a[i - 1], b[j - 1])
-    #             insert = f[i][j - 1] + self.gap_score
-    #             delete = f[i - 1][j] + self.gap_score
-    #             score = max(0, match, insert, delete)
-    #             f[i][j] = score
-    #             if score > max_score:
-    #                 max_score = score
-    #                 start_i, start_j = i, j
-    #     # backtracking
-    #     i, j = start_i, start_j
-    #     while (j > 0 or i > 0) and f[i][j] != 0:
-    #         if i > 0 and j > 0 and f[i][j] == (f[i - 1][j - 1] + self.char_similarity(a[i - 1], b[j - 1])):
-    #             i, j = i - 1, j - 1
-    #         elif i > 0 and f[i][j] == (f[i - 1][j] + self.gap_score):
-    #             i -= 1
-    #         elif j > 0 and f[i][j] == (f[i][j - 1] + self.gap_score):
-    #             j -= 1
-    #         else:
-    #             raise Exception("Smith–Waterman failure")
-    #     align_start = max(start, start + j - 1)
-    #     align_end = min(end, start + start_j)
-    #     score = f[start_i][start_j] / (self.match_score * max(align_end - align_start, n))
-    #     return align_start, align_end, score
-
     def sim_align(self, a, start, end):
         source = self.text[start:end]
         words = source.split(" ")
