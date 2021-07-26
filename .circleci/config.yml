@@ -36,7 +36,8 @@ jobs:
             - "/usr/local/bin"
             - "/usr/local/lib/python3.6/site-packages"
             - "test_samples"
-      - name: "Upload coverage to Codecov"
+      - run: 
+          name: "Upload coverage to Codecov"
           uses: codecov/codecov-action@v1
           with:
             fail_ci_if_error: true
