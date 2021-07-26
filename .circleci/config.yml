@@ -22,10 +22,10 @@ jobs:
           name: Install pytest
           command: sudo pip install pytest==6.2.2
       - run:
-          name: Install google drive downloader
+          name: Install gdown
           command: sudo pip install gdown==3.13.0
       - run:
-          name: Install code coverage
+          name: Install pytest-cov
           command: sudo pip install pytest-cov==2.12.1
       - run:
           name: Download resources
