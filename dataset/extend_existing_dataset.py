@@ -14,6 +14,7 @@ from dataset.analysis import save_dataset_info
 def extend_existing_dataset(
     text_path,
     audio_path,
+    transcription_model,
     forced_alignment_path,
     output_path,
     label_path,
@@ -32,6 +33,8 @@ def extend_existing_dataset(
         Path to source text
     audio_path : str
         Path to source audio
+    transcription_model : TranscriptionModel
+        Transcription model
     forced_alignment_path : str
         Path to save alignment JSON to
     output_path : str
@@ -59,6 +62,7 @@ def extend_existing_dataset(
     extend_dataset(
         converted_audio,
         text_path,
+        transcription_model,
         forced_alignment_path,
         output_path,
         label_path,

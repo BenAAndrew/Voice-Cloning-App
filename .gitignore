@@ -4,6 +4,7 @@ __pycache__/
 .ipynb_checkpoints/
 .pytest_cache/
 
+.coverage
 latest_silero_models.yml
 test_samples/
 research/timelapse/
