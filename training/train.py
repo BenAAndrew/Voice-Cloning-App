@@ -15,7 +15,7 @@ from torch.utils.data import DataLoader
 
 from dataset.clip_generator import CHARACTER_ENCODING
 from training.dataset import VoiceDataset
-from training.checkpoint import load_checkpoint, save_checkpoint, get_latest_checkpoint, warm_start_model
+from training.checkpoint import load_checkpoint, save_checkpoint, warm_start_model
 from training.validate import validate
 from training.utils import get_available_memory, get_batch_size, get_learning_rate, check_space, load_symbols
 from training.tacotron2_model import Tacotron2, TextMelCollate, Tacotron2Loss
@@ -37,7 +37,6 @@ def train(
     dataset_directory,
     output_directory,
     alphabet_path=None,
-    find_checkpoint=True,
     checkpoint_path=None,
     transfer_learning_path=None,
     overwrite_checkpoints=True,
@@ -61,8 +60,6 @@ def train(
         Path to save checkpoints to
     alphabet_path : str
         Path to alphabet file (default is English)
-    find_checkpoint : bool (optional)
-        Search for latest checkpoint to continue training from (default is True)
     checkpoint_path : str (optional)
         Path to a checkpoint to load (default is None)
     transfer_learning_path : str (optional)
@@ -150,9 +147,6 @@ def train(
     iteration = 0
     epoch_offset = 0
 
-    if find_checkpoint and not checkpoint_path:
-        checkpoint_path = get_latest_checkpoint(output_directory)
-
     if checkpoint_path:
         if transfer_learning_path:
             logging.info("Ignoring transfer learning as checkpoint already exists")
@@ -238,7 +232,6 @@ if __name__ == "__main__":
     parser.add_argument("-m", "--metadata_path", type=str, help="metadata path")
     parser.add_argument("-d", "--dataset_directory", type=str, help="directory to dataset")
     parser.add_argument("-o", "--output_directory", type=str, help="directory to save checkpoints")
-    parser.add_argument("-l", "--find_checkpoint", default=True, type=str, help="load checkpoint if one exists")
     parser.add_argument("-c", "--checkpoint_path", required=False, type=str, help="checkpoint path")
     parser.add_argument("-e", "--epochs", default=8000, type=int, help="num epochs")
     parser.add_argument("-b", "--batch_size", required=False, type=int, help="batch size")
@@ -254,7 +247,6 @@ if __name__ == "__main__":
         args.metadata_path,
         args.dataset_directory,
         args.output_directory,
-        args.find_checkpoint,
         args.checkpoint_path,
         args.epochs,
         args.batch_size,

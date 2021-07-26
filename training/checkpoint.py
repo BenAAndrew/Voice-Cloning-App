@@ -2,34 +2,6 @@ import os
 import torch
 
 
-def get_latest_checkpoint(checkpoint_folder):
-    """
-    Gets the latest checkpoint from a given folder.
-    Uses the filename to identify the latest checkpoint.
-
-    Parameters
-    ----------
-    checkpoint_folder : str
-        Path to checkpoint folder
-
-    Returns
-    -------
-    str
-        Path to latest checkpoint or None if not found
-    """
-    checkpoints = os.listdir(checkpoint_folder)
-    if not checkpoints:
-        return None
-
-    latest_checkpoint = checkpoints[0]
-    if len(checkpoints) > 1:
-        for checkpoint in checkpoints:
-            if int(checkpoint.split("_")[1].split(".")[0]) > int(latest_checkpoint.split("_")[1].split(".")[0]):
-                latest_checkpoint = checkpoint
-
-    return os.path.join(checkpoint_folder, latest_checkpoint)
-
-
 def load_checkpoint(checkpoint_path, model, optimizer, train_loader):
     """
     Credit: https://github.com/NVIDIA/tacotron2
