@@ -9,7 +9,7 @@ from synthesis.hifigan import load_hifigan_model
 
 
 def test_waveglow_synthesis():
-    model_path = os.path.join("test_samples", "tacotron2_statedict.pt")
+    model_path = os.path.join("test_samples", "model.pt")
     waveglow_path = os.path.join("test_samples", "waveglow_256channels_universal_v5.pt")
     graph_path = "graph.png"
     audio_path = "synthesized_audio.wav"
@@ -34,7 +34,7 @@ def test_waveglow_synthesis():
 
 
 def test_hifigan_synthesis():
-    model_path = os.path.join("test_samples", "tacotron2_statedict.pt")
+    model_path = os.path.join("test_samples", "model.pt")
     hifigan_model_path = os.path.join("test_samples", "hifigan.pt")
     hifigan_config_path = os.path.join("test_samples", "config.json")
     graph_path = "graph.png"
