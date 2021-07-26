@@ -3,6 +3,8 @@ omit =
     application/*
     tests/*
     training/tacotron2_model/*
+    training/train.py
+    training/validate.py
     glow.py
     main.py
     synthesis/hifigan_model.py
