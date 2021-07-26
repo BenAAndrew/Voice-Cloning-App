@@ -31,8 +31,8 @@ def create_dataset(
         Path to source text
     audio_path : str
         Path to source audio
-    transcription_model : DeepSpeech
-        DeepSpeech transcription model
+    transcription_model : TranscriptionModel
+        Transcription model
     forced_alignment_path : str
         Path to save alignment JSON to
     output_path : str

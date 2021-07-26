@@ -6,3 +6,4 @@ omit =
     glow.py
     main.py
     synthesis/hifigan_model.py
+    synthesis/waveglow.py

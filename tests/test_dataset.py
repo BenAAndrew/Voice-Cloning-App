@@ -5,8 +5,9 @@ from pathlib import Path
 import json
 
 from dataset.analysis import get_total_audio_duration, validate_dataset
-from dataset.clip_generator import get_filename, extend_dataset
+from dataset.clip_generator import get_filename
 from dataset.create_dataset import create_dataset
+from dataset.extend_existing_dataset import extend_existing_dataset
 from dataset.forced_alignment.search import similarity
 from dataset.transcribe import create_transcription_model, TranscriptionModel, DeepSpeech, Silero
 
@@ -75,7 +76,7 @@ def test_create_dataset():
 
 
 # Extend dataset
-def test_extend_dataset():
+def test_extend_existing_dataset():
     dataset_directory = "test-dataset"
     audio_folder = os.path.join(dataset_directory, "wavs")
     metadata_file = os.path.join(dataset_directory, "metadata.csv")
@@ -85,18 +86,21 @@ def test_extend_dataset():
         pass
 
     audio_path = os.path.join("test_samples", "audio.wav")
+    converted_audio_path = os.path.join("test_samples", "audio-converted.wav")
     text_path = os.path.join("test_samples", "text.txt")
     forced_alignment_path = os.path.join(dataset_directory, "align.json")
     label_path = os.path.join(dataset_directory, "metadata.csv")
+    info_path = os.path.join(dataset_directory, "info.json")
     suffix = "extend"
-    extend_dataset(
+    extend_existing_dataset(
+        text_path=text_path,
         audio_path=audio_path,
-        script_path=text_path,
         transcription_model=FakeTranscriptionModel(),
         forced_alignment_path=forced_alignment_path,
         output_path=audio_folder,
         label_path=label_path,
         suffix=suffix,
+        info_path=info_path
     )
 
     assert os.listdir(audio_folder) == [name.split('.')[0]+"-"+suffix+".wav" for name in EXPECTED_CLIPS.keys()], "Unexpected audio clips"
@@ -106,6 +110,7 @@ def test_extend_dataset():
         expected_text = [f"{name.split('.')[0]}-{suffix}.wav|{text}\n" for name, text in EXPECTED_CLIPS.items()]
         assert lines == expected_text, "Unexpected metadata contents"
 
+    os.remove(converted_audio_path)
     shutil.rmtree(dataset_directory)
 
 
