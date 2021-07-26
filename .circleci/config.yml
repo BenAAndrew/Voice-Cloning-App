@@ -24,11 +24,19 @@ jobs:
       - run:
           name: Install google drive downloader
           command: sudo pip install googledrivedownloader==0.4
+      - run:
+          name: Install code coverage
+          command: sudo pip install pytest-cov==2.12.1
+      - run:
+          name: Tests
+          command: pytest -k "not waveglow" --cov=./
       - save_cache:
           key: deps-{{ .Environment.CACHE_VERSION }}
           paths:
             - "/usr/local/bin"
             - "/usr/local/lib/python3.6/site-packages"
-      - run:
-          name: Tests
-          command: pytest
+            - "test_samples"
+      - name: "Upload coverage to Codecov"
+          uses: codecov/codecov-action@v1
+          with:
+            fail_ci_if_error: true
