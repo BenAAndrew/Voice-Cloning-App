@@ -1,11 +1,11 @@
-version: 2
+version: 2.1
+orbs:
+  codecov: codecov/codecov@1.0.2
 jobs:
   build:
     docker:
       - image: circleci/python:3.6
-
     working_directory: ~/repo
-
     steps:
       - checkout
       - run: sudo chown -R circleci:circleci /usr/local/bin
@@ -38,4 +38,5 @@ jobs:
       - run:
           name: Tests
           command: pytest -k "not waveglow" --cov=./
-
+      - codecov/upload:
+          file: {{ coverage_report_filepath }}
