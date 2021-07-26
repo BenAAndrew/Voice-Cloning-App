@@ -1,0 +1,8 @@
+[run]
+omit =
+    application/*
+    tests/*
+    training/tacotron2_model/*
+    glow.py
+    main.py
+    synthesis/hifigan_model.py
