@@ -63,6 +63,7 @@ def get_checkpoints():
             reverse=True,
         )
         for model in os.listdir(paths["models"])
+        if os.listdir(os.path.join(paths["models"], model))
     }
 
 
@@ -200,10 +201,13 @@ def train_post():
     batch_size = request.form["batch_size"]
     early_stopping = request.form.get("early_stopping") is not None
     iters_per_checkpoint = request.form["checkpoint_frequency"]
+    train_size = 1 - float(request.form["validation_size"])
     overwrite_checkpoints = request.form.get("overwrite_checkpoints") is not None
     multi_gpu = request.form.get("multi_gpu") is not None
     checkpoint_path = (
-        os.path.join(paths["models"], dataset_name, request.form["checkpoint"]) if request.form.get("checkpoint") else None
+        os.path.join(paths["models"], dataset_name, request.form["checkpoint"])
+        if request.form.get("checkpoint")
+        else None
     )
 
     metadata_path = os.path.join(paths["datasets"], dataset_name, METADATA_FILE)
@@ -232,6 +236,7 @@ def train_post():
         multi_gpu=multi_gpu,
         overwrite_checkpoints=overwrite_checkpoints,
         iters_per_checkpoint=int(iters_per_checkpoint),
+        train_size=train_size,
     )
 
     return render_template("progress.html", next_url=get_next_url(URLS, request.path))
@@ -428,7 +433,7 @@ def add_vocoder():
         request.files["hifigan-model"].save(model_path)
         request.files["hifigan-config"].save(model_config_path)
     else:
-        model_path = os.path.join(paths["waveglow"], name+".pt")
+        model_path = os.path.join(paths["waveglow"], name + ".pt")
         request.files["waveglow"].save(model_path)
 
     return redirect("/settings")

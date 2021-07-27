@@ -23,7 +23,6 @@ from training.tacotron2_model.utils import process_batch
 
 
 MINIMUM_MEMORY_GB = 4
-TRAIN_SIZE = 0.8
 WEIGHT_DECAY = 1e-6
 GRAD_CLIP_THRESH = 1.0
 EARLY_STOPPING_WINDOW = 10
@@ -45,6 +44,7 @@ def train(
     early_stopping=True,
     multi_gpu=True,
     iters_per_checkpoint=1000,
+    train_size=0.8,
     logging=logging,
 ):
     """
@@ -76,6 +76,8 @@ def train(
         Use multiple GPU's in parallel if available (default is True)
     iters_per_checkpoint : int (optional)
         How often checkpoints are saved (number of iterations)
+    train_size : float (optional)
+        Percentage of samples to use for training (default is 80%/0.8)
     logging : logging (optional)
         Logging object to write logs to
 
@@ -124,7 +126,7 @@ def train(
         filepaths_and_text = [line.strip().split("|") for line in f]
 
     random.shuffle(filepaths_and_text)
-    train_cutoff = int(len(filepaths_and_text) * TRAIN_SIZE)
+    train_cutoff = int(len(filepaths_and_text) * train_size)
     train_files = filepaths_and_text[:train_cutoff]
     test_files = filepaths_and_text[train_cutoff:]
     print(f"{len(train_files)} train files, {len(test_files)} test files")
