@@ -3,6 +3,7 @@ import shutil
 import json
 from pathlib import Path
 import json
+import pytest
 
 from tests.test_synthesis import MIN_SYNTHESIS_SCORE
 from dataset.analysis import get_total_audio_duration, validate_dataset
@@ -167,6 +168,7 @@ def test_deepspeech():
     assert similarity(TEXT, transcription) > MIN_SYNTHESIS_SCORE
 
 
+@pytest.mark.slow
 def test_silero():
     silero = create_transcription_model()
     assert isinstance(silero, Silero)

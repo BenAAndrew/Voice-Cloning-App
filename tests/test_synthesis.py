@@ -1,5 +1,6 @@
 import os
 import inflect
+import pytest
 
 from dataset.forced_alignment.search import similarity
 from dataset.transcribe import create_transcription_model
@@ -11,6 +12,7 @@ from synthesis.hifigan import Hifigan
 MIN_SYNTHESIS_SCORE = 0.3
 
 
+@pytest.mark.slow
 def test_waveglow_synthesis():
     model_path = os.path.join("test_samples", "model.pt")
     waveglow_path = os.path.join("test_samples", "waveglow_256channels_universal_v5.pt")
