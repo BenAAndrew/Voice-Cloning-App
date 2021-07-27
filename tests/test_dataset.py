@@ -3,6 +3,7 @@ import shutil
 import json
 from pathlib import Path
 import json
+import pytest
 
 from tests.test_synthesis import MIN_SYNTHESIS_SCORE
 from dataset.analysis import get_total_audio_duration, validate_dataset

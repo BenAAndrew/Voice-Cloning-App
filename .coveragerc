@@ -7,5 +7,4 @@ omit =
     training/validate.py
     glow.py
     main.py
-    synthesis/hifigan_model.py
-    synthesis/waveglow.py
+    synthesis/*
