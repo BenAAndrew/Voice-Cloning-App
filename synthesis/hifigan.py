@@ -43,9 +43,9 @@ class Hifigan(Vocoder):
     def generate_audio(self, mel_output, path, sample_rate=22050):
         with torch.no_grad():
             if torch.cuda.is_available():
-                mel = mel_output.type(torch.cuda.FloatTensor)
+                mel_output = mel_output.type(torch.cuda.FloatTensor)
 
-            y_g_hat = self.model(mel)
+            y_g_hat = self.model(mel_output)
             audio = y_g_hat.squeeze()
             audio = audio * MAX_WAV_VALUE
             audio = audio.cpu().numpy().astype("int16")
