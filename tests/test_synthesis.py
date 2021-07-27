@@ -34,6 +34,7 @@ def test_waveglow_synthesis():
     os.remove(audio_path)
 
 
+@pytest.mark.slow
 def test_hifigan_synthesis():
     model_path = os.path.join("test_samples", "model.pt")
     hifigan_model_path = os.path.join("test_samples", "hifigan.pt")
