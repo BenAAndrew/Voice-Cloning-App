@@ -37,5 +37,5 @@ jobs:
             - "/usr/local/lib/python3.6/site-packages"
       - run:
           name: Tests
-          command: pytest -k "not waveglow" --cov=./ --cov-config=.coveragerc
+          command: pytest -k "not waveglow" --cov=./ --cov-config=.coveragerc --durations=5
       - codecov/upload
