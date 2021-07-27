@@ -139,6 +139,4 @@ if __name__ == "__main__":
 
     inflect_engine = inflect.engine()
 
-    synthesize(
-        model, args.text, inflect_engine, args.graph_output_path, args.audio_output_path, vocoder
-    )
+    synthesize(model, args.text, inflect_engine, args.graph_output_path, args.audio_output_path, vocoder)

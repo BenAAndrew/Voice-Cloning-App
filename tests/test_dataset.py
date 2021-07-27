@@ -102,10 +102,12 @@ def test_extend_existing_dataset():
         output_path=audio_folder,
         label_path=label_path,
         suffix=suffix,
-        info_path=info_path
+        info_path=info_path,
     )
 
-    assert os.listdir(audio_folder) == [name.split('.')[0]+"-"+suffix+".wav" for name in EXPECTED_CLIPS.keys()], "Unexpected audio clips"
+    assert os.listdir(audio_folder) == [
+        name.split(".")[0] + "-" + suffix + ".wav" for name in EXPECTED_CLIPS.keys()
+    ], "Unexpected audio clips"
 
     with open(label_path) as f:
         lines = f.readlines()

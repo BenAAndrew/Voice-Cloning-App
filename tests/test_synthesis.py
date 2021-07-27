@@ -24,7 +24,9 @@ def test_waveglow_synthesis():
     waveglow = Waveglow(waveglow_path)
     text = "hello everybody my name is david attenborough"
     inflect_engine = inflect.engine()
-    synthesize(model=model, text=text, inflect_engine=inflect_engine, graph=graph_path, audio=audio_path, vocoder=waveglow)
+    synthesize(
+        model=model, text=text, inflect_engine=inflect_engine, graph=graph_path, audio=audio_path, vocoder=waveglow
+    )
 
     assert os.path.isfile(graph_path)
     assert os.path.isfile(audio_path)
@@ -47,7 +49,9 @@ def test_hifigan_synthesis():
     hifigan = Hifigan(hifigan_model_path, hifigan_config_path)
     text = "hello everybody my name is david attenborough"
     inflect_engine = inflect.engine()
-    synthesize(model=model, text=text, inflect_engine=inflect_engine, graph=graph_path, audio=audio_path, vocoder=hifigan)
+    synthesize(
+        model=model, text=text, inflect_engine=inflect_engine, graph=graph_path, audio=audio_path, vocoder=hifigan
+    )
 
     assert os.path.isfile(graph_path)
     assert os.path.isfile(audio_path)

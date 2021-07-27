@@ -29,7 +29,7 @@ def test_voice_dataset():
     audio_directory = os.path.join("test_samples", "dataset", "wavs")
     with open(metadata_path, encoding=CHARACTER_ENCODING) as f:
         filepaths_and_text = [line.strip().split("|") for line in f]
-    
+
     dataset = VoiceDataset(filepaths_and_text, audio_directory, DEFAULT_ALPHABET)
     assert len(dataset) == 3
     text, mel = dataset[0]
@@ -69,7 +69,7 @@ def test_load_and_save_checkpoint():
 def test_warm_start_model():
     model_path = os.path.join("test_samples", "model.pt")
     model = Tacotron2()
-    ignore_layers=["embedding.weight"]
+    ignore_layers = ["embedding.weight"]
     model = warm_start_model(model_path, model, ignore_layers)
     model_dict = model.state_dict()
 
