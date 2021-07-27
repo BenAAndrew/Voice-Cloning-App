@@ -203,7 +203,7 @@ def train_post():
     overwrite_checkpoints = request.form.get("overwrite_checkpoints") is not None
     multi_gpu = request.form.get("multi_gpu") is not None
     checkpoint_path = (
-        os.path.join(paths["models"], dataset_name, request.form["checkpoint"]) if request.form["checkpoint"] else None
+        os.path.join(paths["models"], dataset_name, request.form["checkpoint"]) if request.form.get("checkpoint") else None
     )
 
     metadata_path = os.path.join(paths["datasets"], dataset_name, METADATA_FILE)
