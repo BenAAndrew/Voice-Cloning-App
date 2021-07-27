@@ -4,8 +4,8 @@ import inflect
 from dataset.forced_alignment.search import similarity
 from dataset.transcribe import create_transcription_model
 from synthesis.synthesize import load_model, synthesize
-from synthesis.waveglow import load_waveglow_model
-from synthesis.hifigan import load_hifigan_model
+from synthesis.waveglow import Waveglow
+from synthesis.hifigan import Hifigan
 
 
 MIN_SYNTHESIS_SCORE = 0.3
@@ -19,14 +19,10 @@ def test_waveglow_synthesis():
     transcription_model = create_transcription_model()
 
     model = load_model(model_path)
-    assert model
-
-    waveglow = load_waveglow_model(waveglow_path)
-    assert waveglow
-
+    waveglow = Waveglow(waveglow_path)
     text = "hello everybody my name is david attenborough"
     inflect_engine = inflect.engine()
-    synthesize(model=model, text=text, inflect_engine=inflect_engine, graph=graph_path, audio=audio_path, vocoder=waveglow, vocoder_type="waveglow")
+    synthesize(model=model, text=text, inflect_engine=inflect_engine, graph=graph_path, audio=audio_path, vocoder=waveglow)
 
     assert os.path.isfile(graph_path)
     assert os.path.isfile(audio_path)
@@ -45,14 +41,10 @@ def test_hifigan_synthesis():
     transcription_model = create_transcription_model()
 
     model = load_model(model_path)
-    assert model
-
-    waveglow = load_hifigan_model(hifigan_model_path, hifigan_config_path)
-    assert waveglow
-
+    hifigan = Hifigan(hifigan_model_path, hifigan_config_path)
     text = "hello everybody my name is david attenborough"
     inflect_engine = inflect.engine()
-    synthesize(model=model, text=text, inflect_engine=inflect_engine, graph=graph_path, audio=audio_path, vocoder=waveglow, vocoder_type="hifigan")
+    synthesize(model=model, text=text, inflect_engine=inflect_engine, graph=graph_path, audio=audio_path, vocoder=hifigan)
 
     assert os.path.isfile(graph_path)
     assert os.path.isfile(audio_path)

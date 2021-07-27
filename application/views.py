@@ -24,8 +24,8 @@ from dataset.transcribe import create_transcription_model
 from training.train import train, DEFAULT_ALPHABET
 from training.utils import get_available_memory, get_batch_size, load_symbols
 from synthesis.synthesize import load_model, synthesize
-from synthesis.waveglow import load_waveglow_model
-from synthesis.hifigan import load_hifigan_model
+from synthesis.waveglow import Waveglow
+from synthesis.hifigan import Hifigan
 
 from flask import redirect, render_template, request, send_file
 
@@ -46,7 +46,6 @@ ENGLISH_LANGUAGE = "English"
 
 model = None
 vocoder = None
-vocoder_type = ""
 inflect_engine = inflect.engine()
 symbols = None
 
@@ -253,16 +252,16 @@ def get_synthesis_setup():
 
 @app.route("/synthesis-setup", methods=["POST"])
 def synthesis_setup_post():
-    global model, vocoder, vocoder_type, symbols
+    global model, vocoder, symbols
     vocoder_type = request.form["vocoder_type"]
     if vocoder_type == "hifigan":
         hifigan_folder = os.path.join(paths["hifigan"], request.form["vocoder"])
         model_path = os.path.join(hifigan_folder, "model.pt")
         model_config_path = os.path.join(hifigan_folder, "config.json")
-        vocoder = load_hifigan_model(model_path, model_config_path)
+        vocoder = Hifigan(model_path, model_config_path)
     elif vocoder_type == "waveglow":
         model_path = os.path.join(paths["waveglow"], request.form["vocoder"])
-        vocoder = load_waveglow_model(model_path)
+        vocoder = Waveglow(model_path)
     else:
         return render_template("synthesis-setup.html", error="Invalid vocoder selected")
 
@@ -303,7 +302,7 @@ def synthesis_post():
         graph_web_path = graph_path.replace("\\", "/")
         audio_web_path = audio_path.replace("\\", "/")
 
-        synthesize(model, text, inflect_engine, symbols, graph_path, audio_path, vocoder, vocoder_type)
+        synthesize(model, text, inflect_engine, symbols, graph_path, audio_path, vocoder)
         return render_template(
             "synthesis.html",
             text=text.strip(),

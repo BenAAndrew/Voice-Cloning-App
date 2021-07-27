@@ -9,6 +9,7 @@ import sys
 sys.path.append(dirname(dirname(abspath(__file__))))
 
 from synthesis.hifigan_model import Generator
+from synthesis import Vocoder
 
 
 MAX_WAV_VALUE = 32768.0
@@ -24,66 +25,28 @@ class AttrDict(dict):
         self.__dict__ = self
 
 
-def load_hifigan_model(model_path, config_path):
-    """
-    Loads the Hifi-gan model.
-    Uses GPU if available, otherwise uses CPU.
+class Hifigan(Vocoder):
+    def __init__(self, model_path, config_path):
+        with open(config_path) as f:
+            data = f.read()
 
-    Parameters
-    ----------
-    model_path : str
-        Path to hifigan model
-    config_path : str
-        Path to hifigan config
+        # Use GPU if available
+        device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
+        h = AttrDict(json.loads(data))
+        self.model = Generator(h).to(device)
 
-    Returns
-    -------
-    Torch
-        Loaded hifigan model
-    """
-    assert os.path.isfile(model_path)
-    assert os.path.isfile(config_path)
+        checkpoint_dict = torch.load(model_path, map_location=device)
+        self.model.load_state_dict(checkpoint_dict["generator"])
+        self.model.eval()
+        self.model.remove_weight_norm()
 
-    with open(config_path) as f:
-        data = f.read()
+    def generate_audio(self, mel_output, path, sample_rate=22050):
+        with torch.no_grad():
+            if torch.cuda.is_available():
+                mel = mel_output.type(torch.cuda.FloatTensor)
 
-    if torch.cuda.is_available():
-        device = torch.device("cuda")
-    else:
-        device = torch.device("cpu")
-
-    h = AttrDict(json.loads(data))
-    generator = Generator(h).to(device)
-
-    checkpoint_dict = torch.load(model_path, map_location=device)
-    generator.load_state_dict(checkpoint_dict["generator"])
-    generator.eval()
-    generator.remove_weight_norm()
-
-    return generator
-
-
-def generate_audio_hifigan(model, mel, filepath, sample_rate=22050):
-    """
-    Generates synthesised audio file.
-
-    Parameters
-    ----------
-    model : Generator
-        Hifigan model
-    mel : list
-        Synthesised mel data
-    filepath : str
-        Path to save generated audio to
-    sample_rate : int (optional)
-        Sample rate of audio (default is 22050)
-    """
-    with torch.no_grad():
-        if torch.cuda.is_available():
-            mel = mel.type(torch.cuda.FloatTensor)
-
-        y_g_hat = model(mel)
-        audio = y_g_hat.squeeze()
-        audio = audio * MAX_WAV_VALUE
-        audio = audio.cpu().numpy().astype("int16")
-        write(filepath, sample_rate, audio)
+            y_g_hat = self.model(mel)
+            audio = y_g_hat.squeeze()
+            audio = audio * MAX_WAV_VALUE
+            audio = audio.cpu().numpy().astype("int16")
+            write(path, sample_rate, audio)

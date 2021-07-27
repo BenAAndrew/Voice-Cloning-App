@@ -15,8 +15,8 @@ import glow  # noqa
 from training.tacotron2_model import Tacotron2
 from training.clean_text import clean_text
 from training.train import DEFAULT_ALPHABET
-from synthesis.waveglow import load_waveglow_model, generate_audio_waveglow
-from synthesis.hifigan import load_hifigan_model, generate_audio_hifigan
+from synthesis.waveglow import Waveglow
+from synthesis.hifigan import Hifigan
 
 
 def load_model(model_path):
@@ -79,7 +79,7 @@ def text_to_sequence(text, symbols):
         return torch.autograd.Variable(torch.from_numpy(sequence)).cpu().long()
 
 
-def synthesize(model, text, inflect_engine, symbols=DEFAULT_ALPHABET, graph=None, audio=None, vocoder=None, vocoder_type=None):
+def synthesize(model, text, inflect_engine, symbols=DEFAULT_ALPHABET, graph=None, audio=None, vocoder=None):
     """
     Synthesise text for a given model.
     Produces graph and/or audio file when given.
@@ -100,8 +100,6 @@ def synthesize(model, text, inflect_engine, symbols=DEFAULT_ALPHABET, graph=None
         Path to save audio file to
     vocoder : Object (optional)
         Vocoder model (required if generating audio)
-    vocoder_type : str (optional)
-        Vocoder type (required if generating audio)
     """
     text = clean_text(text, inflect_engine)
     sequence = text_to_sequence(text, symbols)
@@ -112,12 +110,7 @@ def synthesize(model, text, inflect_engine, symbols=DEFAULT_ALPHABET, graph=None
 
     if audio:
         assert vocoder, "Missing vocoder"
-        if vocoder_type == "hifigan":
-            generate_audio_hifigan(vocoder, mel_outputs_postnet, audio)
-        elif vocoder_type == "waveglow":
-            generate_audio_waveglow(vocoder, mel_outputs_postnet, audio)
-        else:
-            raise Exception(f"Unsupported vocoder type {vocoder_type}")
+        vocoder.generate_audio(mel_outputs_postnet, audio)
 
 
 if __name__ == "__main__":
@@ -137,15 +130,15 @@ if __name__ == "__main__":
 
     model = load_model(args.model_path)
     vocoder_type = args.vocoder_type
-    vocoder_model = None
+    vocoder = None
     if vocoder_type == "hifigan":
         assert os.path.isfile(args.hifigan_config_path), "hifigan config not found"
-        vocoder_model = load_hifigan_model(args.vocoder_model_path, args.hifigan_config_path)
+        vocoder = Hifigan(args.vocoder_model_path, args.hifigan_config_path)
     elif vocoder_type == "waveglow":
-        vocoder_model = load_waveglow_model(args.vocoder_model_path)
+        vocoder = Waveglow(args.vocoder_model_path)
 
     inflect_engine = inflect.engine()
 
     synthesize(
-        model, args.text, inflect_engine, args.graph_output_path, args.audio_output_path, vocoder_model, vocoder_type
+        model, args.text, inflect_engine, args.graph_output_path, args.audio_output_path, vocoder
     )
