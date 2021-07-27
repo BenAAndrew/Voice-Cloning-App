@@ -168,7 +168,6 @@ def test_deepspeech():
     assert similarity(TEXT, transcription) > MIN_SYNTHESIS_SCORE
 
 
-@pytest.mark.slow
 def test_silero():
     silero = create_transcription_model()
     assert isinstance(silero, Silero)
