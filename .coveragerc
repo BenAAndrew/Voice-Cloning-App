@@ -8,3 +8,6 @@ omit =
     glow.py
     main.py
     synthesis/*
+[report]
+exclude_lines =
+    if __name__ == .__main__.:
