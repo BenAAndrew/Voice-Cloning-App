@@ -12,6 +12,20 @@
         <label for="text">Text (For multiple sentences, seperate with newlines)</label>
         <textarea class="form-control" rows="4" name="text" id="text" required>{{text}}</textarea>
     </div>
+    <button type="button" class="collapsible" id="advanced">Advanced Options ∨</button>
+    <div class="content">
+        <br>
+        <div class="form-group">
+            <input type="range" id="silence" name="silence" step="0.01" min="0.01" max="0.3" value="{{ silence }}" onchange="showSilenceLabel()">
+            <label for="silence">
+                <a href="#" data-toggle="tooltip" data-placement="top" title="Silence seperation between each sentence (for multi-line)">Silence: </a> 
+                <span id="silence_label"></span>
+            </label>
+        </div>
+    </div>
+    <br>
     <input type="submit" class="btn btn-primary">
 </form>
+<script src="{{ url_for('static', filename='advanced.js') }}"></script>
+<script src="{{ url_for('static', filename='synthesis.js') }}"></script>
 {% endblock %}

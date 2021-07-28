@@ -20,7 +20,8 @@ class FakeVocoder(Vocoder):
         return np.zeros(22050).astype("int16")
 
 
-def test_synthesis_a():
+@pytest.mark.slow
+def test_synthesis():
     model_path = os.path.join("test_samples", "model.pt")
     graph_path = "graph.png"
     audio_path = "synthesized_audio.wav"

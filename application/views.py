@@ -305,13 +305,15 @@ def synthesis_post():
         audio_path = os.path.join(results_folder, RESULTS_FILE)
         graph_web_path = graph_path.replace("\\", "/")
         audio_web_path = audio_path.replace("\\", "/")
+        silence = float(request.form["silence"])
 
-        synthesize(model, text, inflect_engine, symbols, graph_path, audio_path, vocoder)
+        synthesize(model, text, inflect_engine, symbols, graph_path, audio_path, vocoder, silence)
         return render_template(
             "synthesis.html",
             text=text.strip(),
             graph=graph_web_path,
             audio=audio_web_path,
+            silence=silence
         )
 
 
