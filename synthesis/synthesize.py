@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import torch
 import numpy as np
 import matplotlib
+from scipy.io.wavfile import write
 from os.path import dirname, abspath
 import sys
 
@@ -15,8 +16,7 @@ import glow  # noqa
 from training.tacotron2_model import Tacotron2
 from training.clean_text import clean_text
 from training.train import DEFAULT_ALPHABET
-from synthesis.waveglow import Waveglow
-from synthesis.hifigan import Hifigan
+from synthesis.vocoders import Hifigan, Waveglow
 
 
 def load_model(model_path):
@@ -79,10 +79,46 @@ def text_to_sequence(text, symbols):
         return torch.autograd.Variable(torch.from_numpy(sequence)).cpu().long()
 
 
-def synthesize(model, text, inflect_engine, symbols=DEFAULT_ALPHABET, graph=None, audio=None, vocoder=None):
+def join_alignment_graphs(alignments):
+    """
+    Joins multiple alignment graphs.
+
+    Parameters
+    ----------
+    alignments : list
+        List of alignment Tensors
+
+    Returns
+    -------
+    Tensor
+        Combined alignment tensor
+    """
+    alignment_sizes = [a.size() for a in alignments]
+    joined = torch.zeros((1, sum([a[1] for a in alignment_sizes]), sum([a[2] for a in alignment_sizes])))
+    current_x = 0
+    current_y = 0
+    for alignment in alignments:
+        joined[:, current_x : current_x + alignment.size()[1], current_y : current_y + alignment.size()[2]] = alignment
+        current_x += alignment.size()[1]
+        current_y += alignment.size()[2]
+    return joined
+
+
+def synthesize(
+    model,
+    text,
+    inflect_engine,
+    symbols=DEFAULT_ALPHABET,
+    graph_path=None,
+    audio_path=None,
+    vocoder=None,
+    silence_padding=0.15,
+    sample_rate=22050,
+):
     """
     Synthesise text for a given model.
     Produces graph and/or audio file when given.
+    Supports multi line synthesis (seperated by \n).
 
     Parameters
     ----------
@@ -94,23 +130,62 @@ def synthesize(model, text, inflect_engine, symbols=DEFAULT_ALPHABET, graph=None
         Inflect.engine() object
     symbols : list
         List of symbols (default is English)
-    graph : str (optional)
+    graph_path : str (optional)
         Path to save alignment graph to
-    audio : str (optional)
+    audio_path : str (optional)
         Path to save audio file to
     vocoder : Object (optional)
         Vocoder model (required if generating audio)
+    silence_padding : float (optional)
+        Seconds of silence to seperate each clip by with multi-line synthesis (default is 0.15)
+    sample_rate : int (optional)
+        Audio sample rate (default is 22050)
+
+    Raises
+    -------
+    AssertionError
+        If audio_path is given without a vocoder
     """
-    text = clean_text(text, inflect_engine)
-    sequence = text_to_sequence(text, symbols)
-    _, mel_outputs_postnet, _, alignments = model.inference(sequence)
-
-    if graph:
-        generate_graph(alignments, graph)
-
-    if audio:
+    if audio_path:
         assert vocoder, "Missing vocoder"
-        vocoder.generate_audio(mel_outputs_postnet, audio)
+
+    lines = text.split("\n")
+    if len(lines) == 1:
+        # Single sentence
+        text = clean_text(text, inflect_engine)
+        sequence = text_to_sequence(text, symbols)
+        _, mel_outputs_postnet, _, alignment = model.inference(sequence)
+
+        if graph_path:
+            generate_graph(alignment, graph_path)
+
+        if audio_path:
+            audio = vocoder.generate_audio(mel_outputs_postnet)
+            write(audio_path, sample_rate, audio)
+    else:
+        # Multi sentence
+        mels = []
+        alignments = []
+        for line in lines:
+            text = clean_text(line, inflect_engine)
+            sequence = text_to_sequence(text, symbols)
+            _, mel_outputs_postnet, _, alignment = model.inference(sequence)
+            mels.append(mel_outputs_postnet)
+            alignments.append(alignment)
+
+        if graph_path:
+            generate_graph(join_alignment_graphs(alignments), graph_path)
+
+        if audio_path:
+            silence = np.zeros(int(silence_padding * sample_rate)).astype("int16")
+            audio_segments = []
+            for i in range(len(mels)):
+                audio_segments.append(vocoder.generate_audio(mels[i]))
+                if i != len(mels) - 1:
+                    audio_segments.append(silence)
+
+            audio = np.concatenate(audio_segments)
+            write(audio_path, sample_rate, audio)
 
 
 if __name__ == "__main__":
@@ -123,6 +198,8 @@ if __name__ == "__main__":
     parser.add_argument("-t", "--text", type=str, help="text to synthesize", required=True)
     parser.add_argument("-g", "--graph_output_path", type=str, help="path to save alignment graph to", required=False)
     parser.add_argument("-a", "--audio_output_path", type=str, help="path to save output audio to", required=False)
+    parser.add_argument("--silence_padding", type=float, help="Padding between sentences in seconds", default=0.15)
+    parser.add_argument("--sample_rate", type=int, help="Audio sample rate", default=22050)
     args = parser.parse_args()
 
     assert os.path.isfile(args.model_path), "Model not found"
@@ -139,4 +216,13 @@ if __name__ == "__main__":
 
     inflect_engine = inflect.engine()
 
-    synthesize(model, args.text, inflect_engine, args.graph_output_path, args.audio_output_path, vocoder)
+    synthesize(
+        model=model,
+        text=args.text,
+        inflect_engine=inflect_engine,
+        graph_path=args.graph_output_path,
+        audio_path=args.audio_output_path,
+        vocoder=vocoder,
+        silence_padding=args.silence_padding,
+        sample_rate=args.sample_rate,
+    )

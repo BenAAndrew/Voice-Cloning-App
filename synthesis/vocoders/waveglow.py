@@ -1,7 +1,6 @@
 import torch
-import IPython.display as ipd
 
-from synthesis import Vocoder
+from synthesis.vocoders.vocoder import Vocoder, MAX_WAV_VALUE
 
 
 class Waveglow(Vocoder):
@@ -13,11 +12,11 @@ class Waveglow(Vocoder):
         for k in self.waveglow.convinv:
             k.float()
 
-    def generate_audio(self, mel_output, path, sample_rate=22050):
+    def generate_audio(self, mel_output):
         with torch.no_grad():
             audio = self.waveglow.infer(mel_output, sigma=0.666)
 
-        audio = audio[0].data.cpu().numpy()
-        audio = ipd.Audio(audio, rate=sample_rate)
-        with open(path, "wb") as f:
-            f.write(audio.data)
+        audio = audio.squeeze()
+        audio = audio * MAX_WAV_VALUE
+        audio = audio.cpu().numpy().astype("int16")
+        return audio

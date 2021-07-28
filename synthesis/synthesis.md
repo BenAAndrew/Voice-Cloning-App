@@ -9,6 +9,8 @@ With trained model weights we can now implement the TTS app for our generated vo
 - **text**: Text you wish to synthesize
 - **graph_output_path (optional)**: Path to save alignment graph to
 - **audio_output_path (optional)**: Path to save generated audio to
+- **silence_padding (optional)** : Seconds of silence to seperate each clip by with multi-line synthesis (default is 0.15)
+- **sample_rate (optional)** : Audio sample rate (default is 22050)
 
 ## How to run
 ### Using vocoder waveglow

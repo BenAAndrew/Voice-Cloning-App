@@ -24,8 +24,7 @@ from dataset.transcribe import create_transcription_model
 from training.train import train, DEFAULT_ALPHABET
 from training.utils import get_available_memory, get_batch_size, load_symbols
 from synthesis.synthesize import load_model, synthesize
-from synthesis.waveglow import Waveglow
-from synthesis.hifigan import Hifigan
+from synthesis.vocoders import Waveglow, Hifigan
 
 from flask import redirect, render_template, request, send_file
 

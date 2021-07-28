@@ -1,18 +1,8 @@
-import os
 import json
 import torch
-from scipy.io.wavfile import write
 
-from os.path import dirname, abspath
-import sys
-
-sys.path.append(dirname(dirname(abspath(__file__))))
-
-from synthesis.hifigan_model import Generator
-from synthesis import Vocoder
-
-
-MAX_WAV_VALUE = 32768.0
+from synthesis.vocoders.hifigan_model import Generator
+from synthesis.vocoders.vocoder import Vocoder, MAX_WAV_VALUE
 
 
 class AttrDict(dict):
@@ -40,7 +30,7 @@ class Hifigan(Vocoder):
         self.model.eval()
         self.model.remove_weight_norm()
 
-    def generate_audio(self, mel_output, path, sample_rate=22050):
+    def generate_audio(self, mel_output):
         with torch.no_grad():
             if torch.cuda.is_available():
                 mel_output = mel_output.type(torch.cuda.FloatTensor)
@@ -49,4 +39,4 @@ class Hifigan(Vocoder):
             audio = y_g_hat.squeeze()
             audio = audio * MAX_WAV_VALUE
             audio = audio.cpu().numpy().astype("int16")
-            write(path, sample_rate, audio)
+            return audio

@@ -3,11 +3,9 @@ omit =
     application/*
     tests/*
     training/tacotron2_model/*
-    training/train.py
-    training/validate.py
     glow.py
     main.py
-    synthesis/*
+    synthesis/vocoders/*
 [report]
 exclude_lines =
     if __name__ == .__main__.:
