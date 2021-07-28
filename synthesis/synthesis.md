@@ -11,6 +11,7 @@ With trained model weights we can now implement the TTS app for our generated vo
 - **audio_output_path (optional)**: Path to save generated audio to
 - **silence_padding (optional)** : Seconds of silence to seperate each clip by with multi-line synthesis (default is 0.15)
 - **sample_rate (optional)** : Audio sample rate (default is 22050)
+- **max_decoder_steps (optional)** : Max decoder steps controls sequence length and memory usage during inference. Increasing this will use more memory but may allow for longer sentences. (default is 1000)
 
 ## How to run
 ### Using vocoder waveglow

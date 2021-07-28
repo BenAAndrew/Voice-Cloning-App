@@ -114,6 +114,7 @@ def synthesize(
     vocoder=None,
     silence_padding=0.15,
     sample_rate=22050,
+    max_decoder_steps=1000,
 ):
     """
     Synthesise text for a given model.
@@ -140,6 +141,9 @@ def synthesize(
         Seconds of silence to seperate each clip by with multi-line synthesis (default is 0.15)
     sample_rate : int (optional)
         Audio sample rate (default is 22050)
+    max_decoder_steps : int (optional)
+        Max decoder steps controls sequence length and memory usage during inference.
+        Increasing this will use more memory but may allow for longer sentences. (default is 1000)
 
     Raises
     -------
@@ -154,7 +158,7 @@ def synthesize(
         # Single sentence
         text = clean_text(text, inflect_engine)
         sequence = text_to_sequence(text, symbols)
-        _, mel_outputs_postnet, _, alignment = model.inference(sequence)
+        _, mel_outputs_postnet, _, alignment = model.inference(sequence, max_decoder_steps)
 
         if graph_path:
             generate_graph(alignment, graph_path)
@@ -169,7 +173,7 @@ def synthesize(
         for line in lines:
             text = clean_text(line, inflect_engine)
             sequence = text_to_sequence(text, symbols)
-            _, mel_outputs_postnet, _, alignment = model.inference(sequence)
+            _, mel_outputs_postnet, _, alignment = model.inference(sequence, max_decoder_steps)
             mels.append(mel_outputs_postnet)
             alignments.append(alignment)
 

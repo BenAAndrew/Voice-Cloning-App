@@ -16,6 +16,12 @@
     <div class="content">
         <br>
         <div class="form-group">
+            <input type="range" id="max_decoder_steps" name="max_decoder_steps" step="100" min="100" max="3000" value="{{ max_decoder_steps }}" onchange="showMaxDecoderStepsLabel()">
+            <label for="max_decoder_steps">
+                <a href="#" data-toggle="tooltip" data-placement="top" title="Max decoder steps controls sequence length and memory usage during inference. Increasing this will use more memory but may allow for longer sentences.">Max decoder steps: </a> 
+                <span id="max_decoder_steps_label"></span>
+            </label>
+            <br>
             <input type="range" id="silence" name="silence" step="0.01" min="0.01" max="0.3" value="{{ silence }}" onchange="showSilenceLabel()">
             <label for="silence">
                 <a href="#" data-toggle="tooltip" data-placement="top" title="Silence seperation between each sentence (for multi-line)">Silence: </a> 

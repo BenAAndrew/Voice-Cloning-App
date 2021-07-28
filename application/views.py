@@ -306,14 +306,26 @@ def synthesis_post():
         graph_web_path = graph_path.replace("\\", "/")
         audio_web_path = audio_path.replace("\\", "/")
         silence = float(request.form["silence"])
+        max_decoder_steps = int(request.form["max_decoder_steps"])
 
-        synthesize(model, text, inflect_engine, symbols, graph_path, audio_path, vocoder, silence)
+        synthesize(
+            model,
+            text,
+            inflect_engine,
+            symbols,
+            graph_path,
+            audio_path,
+            vocoder,
+            silence,
+            max_decoder_steps=max_decoder_steps,
+        )
         return render_template(
             "synthesis.html",
             text=text.strip(),
             graph=graph_web_path,
             audio=audio_web_path,
-            silence=silence
+            silence=silence,
+            max_decoder_steps=max_decoder_steps,
         )
 
 
