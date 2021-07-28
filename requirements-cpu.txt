@@ -7,7 +7,6 @@ Unidecode==1.0.22
 Flask==1.1.2
 Flask-SocketIO==5.0.1
 matplotlib==3.2.2
-IPython==7.16.1
 soundfile==0.10.3.post1
 omegaconf==2.0.6
 numba==0.47
