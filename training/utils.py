@@ -84,6 +84,19 @@ def check_space(num_checkpoints):
 
 
 def load_symbols(alphabet_file):
+    """
+    Get alphabet and punctuation for a given alphabet file.
+
+    Parameters
+    ----------
+    alphabet_file : str
+        Path to alphabnet file
+
+    Returns
+    -------
+    list
+        List of symbols (punctuation + alphabet)
+    """
     symbols = PUNCTUATION.copy()
 
     with open(alphabet_file) as f:
