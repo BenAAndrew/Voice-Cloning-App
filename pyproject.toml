@@ -1,0 +1,18 @@
+[tool.interrogate]
+fail-under = 0
+verbose = 1
+ignore-init-method = true
+ignore-init-module = true
+ignore-module = true
+exclude = [
+    "glow.py",
+    "main.py",
+    "application",
+    "tests",
+    "dataset/transcribe.py",
+    "dataset/forced_alignment/search.py",
+    "training/tacotron2",
+    "synthesis/vocoders/hifigan_model.py",
+    "synthesis/vocoders/hifigan.py",
+    "synthesis/vocoders/waveglow.py",
+]

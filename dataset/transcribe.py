@@ -14,10 +14,37 @@ import omegaconf  # noqa
 class TranscriptionModel(ABC):
     @abstractmethod
     def load_audio(self, path):
+        """
+        Loads the audio file into a format that can be handled
+        by the transcribe function
+
+        Parameters
+        ----------
+        path : str
+            Path to audio file
+
+        Returns
+        -------
+        list or np.array
+            Loaded audio file
+        """
         pass
 
     @abstractmethod
     def transcribe(self, path):
+        """
+        Transcribes a given audio file.
+
+        Parameters
+        ----------
+        path : str
+            Path to audio file
+
+        Returns
+        -------
+        str
+            Text transcription
+        """
         pass
 
 

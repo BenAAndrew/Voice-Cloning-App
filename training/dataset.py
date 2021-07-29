@@ -52,12 +52,38 @@ class VoiceDataset(torch.utils.data.Dataset):
         random.shuffle(self.filepaths_and_text)
 
     def get_mel_text_pair(self, audiopath_and_text):
+        """
+        Extracts a text and mel pair for a given entry
+
+        Parameters
+        ----------
+        audiopath_and_text : (str, str)
+            Audio path and text transcription pair
+
+        Returns
+        -------
+        (Tensor, Tensor)
+            Symbol tensor (text) and mel spectrogram tensor (audio)
+        """
         audiopath, text = audiopath_and_text[0], audiopath_and_text[1]
         text = self.get_text(text)
         mel = self.get_mel(audiopath)
         return (text, mel)
 
     def get_mel(self, filename):
+        """
+        Gets mel data for a given audio file.
+
+        Parameters
+        ----------
+        filename : str
+            Path to audio file
+
+        Returns
+        -------
+        Tensor
+            Mel spectrogram tensor
+        """
         filepath = os.path.join(self.dataset_path, filename)
 
         if not self.load_mel_from_disk:
@@ -78,6 +104,19 @@ class VoiceDataset(torch.utils.data.Dataset):
         return melspec
 
     def get_text(self, text):
+        """
+        Gets sequence data for given text
+
+        Parameters
+        ----------
+        text : str
+            Transcription text
+
+        Returns
+        -------
+        Tensor
+            Int tensor of symbol ids
+        """
         text = clean_text(text, self.inflect_engine)
         sequence = [self.symbol_to_id[s] for s in text if s != "_"]
         text_norm = torch.IntTensor(sequence)

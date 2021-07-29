@@ -68,6 +68,20 @@ def warm_start_model(checkpoint_path, model, ignore_layers=["embedding.weight"])
 
 
 def get_state_dict(model):
+    """
+    Gets state dict for a given tacotron2 model.
+    Handles parallel & non-parallel model types.
+
+    Parameters
+    ----------
+    model : Tacotron2
+        tacotron2 model
+
+    Returns
+    -------
+    dict
+        Model state dict
+    """
     if isinstance(model, torch.nn.DataParallel):
         return model.module.state_dict()
     else:

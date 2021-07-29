@@ -1,6 +1,7 @@
 # Voice Cloning App
 [![CircleCI](https://circleci.com/gh/BenAAndrew/Voice-Cloning-App.svg?style=svg)](https://circleci.com/gh/BenAAndrew/Voice-Cloning-App)
 [![codecov](https://codecov.io/gh/BenAAndrew/Voice-Cloning-App/branch/main/graph/badge.svg?token=WC0LLZO3Z5)](https://codecov.io/gh/BenAAndrew/Voice-Cloning-App)
+[![comment](https://circleci.com/api/v1.1/project/github/BenAAndrew/Voice-Cloning-App/latest/artifacts/0/tmp/badges/comment.svg)](https://codecov.io/gh/BenAAndrew/Voice-Cloning-App)
 
 A Python/Pytorch app for easily synthesising human voices
 
