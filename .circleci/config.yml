@@ -35,6 +35,6 @@ jobs:
       - codecov/upload
       - run:
           name: Comment coverage
-          command: mkdir /tmp/badges && interrogate --generate-badge "/tmp/badges/comment.svg"
+          command: mkdir /tmp/badges && interrogate -c pyproject.toml --generate-badge "/tmp/badges/comment.svg"
       - store_artifacts:
           path: /tmp/badges

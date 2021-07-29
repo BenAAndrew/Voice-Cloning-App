@@ -1,0 +1,4 @@
+[tool.interrogate]
+fail-under = 0
+verbose = 1
+exclude = ["glow.py", "main.py"]
