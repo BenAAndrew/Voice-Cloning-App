@@ -1,4 +1,5 @@
 [tool.interrogate]
 fail-under = 0
 verbose = 1
-exclude = ["glow.py", "main.py"]
+ignore-init-module = true
+exclude = ["glow.py", "main.py", "application", "tests", "training/tacotron2", "synthesis/vocoders/hifigan_model.py"]
