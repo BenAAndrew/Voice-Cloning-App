@@ -19,14 +19,8 @@ jobs:
           name: Install dependencies
           command: sudo pip install -r requirements-cpu.txt
       - run:
-          name: Install pytest
-          command: sudo pip install pytest==6.2.2
-      - run:
-          name: Install gdown
-          command: sudo pip install gdown==3.13.0
-      - run:
-          name: Install pytest-cov
-          command: sudo pip install pytest-cov==2.12.1
+          name: Install additional tools
+          command: sudo pip install pytest==6.2.2 gdown==3.13.0 pytest-cov==2.12.1 interrogate==1.4.0
       - run:
           name: Download resources
           command: gdown https://drive.google.com/uc?id=1CJpYcwoQ9zNA8f9gLpNxEijT9yKTqdcT && unzip test_samples.zip -d test_samples && ls test_samples/
@@ -39,3 +33,8 @@ jobs:
           name: Tests
           command: pytest -k "not slow" --cov=./ --cov-config=.coveragerc --durations=5
       - codecov/upload
+      - run:
+          name: Comment coverage
+          command: mkdir /tmp/badges && interrogate --generate-badge "/tmp/badges/comment.svg"
+      - store_artifacts:
+          path: /tmp/badges
