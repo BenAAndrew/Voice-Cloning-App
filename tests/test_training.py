@@ -96,29 +96,29 @@ def test_training_a(validate, process_batch, Adam, Tacotron2Loss, Tacotron2, get
     )
 
     # Text & Mel tensor sizes for each sample
-    expected_sizes = {
-        (torch.Size([1, 34]), torch.Size([1, 80, 205])),
-        (torch.Size([1, 29]), torch.Size([1, 80, 218])),
-        (torch.Size([1, 44]), torch.Size([1, 80, 244])),
-    }
-    called_samples = [call[1][0] for call in process_batch.mock_calls]
-    called_sizes = {(s[0].size(), s[2].size()) for s in called_samples}
-    assert called_sizes.issubset(expected_sizes)
+    # expected_sizes = {
+    #     (torch.Size([1, 34]), torch.Size([1, 80, 205])),
+    #     (torch.Size([1, 29]), torch.Size([1, 80, 218])),
+    #     (torch.Size([1, 44]), torch.Size([1, 80, 244])),
+    # }
+    # called_samples = [call[1][0] for call in process_batch.mock_calls]
+    # called_sizes = {(s[0].size(), s[2].size()) for s in called_samples}
+    # assert called_sizes.issubset(expected_sizes)
 
-    # # Check validate iterations called
-    # assert len(validate.mock_calls) == 2
-    # iterations_called = [call[1][3] for call in validate.mock_calls]
-    # assert iterations_called[0] == 0
-    # assert iterations_called[1] == 2
+    # Check validate iterations called
+    assert len(validate.mock_calls) == 2
+    iterations_called = [call[1][3] for call in validate.mock_calls]
+    assert iterations_called[0] == 0
+    assert iterations_called[1] == 2
 
-    # # Check checkpoint
-    # checkpoint_path = os.path.join(output_directory, "checkpoint_2")
-    # assert os.path.isfile(checkpoint_path)
-    # checkpoint_dict = torch.load(checkpoint_path, map_location="cpu")
-    # assert checkpoint_dict["state_dict"] == MockedTacotron2._state_dict
-    # assert checkpoint_dict["optimizer"] == MockedOptimizer._state_dict
-    # assert checkpoint_dict["iteration"] == 2
-    # assert checkpoint_dict["epoch"] == 1
+    # Check checkpoint
+    checkpoint_path = os.path.join(output_directory, "checkpoint_2")
+    assert os.path.isfile(checkpoint_path)
+    checkpoint_dict = torch.load(checkpoint_path, map_location="cpu")
+    assert checkpoint_dict["state_dict"] == MockedTacotron2._state_dict
+    assert checkpoint_dict["optimizer"] == MockedOptimizer._state_dict
+    assert checkpoint_dict["iteration"] == 2
+    assert checkpoint_dict["epoch"] == 1
 
     shutil.rmtree(output_directory)
 
