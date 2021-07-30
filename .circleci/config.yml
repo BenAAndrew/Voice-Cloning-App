@@ -31,7 +31,7 @@ jobs:
             - "/usr/local/lib/python3.6/site-packages"
       - run:
           name: Tests
-          command: pytest -k "not slow" --cov=./ --cov-config=.coveragerc --durations=5
+          command: pytest -k "training_a" --cov=./ --cov-config=.coveragerc --durations=5
       - codecov/upload
       - run:
           name: Comment coverage
