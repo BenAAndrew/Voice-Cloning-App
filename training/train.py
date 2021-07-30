@@ -23,7 +23,7 @@ from training.utils import (
     check_space,
     load_metadata,
     load_symbols,
-    check_early_stopping
+    check_early_stopping,
 )
 from training.tacotron2_model import Tacotron2, TextMelCollate, Tacotron2Loss
 from training.tacotron2_model.utils import process_batch

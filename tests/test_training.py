@@ -4,14 +4,13 @@ import random
 from string import ascii_lowercase
 from unittest import mock
 import torch
-from torch.utils.data import DataLoader
 import shutil
 
 from dataset.clip_generator import CHARACTER_ENCODING
 from training.clean_text import clean_text
 from training.checkpoint import load_checkpoint, save_checkpoint, warm_start_model
 from training.dataset import VoiceDataset
-from training.tacotron2_model import Tacotron2, TextMelCollate
+from training.tacotron2_model import Tacotron2
 from training.train import train, MINIMUM_MEMORY_GB, DEFAULT_ALPHABET, WEIGHT_DECAY
 from training.utils import (
     check_space,
@@ -60,7 +59,7 @@ class MockedTacotron2Loss:
 
 class MockedOptimizer:
     param_groups = [{"lr": 0.1}]
-    _state_dict =  {"lr": 0.1}
+    _state_dict = {"lr": 0.1}
 
     def __init__(self, parameters, lr, weight_decay):
         pass
@@ -79,11 +78,11 @@ class MockedOptimizer:
 @mock.patch("torch.optim.Adam", return_value=MockedOptimizer)
 @mock.patch("training.train.process_batch", return_value=(None, None))
 @mock.patch("training.train.validate", return_value=0.6)
-def test_training_a(validate, process_batch, Adam, Tacotron2Loss, Tacotron2, get_available_memory, is_available):    
+def test_training_a(validate, process_batch, Adam, Tacotron2Loss, Tacotron2, get_available_memory, is_available):
     metadata_path = os.path.join("test_samples", "dataset", "metadata.csv")
     dataset_directory = os.path.join("test_samples", "dataset", "wavs")
     output_directory = "checkpoint"
-    train_size=0.67
+    train_size = 0.67
 
     train(
         metadata_path,
@@ -93,7 +92,7 @@ def test_training_a(validate, process_batch, Adam, Tacotron2Loss, Tacotron2, get
         batch_size=1,
         early_stopping=False,
         multi_gpu=False,
-        train_size=train_size
+        train_size=train_size,
     )
 
     assert is_available.called
@@ -102,24 +101,15 @@ def test_training_a(validate, process_batch, Adam, Tacotron2Loss, Tacotron2, get
     assert Tacotron2Loss.called
     assert Adam.called
 
-    with open(metadata_path, encoding=CHARACTER_ENCODING) as f:
-        data = [line.strip().split("|") for line in f]
-    dataset = VoiceDataset(data, dataset_directory, DEFAULT_ALPHABET)
-    collate_fn = TextMelCollate()
-    data_loader = DataLoader(
-        dataset, num_workers=0, sampler=None, batch_size=1, pin_memory=False, collate_fn=collate_fn
-    )
-
-    # Check batches are equal
-    assert len(process_batch.mock_calls) == 2
-    called_batches = [call[1][0] for call in process_batch.mock_calls]
-    batches = [b for b in data_loader]
-    batch_sizes = [b[0].size() for b in batches]
-
-    for called_batch in called_batches:
-        index = batch_sizes.index(called_batch[0].size())
-        for i in range(len(called_batch)):
-            assert torch.equal(batches[index][i], called_batch[i])
+    # Text & Mel tensor sizes for each sample
+    expected_sizes = {
+        (torch.Size([1, 34]), torch.Size([1, 80, 205])),
+        (torch.Size([1, 29]), torch.Size([1, 80, 218])),
+        (torch.Size([1, 44]), torch.Size([1, 80, 244])),
+    }
+    called_samples = [call[1][0] for call in process_batch.mock_calls]
+    called_sizes = {(s[0].size(), s[2].size()) for s in called_samples}
+    assert called_sizes.issubset(expected_sizes)
 
     # Check validate iterations called
     assert len(validate.mock_calls) == 2
@@ -234,13 +224,13 @@ def test_load_symbols():
 # Early stopping
 def test_early_stopping():
     # Too few values
-    assert check_early_stopping([10,10,10,10]) is False
+    assert check_early_stopping([10, 10, 10, 10]) is False
 
     # Loss still improving
-    assert check_early_stopping([1.1,1,0.9,0.8,0.7,0.6,0.5,0.4,0.3,0.2]) is False
+    assert check_early_stopping([1.1, 1, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2]) is False
 
     # Loss not improving
-    assert check_early_stopping([0.5,0.4999,0.5,0.4999,0.5,0.4998,0.4999,0.4996,0.4997,0.5]) is True
+    assert check_early_stopping([0.5, 0.4999, 0.5, 0.4999, 0.5, 0.4998, 0.4999, 0.4996, 0.4997, 0.5]) is True
 
 
 # Disk usage
