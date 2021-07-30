@@ -10,6 +10,8 @@ CHECKPOINT_SIZE_MB = 333
 BATCH_SIZE_PER_GB = 2.5
 LEARNING_RATE_PER_BATCH = 3.125e-5
 PUNCTUATION = list("_-!'(),.:;? ")
+EARLY_STOPPING_WINDOW = 10
+EARLY_STOPPING_MIN_DIFFERENCE = 0.0005
 
 
 def get_available_memory():
@@ -139,3 +141,25 @@ def load_symbols(alphabet_file):
             symbols.append(line)
 
     return symbols
+
+
+def check_early_stopping(validation_losses):
+    """
+    Decide whether to stop training depending on validation losses.
+
+    Parameters
+    ----------
+    validation_losses : list
+        List of validation loss scores
+
+    Returns
+    -------
+    bool
+        True if training should stop, otherwise False
+    """
+    if len(validation_losses) >= EARLY_STOPPING_WINDOW:
+        losses = validation_losses[-EARLY_STOPPING_WINDOW:]
+        difference = max(losses) - min(losses)
+        if difference < EARLY_STOPPING_MIN_DIFFERENCE:
+            return True
+    return False

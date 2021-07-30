@@ -23,6 +23,7 @@ from training.utils import (
     check_space,
     load_metadata,
     load_symbols,
+    check_early_stopping
 )
 from training.tacotron2_model import Tacotron2, TextMelCollate, Tacotron2Loss
 from training.tacotron2_model.utils import process_batch
@@ -31,8 +32,6 @@ from training.tacotron2_model.utils import process_batch
 MINIMUM_MEMORY_GB = 4
 WEIGHT_DECAY = 1e-6
 GRAD_CLIP_THRESH = 1.0
-EARLY_STOPPING_WINDOW = 10
-EARLY_STOPPING_MIN_DIFFERENCE = 0.0005
 SEED = 1234
 DEFAULT_ALPHABET = "_-!'(),.:;? ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
 
@@ -213,12 +212,9 @@ def train(
             iteration += 1
 
         # Early Stopping
-        if early_stopping and len(validation_losses) >= EARLY_STOPPING_WINDOW:
-            losses = validation_losses[-EARLY_STOPPING_WINDOW:]
-            difference = max(losses) - min(losses)
-            if difference < EARLY_STOPPING_MIN_DIFFERENCE:
-                logging.info("Stopping training early as loss is no longer decreasing")
-                break
+        if early_stopping and check_early_stopping(validation_losses):
+            logging.info("Stopping training early as loss is no longer decreasing")
+            break
 
     logging.info(f"Progress - {epochs}/{epochs}")
     validate(model, val_loader, criterion, iteration)
