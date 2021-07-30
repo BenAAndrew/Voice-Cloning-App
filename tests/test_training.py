@@ -12,7 +12,17 @@ from training.checkpoint import load_checkpoint, save_checkpoint, warm_start_mod
 from training.dataset import VoiceDataset
 from training.tacotron2_model import Tacotron2
 from training.train import DEFAULT_ALPHABET, WEIGHT_DECAY
-from training.utils import check_space, load_symbols, CHECKPOINT_SIZE_MB, PUNCTUATION
+from training.utils import (
+    check_space,
+    load_metadata,
+    load_symbols,
+    get_learning_rate,
+    get_batch_size,
+    LEARNING_RATE_PER_BATCH,
+    BATCH_SIZE_PER_GB,
+    CHECKPOINT_SIZE_MB,
+    PUNCTUATION,
+)
 
 
 # Clean text
@@ -79,6 +89,26 @@ def test_warm_start_model():
             assert torch.equal(model_dict[k], checkpoint_dict[k])
 
 
+# Metadata
+def test_load_metadata():
+    metadata_path = os.path.join("test_samples", "dataset", "metadata.csv")
+    data = {
+        "0_2730.wav": "the examination and testimony of the experts",
+        "2820_5100.wav": "enabled the commission to conclude",
+        "5130_7560.wav": "that five shots may have been",
+    }
+    train_size = 0.67
+    train_files, test_files = load_metadata(metadata_path, train_size)
+    assert len(train_files) == 2
+    for name, text in train_files:
+        assert data[name] == text
+
+    assert len(test_files) == 1
+    name, text = test_files[0]
+    assert data[name] == text
+    assert name not in [i[0] for i in train_files]
+
+
 # Symbols
 def test_load_symbols():
     alphabet_path = os.path.join("test_samples", "english.txt")
@@ -104,3 +134,16 @@ def test_check_space_failure(disk_usage):
 def test_check_space_success(disk_usage):
     disk_usage.return_value = None, None, (CHECKPOINT_SIZE_MB + 1) * (2 ** 20)
     assert check_space(1) is None, "Sufficent space should not throw an exception"
+
+
+# Test parameters
+def test_get_learning_rate():
+    batch_size = 40
+    lr = get_learning_rate(batch_size)
+    assert lr == batch_size * LEARNING_RATE_PER_BATCH
+
+
+def test_get_batch_size():
+    memory = 8
+    batch_size = get_batch_size(memory)
+    assert batch_size == int(memory * BATCH_SIZE_PER_GB)

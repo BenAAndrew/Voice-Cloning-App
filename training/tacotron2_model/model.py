@@ -489,7 +489,9 @@ class Decoder(nn.Module):
             if torch.sigmoid(gate_output.data) > self.gate_threshold:
                 break
             elif len(mel_outputs) == max_decoder_steps:
-                raise Exception("Warning! Reached max decoder steps. Given sentence is either too short/long")
+                raise Exception(
+                    "Warning! Reached max decoder steps. Either the model is low quality or the given sentence is too short/long"
+                )
 
             decoder_input = mel_output
 

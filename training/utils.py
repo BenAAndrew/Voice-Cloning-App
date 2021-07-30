@@ -1,5 +1,10 @@
 import shutil
 import torch
+import random
+
+
+from dataset.clip_generator import CHARACTER_ENCODING
+
 
 CHECKPOINT_SIZE_MB = 333
 BATCH_SIZE_PER_GB = 2.5
@@ -81,6 +86,33 @@ def check_space(num_checkpoints):
     assert (
         free_mb >= required_mb
     ), f"Insufficent storage space (requires {required_mb}mb). Reduce checkpoint frequency or free up space"
+
+
+def load_metadata(metadata_path, train_size):
+    """
+    Load metadata file and split entries into train and test.
+
+    Parameters
+    ----------
+    metadata_path : str
+        Path to metadata file
+    train_size : float
+        Percentage of entries to use for training (rest used for testing)
+
+    Returns
+    -------
+    (list, list)
+        List of train and test samples
+    """
+    with open(metadata_path, encoding=CHARACTER_ENCODING) as f:
+        filepaths_and_text = [line.strip().split("|") for line in f]
+
+    random.shuffle(filepaths_and_text)
+    train_cutoff = int(len(filepaths_and_text) * train_size)
+    train_files = filepaths_and_text[:train_cutoff]
+    test_files = filepaths_and_text[train_cutoff:]
+    print(f"{len(train_files)} train files, {len(test_files)} test files")
+    return train_files, test_files
 
 
 def load_symbols(alphabet_file):

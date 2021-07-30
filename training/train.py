@@ -13,11 +13,17 @@ import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
 
-from dataset.clip_generator import CHARACTER_ENCODING
 from training.dataset import VoiceDataset
 from training.checkpoint import load_checkpoint, save_checkpoint, warm_start_model
 from training.validate import validate
-from training.utils import get_available_memory, get_batch_size, get_learning_rate, check_space, load_symbols
+from training.utils import (
+    get_available_memory,
+    get_batch_size,
+    get_learning_rate,
+    check_space,
+    load_metadata,
+    load_symbols,
+)
 from training.tacotron2_model import Tacotron2, TextMelCollate, Tacotron2Loss
 from training.tacotron2_model.utils import process_batch
 
@@ -122,15 +128,7 @@ def train(
 
     # Load data
     logging.info("Loading data...")
-    with open(metadata_path, encoding=CHARACTER_ENCODING) as f:
-        filepaths_and_text = [line.strip().split("|") for line in f]
-
-    random.shuffle(filepaths_and_text)
-    train_cutoff = int(len(filepaths_and_text) * train_size)
-    train_files = filepaths_and_text[:train_cutoff]
-    test_files = filepaths_and_text[train_cutoff:]
-    print(f"{len(train_files)} train files, {len(test_files)} test files")
-
+    train_files, test_files = load_metadata(metadata_path, train_size)
     symbols = load_symbols(alphabet_path) if alphabet_path else DEFAULT_ALPHABET
     trainset = VoiceDataset(train_files, dataset_directory, symbols)
     valset = VoiceDataset(test_files, dataset_directory, symbols)
