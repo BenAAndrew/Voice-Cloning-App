@@ -95,21 +95,15 @@ def test_training_a(validate, process_batch, Adam, Tacotron2Loss, Tacotron2, get
         train_size=train_size,
     )
 
-    # assert is_available.called
-    # assert get_available_memory.called
-    # assert Tacotron2.called
-    # assert Tacotron2Loss.called
-    # assert Adam.called
-
-    # # Text & Mel tensor sizes for each sample
-    # expected_sizes = {
-    #     (torch.Size([1, 34]), torch.Size([1, 80, 205])),
-    #     (torch.Size([1, 29]), torch.Size([1, 80, 218])),
-    #     (torch.Size([1, 44]), torch.Size([1, 80, 244])),
-    # }
-    # called_samples = [call[1][0] for call in process_batch.mock_calls]
-    # called_sizes = {(s[0].size(), s[2].size()) for s in called_samples}
-    # assert called_sizes.issubset(expected_sizes)
+    # Text & Mel tensor sizes for each sample
+    expected_sizes = {
+        (torch.Size([1, 34]), torch.Size([1, 80, 205])),
+        (torch.Size([1, 29]), torch.Size([1, 80, 218])),
+        (torch.Size([1, 44]), torch.Size([1, 80, 244])),
+    }
+    called_samples = [call[1][0] for call in process_batch.mock_calls]
+    called_sizes = {(s[0].size(), s[2].size()) for s in called_samples}
+    assert called_sizes.issubset(expected_sizes)
 
     # # Check validate iterations called
     # assert len(validate.mock_calls) == 2
