@@ -4,25 +4,139 @@ import random
 from string import ascii_lowercase
 from unittest import mock
 import torch
+from torch.utils.data import DataLoader
 import shutil
 
 from dataset.clip_generator import CHARACTER_ENCODING
 from training.clean_text import clean_text
 from training.checkpoint import load_checkpoint, save_checkpoint, warm_start_model
 from training.dataset import VoiceDataset
-from training.tacotron2_model import Tacotron2
-from training.train import DEFAULT_ALPHABET, WEIGHT_DECAY
+from training.tacotron2_model import Tacotron2, TextMelCollate
+from training.train import train, MINIMUM_MEMORY_GB, DEFAULT_ALPHABET, WEIGHT_DECAY
 from training.utils import (
     check_space,
     load_metadata,
     load_symbols,
     get_learning_rate,
     get_batch_size,
+    check_early_stopping,
     LEARNING_RATE_PER_BATCH,
     BATCH_SIZE_PER_GB,
     CHECKPOINT_SIZE_MB,
     PUNCTUATION,
 )
+
+
+# Training
+class MockedTacotron2:
+    _state_dict = {"param": None}
+
+    def cuda():
+        return MockedTacotron2()
+
+    def parameters(self):
+        return {}
+
+    def train(self):
+        pass
+
+    def zero_grad(self):
+        pass
+
+    def state_dict(self):
+        return self._state_dict
+
+
+class MockedTacotron2Loss:
+    def __init__(self, y_pred, y):
+        pass
+
+    def item(self):
+        return 0.5
+
+    def backward(self):
+        pass
+
+
+class MockedOptimizer:
+    param_groups = [{"lr": 0.1}]
+    _state_dict =  {"lr": 0.1}
+
+    def __init__(self, parameters, lr, weight_decay):
+        pass
+
+    def step():
+        pass
+
+    def state_dict():
+        return MockedOptimizer._state_dict
+
+
+@mock.patch("torch.cuda.is_available", return_value=True)
+@mock.patch("training.train.get_available_memory", return_value=MINIMUM_MEMORY_GB)
+@mock.patch("training.train.Tacotron2", return_value=MockedTacotron2)
+@mock.patch("training.train.Tacotron2Loss", return_value=MockedTacotron2Loss)
+@mock.patch("torch.optim.Adam", return_value=MockedOptimizer)
+@mock.patch("training.train.process_batch", return_value=(None, None))
+@mock.patch("training.train.validate", return_value=0.6)
+def test_training_a(validate, process_batch, Adam, Tacotron2Loss, Tacotron2, get_available_memory, is_available):    
+    metadata_path = os.path.join("test_samples", "dataset", "metadata.csv")
+    dataset_directory = os.path.join("test_samples", "dataset", "wavs")
+    output_directory = "checkpoint"
+    train_size=0.67
+
+    train(
+        metadata_path,
+        dataset_directory,
+        output_directory,
+        epochs=1,
+        batch_size=1,
+        early_stopping=False,
+        multi_gpu=False,
+        train_size=train_size
+    )
+
+    assert is_available.called
+    assert get_available_memory.called
+    assert Tacotron2.called
+    assert Tacotron2Loss.called
+    assert Adam.called
+
+    with open(metadata_path, encoding=CHARACTER_ENCODING) as f:
+        data = [line.strip().split("|") for line in f]
+    dataset = VoiceDataset(data, dataset_directory, DEFAULT_ALPHABET)
+    collate_fn = TextMelCollate()
+    data_loader = DataLoader(
+        dataset, num_workers=0, sampler=None, batch_size=1, pin_memory=False, collate_fn=collate_fn
+    )
+
+    # Check batches are equal
+    assert len(process_batch.mock_calls) == 2
+    called_batches = [call[1][0] for call in process_batch.mock_calls]
+    batches = [b for b in data_loader]
+    batch_sizes = [b[0].size() for b in batches]
+
+    for called_batch in called_batches:
+        index = batch_sizes.index(called_batch[0].size())
+        for i in range(len(called_batch)):
+            assert torch.equal(batches[index][i], called_batch[i])
+
+    # Check validate iterations called
+    assert len(validate.mock_calls) == 2
+    iterations_called = [call[1][3] for call in validate.mock_calls]
+    assert iterations_called[0] == 0
+    assert iterations_called[1] == 2
+
+    # Check checkpoint
+    checkpoint_path = os.path.join(output_directory, "checkpoint_2")
+    assert os.path.isfile(checkpoint_path)
+    checkpoint_dict = torch.load(checkpoint_path, map_location="cpu")
+    assert checkpoint_dict["state_dict"] == MockedTacotron2._state_dict
+    assert checkpoint_dict["optimizer"] == MockedOptimizer._state_dict
+    assert checkpoint_dict["iteration"] == 2
+    assert checkpoint_dict["epoch"] == 1
+
+    shutil.rmtree(output_directory)
 
 
 # Clean text
@@ -117,10 +231,21 @@ def test_load_symbols():
     assert set(PUNCTUATION).issubset(symbols)
 
 
+# Early stopping
+def test_early_stopping():
+    # Too few values
+    assert check_early_stopping([10,10,10,10]) is False
+
+    # Loss still improving
+    assert check_early_stopping([1.1,1,0.9,0.8,0.7,0.6,0.5,0.4,0.3,0.2]) is False
+
+    # Loss not improving
+    assert check_early_stopping([0.5,0.4999,0.5,0.4999,0.5,0.4998,0.4999,0.4996,0.4997,0.5]) is True
+
+
 # Disk usage
-@mock.patch("shutil.disk_usage")
+@mock.patch("shutil.disk_usage", return_value=(None, None, (CHECKPOINT_SIZE_MB) * (2 ** 20)))
 def test_check_space_failure(disk_usage):
-    disk_usage.return_value = None, None, (CHECKPOINT_SIZE_MB) * (2 ** 20)
     exception = False
     try:
         check_space(2)
@@ -130,9 +255,8 @@ def test_check_space_failure(disk_usage):
     assert exception, "Insufficent space should throw an exception"
 
 
-@mock.patch("shutil.disk_usage")
+@mock.patch("shutil.disk_usage", return_value=(None, None, (CHECKPOINT_SIZE_MB + 1) * (2 ** 20)))
 def test_check_space_success(disk_usage):
-    disk_usage.return_value = None, None, (CHECKPOINT_SIZE_MB + 1) * (2 ** 20)
     assert check_space(1) is None, "Sufficent space should not throw an exception"
 
 
