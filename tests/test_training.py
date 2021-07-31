@@ -132,10 +132,10 @@ def test_train(validate, process_batch, Adam, Tacotron2Loss, Tacotron2, get_avai
 
 
 # Validate
-@mock.patch("training.validate.process_batch", return_value=(None, None))
-def test_validate(process_batch):
-    loss = validate(MockedTacotron2(), [None, None], MockedTacotron2Loss(), 0)
-    assert loss == 0.5
+# @mock.patch("training.validate.process_batch", return_value=(None, None))
+# def test_validate(process_batch):
+#     loss = validate(MockedTacotron2(), [None, None], MockedTacotron2Loss(), 0)
+#     assert loss == 0.5
 
 
 # Clean text
