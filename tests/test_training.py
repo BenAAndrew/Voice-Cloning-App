@@ -4,14 +4,13 @@ import random
 from string import ascii_lowercase
 from unittest import mock
 import torch
-from torch.utils.data import DataLoader
 import shutil
 
 from dataset.clip_generator import CHARACTER_ENCODING
 from training.clean_text import clean_text
 from training.checkpoint import load_checkpoint, save_checkpoint, warm_start_model
 from training.dataset import VoiceDataset
-from training.tacotron2_model import Tacotron2, TextMelCollate
+from training.tacotron2_model import Tacotron2
 from training.train import train, MINIMUM_MEMORY_GB, DEFAULT_ALPHABET, WEIGHT_DECAY
 from training.validate import validate
 from training.utils import (
@@ -134,14 +133,7 @@ def test_train(validate, process_batch, Adam, Tacotron2Loss, Tacotron2, get_avai
 # Validate
 @mock.patch("training.validate.process_batch", return_value=(None, None))
 def test_validate(process_batch):
-    audio_directory = os.path.join("test_samples", "dataset", "wavs")
-    filepaths_and_text = [("0_2730.wav", "the examination and testimony of the experts")]
-    dataset = VoiceDataset(filepaths_and_text, audio_directory, DEFAULT_ALPHABET)
-    val_loader = DataLoader(
-        dataset, num_workers=0, sampler=None, batch_size=1, pin_memory=False, collate_fn=TextMelCollate()
-    )
-
-    loss = validate(MockedTacotron2(), val_loader, MockedTacotron2Loss(), 0)
+    loss = validate(MockedTacotron2(), [None, None], MockedTacotron2Loss(), 0)
     assert loss == 0.5
 
 
