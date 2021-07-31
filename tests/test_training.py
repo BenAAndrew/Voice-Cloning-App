@@ -91,7 +91,7 @@ class MockedOptimizer:
 @mock.patch("torch.optim.Adam", return_value=MockedOptimizer)
 @mock.patch("training.train.process_batch", return_value=(None, None))
 @mock.patch("training.train.validate", return_value=0.5)
-def test_train(validate, process_batch, Adam, Tacotron2Loss, Tacotron2, get_available_memory, is_available):
+def test_train_a(validate, process_batch, Adam, Tacotron2Loss, Tacotron2, get_available_memory, is_available):
     metadata_path = os.path.join("test_samples", "dataset", "metadata.csv")
     dataset_directory = os.path.join("test_samples", "dataset", "wavs")
     output_directory = "checkpoint"
