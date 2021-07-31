@@ -83,58 +83,58 @@ class MockedOptimizer:
         return MockedOptimizer._state_dict
 
 
-@mock.patch("torch.cuda.is_available", return_value=True)
-@mock.patch("training.train.get_available_memory", return_value=MINIMUM_MEMORY_GB)
-@mock.patch("training.train.Tacotron2", return_value=MockedTacotron2)
-@mock.patch("training.train.Tacotron2Loss", return_value=MockedTacotron2Loss)
-@mock.patch("torch.optim.Adam", return_value=MockedOptimizer)
-@mock.patch("training.train.process_batch", return_value=(None, None))
-@mock.patch("training.train.validate", return_value=0.5)
-def test_train(validate, process_batch, Adam, Tacotron2Loss, Tacotron2, get_available_memory, is_available):
-    metadata_path = os.path.join("test_samples", "dataset", "metadata.csv")
-    dataset_directory = os.path.join("test_samples", "dataset", "wavs")
-    output_directory = "checkpoint"
-    train_size = 0.67
+# @mock.patch("torch.cuda.is_available", return_value=True)
+# @mock.patch("training.train.get_available_memory", return_value=MINIMUM_MEMORY_GB)
+# @mock.patch("training.train.Tacotron2", return_value=MockedTacotron2)
+# @mock.patch("training.train.Tacotron2Loss", return_value=MockedTacotron2Loss)
+# @mock.patch("torch.optim.Adam", return_value=MockedOptimizer)
+# @mock.patch("training.train.process_batch", return_value=(None, None))
+# @mock.patch("training.train.validate", return_value=0.5)
+# def test_train(validate, process_batch, Adam, Tacotron2Loss, Tacotron2, get_available_memory, is_available):
+#     metadata_path = os.path.join("test_samples", "dataset", "metadata.csv")
+#     dataset_directory = os.path.join("test_samples", "dataset", "wavs")
+#     output_directory = "checkpoint"
+#     train_size = 0.67
 
-    train(
-        metadata_path,
-        dataset_directory,
-        output_directory,
-        epochs=1,
-        batch_size=1,
-        early_stopping=False,
-        multi_gpu=False,
-        train_size=train_size,
-    )
+#     train(
+#         metadata_path,
+#         dataset_directory,
+#         output_directory,
+#         epochs=1,
+#         batch_size=1,
+#         early_stopping=False,
+#         multi_gpu=False,
+#         train_size=train_size,
+#     )
 
-    # Text & Mel tensor sizes for each sample
-    # expected_sizes = {
-    #     (torch.Size([1, 34]), torch.Size([1, 80, 205])),
-    #     (torch.Size([1, 29]), torch.Size([1, 80, 218])),
-    #     (torch.Size([1, 44]), torch.Size([1, 80, 244])),
-    # }
-    # called_samples = [call[1][0] for call in process_batch.mock_calls]
-    # called_sizes = {(s[0].size(), s[2].size()) for s in called_samples}
-    # assert called_sizes.issubset(expected_sizes)
+#     # Text & Mel tensor sizes for each sample
+#     # expected_sizes = {
+#     #     (torch.Size([1, 34]), torch.Size([1, 80, 205])),
+#     #     (torch.Size([1, 29]), torch.Size([1, 80, 218])),
+#     #     (torch.Size([1, 44]), torch.Size([1, 80, 244])),
+#     # }
+#     # called_samples = [call[1][0] for call in process_batch.mock_calls]
+#     # called_sizes = {(s[0].size(), s[2].size()) for s in called_samples}
+#     # assert called_sizes.issubset(expected_sizes)
 
-    # # Check validate iterations called
-    # assert len(validate.mock_calls) == 2
-    # iterations_called = [call[1][3] for call in validate.mock_calls]
-    # assert iterations_called[0] == 0
-    # assert iterations_called[1] == 2
+#     # # Check validate iterations called
+#     # assert len(validate.mock_calls) == 2
+#     # iterations_called = [call[1][3] for call in validate.mock_calls]
+#     # assert iterations_called[0] == 0
+#     # assert iterations_called[1] == 2
 
-    # Check checkpoint
-    checkpoint_path = os.path.join(output_directory, "checkpoint_2")
-    assert os.path.isfile(checkpoint_path)
+#     # Check checkpoint
+#     checkpoint_path = os.path.join(output_directory, "checkpoint_2")
+#     assert os.path.isfile(checkpoint_path)
 
-    shutil.rmtree(output_directory)
+#     shutil.rmtree(output_directory)
 
 
-# Validate
-@mock.patch("training.validate.process_batch", return_value=(None, None))
-def test_validate(process_batch):
-    loss = validate(MockedTacotron2(), [None, None], MockedTacotron2Loss(), 0)
-    assert loss == 0.5
+# # Validate
+# @mock.patch("training.validate.process_batch", return_value=(None, None))
+# def test_validate(process_batch):
+#     loss = validate(MockedTacotron2(), [None, None], MockedTacotron2Loss(), 0)
+#     assert loss == 0.5
 
 
 # Clean text
