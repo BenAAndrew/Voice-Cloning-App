@@ -89,9 +89,12 @@ class MockedOptimizer:
 @mock.patch("training.train.Tacotron2", return_value=MockedTacotron2)
 @mock.patch("training.train.Tacotron2Loss", return_value=MockedTacotron2Loss)
 @mock.patch("torch.optim.Adam", return_value=MockedOptimizer)
+@mock.patch("training.train.VoiceDataset", return_value=None)
+@mock.patch("training.train.DataLoader", return_value=[(None, None), (None, None)])
 @mock.patch("training.train.process_batch", return_value=(None, None))
+@mock.patch("torch.nn.utils.clip_grad_norm_")
 @mock.patch("training.train.validate", return_value=0.5)
-def test_train_a(validate, process_batch, Adam, Tacotron2Loss, Tacotron2, get_available_memory, is_available):
+def test_train_a(validate, clip_grad_norm_, process_batch, DataLoader, VoiceDataset, Adam, Tacotron2Loss, Tacotron2, cudnn, get_available_memory, is_available):
     metadata_path = os.path.join("test_samples", "dataset", "metadata.csv")
     dataset_directory = os.path.join("test_samples", "dataset", "wavs")
     output_directory = "checkpoint"
@@ -107,22 +110,6 @@ def test_train_a(validate, process_batch, Adam, Tacotron2Loss, Tacotron2, get_av
         multi_gpu=False,
         train_size=train_size,
     )
-
-    # Text & Mel tensor sizes for each sample
-    # expected_sizes = {
-    #     (torch.Size([1, 34]), torch.Size([1, 80, 205])),
-    #     (torch.Size([1, 29]), torch.Size([1, 80, 218])),
-    #     (torch.Size([1, 44]), torch.Size([1, 80, 244])),
-    # }
-    # called_samples = [call[1][0] for call in process_batch.mock_calls]
-    # called_sizes = {(s[0].size(), s[2].size()) for s in called_samples}
-    # assert called_sizes.issubset(expected_sizes)
-
-    # # Check validate iterations called
-    # assert len(validate.mock_calls) == 2
-    # iterations_called = [call[1][3] for call in validate.mock_calls]
-    # assert iterations_called[0] == 0
-    # assert iterations_called[1] == 2
 
     # Check checkpoint
     checkpoint_path = os.path.join(output_directory, "checkpoint_2")
