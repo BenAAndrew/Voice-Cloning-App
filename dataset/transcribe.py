@@ -118,5 +118,6 @@ if __name__ == "__main__":
     parser.add_argument("-i", "--input_path", help="Path to audio file", type=str, required=True)
     args = parser.parse_args()
 
-    text = transcribe(args.input_path)
+    model = create_transcription_model()
+    text = model.transcribe(args.input_path)
     print("Text: ", text)
