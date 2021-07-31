@@ -4,18 +4,21 @@ import random
 from string import ascii_lowercase
 from unittest import mock
 import torch
+from torch.utils.data import DataLoader
 import shutil
 
 from dataset.clip_generator import CHARACTER_ENCODING
 from training.clean_text import clean_text
 from training.checkpoint import load_checkpoint, save_checkpoint, warm_start_model
 from training.dataset import VoiceDataset
-from training.tacotron2_model import Tacotron2
+from training.tacotron2_model import Tacotron2, TextMelCollate
 from training.train import train, MINIMUM_MEMORY_GB, DEFAULT_ALPHABET, WEIGHT_DECAY
+from training.validate import validate
 from training.utils import (
     check_space,
     load_metadata,
     load_symbols,
+    get_available_memory,
     get_learning_rate,
     get_batch_size,
     check_early_stopping,
@@ -39,6 +42,9 @@ class MockedTacotron2:
     def train(self):
         pass
 
+    def eval(self):
+        pass
+
     def zero_grad(self):
         pass
 
@@ -47,8 +53,15 @@ class MockedTacotron2:
 
 
 class MockedTacotron2Loss:
-    def __init__(self, y_pred, y):
+    class Loss:
+        def item():
+            return 0.5
+
+    def __init__(self, *args):
         pass
+
+    def __call__(self, *args):
+        return self.Loss
 
     def item(self):
         return 0.5
@@ -77,8 +90,8 @@ class MockedOptimizer:
 @mock.patch("training.train.Tacotron2Loss", return_value=MockedTacotron2Loss)
 @mock.patch("torch.optim.Adam", return_value=MockedOptimizer)
 @mock.patch("training.train.process_batch", return_value=(None, None))
-@mock.patch("training.train.validate", return_value=0.6)
-def test_training_a(validate, process_batch, Adam, Tacotron2Loss, Tacotron2, get_available_memory, is_available):
+@mock.patch("training.train.validate", return_value=0.5)
+def test_train(validate, process_batch, Adam, Tacotron2Loss, Tacotron2, get_available_memory, is_available):
     metadata_path = os.path.join("test_samples", "dataset", "metadata.csv")
     dataset_directory = os.path.join("test_samples", "dataset", "wavs")
     output_directory = "checkpoint"
@@ -111,16 +124,25 @@ def test_training_a(validate, process_batch, Adam, Tacotron2Loss, Tacotron2, get
     # assert iterations_called[0] == 0
     # assert iterations_called[1] == 2
 
-    # # Check checkpoint
-    # checkpoint_path = os.path.join(output_directory, "checkpoint_2")
-    # assert os.path.isfile(checkpoint_path)
-    # checkpoint_dict = torch.load(checkpoint_path, map_location="cpu")
-    # assert checkpoint_dict["state_dict"] == MockedTacotron2._state_dict
-    # assert checkpoint_dict["optimizer"] == MockedOptimizer._state_dict
-    # assert checkpoint_dict["iteration"] == 2
-    # assert checkpoint_dict["epoch"] == 1
+    # Check checkpoint
+    checkpoint_path = os.path.join(output_directory, "checkpoint_2")
+    assert os.path.isfile(checkpoint_path)
 
     shutil.rmtree(output_directory)
+
+
+# Validate
+@mock.patch("training.validate.process_batch", return_value=(None, None))
+def test_validate(process_batch):
+    audio_directory = os.path.join("test_samples", "dataset", "wavs")
+    filepaths_and_text = [("0_2730.wav", "the examination and testimony of the experts")]
+    dataset = VoiceDataset(filepaths_and_text, audio_directory, DEFAULT_ALPHABET)
+    val_loader = DataLoader(
+        dataset, num_workers=0, sampler=None, batch_size=1, pin_memory=False, collate_fn=TextMelCollate()
+    )
+
+    loss = validate(MockedTacotron2(), val_loader, MockedTacotron2Loss(), 0)
+    assert loss == 0.5
 
 
 # Clean text
@@ -205,6 +227,19 @@ def test_load_metadata():
     name, text = test_files[0]
     assert data[name] == text
     assert name not in [i[0] for i in train_files]
+
+
+# Memory
+class FakeDeviceProperties:
+    total_memory = 8 * 1024 * 1024 * 1024
+
+
+@mock.patch("torch.cuda.device_count", return_value=2)
+@mock.patch("torch.cuda.get_device_properties", return_value=FakeDeviceProperties)
+@mock.patch("torch.cuda.memory_allocated", return_value=1 * 1024 * 1024 * 1024)
+def test_get_available_memory(memory_allocated, get_device_properties, device_count):
+    # 16GB Device memory - 2GB Usage
+    assert get_available_memory() == 14
 
 
 # Symbols

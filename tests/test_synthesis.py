@@ -21,7 +21,7 @@ class FakeVocoder(Vocoder):
 
 
 @pytest.mark.slow
-def test_synthesis():
+def test_synthesize():
     model_path = os.path.join("test_samples", "model.pt")
     graph_path = "graph.png"
     audio_path = "synthesized_audio.wav"
