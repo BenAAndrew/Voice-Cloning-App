@@ -5,6 +5,7 @@ from string import ascii_lowercase
 from unittest import mock
 import torch
 import shutil
+import pytest
 
 from dataset.clip_generator import CHARACTER_ENCODING
 from training.clean_text import clean_text
@@ -144,6 +145,7 @@ def test_clean_text():
 
 
 # Dataset
+@pytest.mark.slow
 def test_voice_dataset():
     random.seed(1234)
 
