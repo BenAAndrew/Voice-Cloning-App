@@ -2,6 +2,7 @@ import os
 import inflect
 import numpy as np
 import librosa
+from unittest import mock
 import pytest
 
 from dataset.forced_alignment.search import similarity
@@ -22,14 +23,15 @@ class FakeVocoder(Vocoder):
         return self.audio
 
 
-def test_synthesize():
+@mock.patch("synthesis.synthesize.clean_text", side_effect=lambda text, engine: text)
+def test_synthesize(clean_text):
     model_path = os.path.join("test_samples", "model.pt")
     graph_path = "graph.png"
     audio_path = "synthesized_audio.wav"
 
     model = load_model(model_path)
     vocoder = FakeVocoder()
-    inflect_engine = inflect.engine()
+    inflect_engine = None
 
     # Single line
     text = "hello everybody my name is david attenborough"
