@@ -15,12 +15,13 @@ MIN_SYNTHESIS_SCORE = 0.3
 
 
 class FakeVocoder(Vocoder):
+    # 1 second of silence
+    audio = np.zeros(22050).astype("int16")
+
     def generate_audio(self, mel_output):
-        # 1 second of silence
-        return np.zeros(22050).astype("int16")
+        return self.audio
 
 
-@pytest.mark.slow
 def test_synthesize():
     model_path = os.path.join("test_samples", "model.pt")
     graph_path = "graph.png"
@@ -101,7 +102,6 @@ def test_waveglow_synthesis():
     os.remove(audio_path)
 
 
-@pytest.mark.slow
 def test_hifigan_synthesis():
     model_path = os.path.join("test_samples", "model.pt")
     hifigan_model_path = os.path.join("test_samples", "hifigan.pt")
