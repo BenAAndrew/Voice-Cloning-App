@@ -26,20 +26,16 @@
     <br>
     <div class="form-group">
         <label for="vocoder_type">Vocoder <a href="/settings">Add more</a></label>
-        <select class="form-control" id="vocoder_type" name="vocoder_type" onchange="selectVocoder()">
-            <option value="hifigan">Hifi-gan</option>
-            <option value="waveglow">Waveglow</option>
-        </select>
-        <br>
         <select class="form-control" id="vocoder" name="vocoder">
+            {% for option in hifigan_models %}
+                <option value="{{ option }}">{{ option }}</option>
+            {% endfor %}
         </select>
     </div>
     <input type="submit" class="btn btn-primary">
 </form>
 <script>
 let checkpoints = {{ checkpoints|safe }};
-let hifigan_models = {{ hifigan_models|safe }};
-let waveglow_models = {{ waveglow_models|safe }};
 </script>
 <script src="{{ url_for('static', filename='synthesis-setup.js') }}"></script>
 {% endblock %}

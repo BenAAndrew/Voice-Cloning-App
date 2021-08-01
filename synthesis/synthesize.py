@@ -12,11 +12,10 @@ import sys
 sys.path.append(dirname(dirname(abspath(__file__))))
 matplotlib.use("Agg")
 
-import glow  # noqa
 from training.tacotron2_model import Tacotron2
 from training.clean_text import clean_text
 from training.train import DEFAULT_ALPHABET
-from synthesis.vocoders import Hifigan, Waveglow
+from synthesis.vocoders import Hifigan
 
 
 def load_model(model_path):
@@ -196,9 +195,8 @@ if __name__ == "__main__":
     """Synthesize audio using model and vocoder"""
     parser = argparse.ArgumentParser(description="Synthesize audio using model and vocoder")
     parser.add_argument("-m", "--model_path", type=str, help="tacotron2 model path", required=True)
-    parser.add_argument("-vt", "--vocoder_type", type=str, help="vocoder type(waveglow or hifigan)", required=True)
     parser.add_argument("-vm", "--vocoder_model_path", type=str, help="vocoder model path", required=True)
-    parser.add_argument("-hc", "--hifigan_config_path", type=str, help="hifigan_config path", required=False)
+    parser.add_argument("-hc", "--hifigan_config_path", type=str, help="hifigan_config path", required=True)
     parser.add_argument("-t", "--text", type=str, help="text to synthesize", required=True)
     parser.add_argument("-g", "--graph_output_path", type=str, help="path to save alignment graph to", required=False)
     parser.add_argument("-a", "--audio_output_path", type=str, help="path to save output audio to", required=False)
@@ -211,12 +209,7 @@ if __name__ == "__main__":
 
     model = load_model(args.model_path)
     vocoder_type = args.vocoder_type
-    vocoder = None
-    if vocoder_type == "hifigan":
-        assert os.path.isfile(args.hifigan_config_path), "hifigan config not found"
-        vocoder = Hifigan(args.vocoder_model_path, args.hifigan_config_path)
-    elif vocoder_type == "waveglow":
-        vocoder = Waveglow(args.vocoder_model_path)
+    vocoder = Hifigan(args.vocoder_model_path, args.hifigan_config_path)
 
     inflect_engine = inflect.engine()
 

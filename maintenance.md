@@ -75,6 +75,6 @@ Found in `train.py` it add a few additions the existing project did not have:
 4. It can enable early-stopping which will stop training if the loss over the last 10 checkpoints has not sufficently decreased (minimum loss reached) 
 
 ## Synthesis
-The synthsis script implements https://github.com/NVIDIA/waveglow and https://github.com/jik876/hifi-gan, either of which can be selected.
+The synthesis script implements https://github.com/jik876/hifi-gan.
 
-The synthesis process is implemented in `synthesize.py`. It firstly loads the feature predictor model (from training) and a pretrained vocoder model (waveglow/hifi-gan). It then cleans the text and infers the results. Audio & an alignment graph can be produced from this.
+The synthesis process is implemented in `synthesize.py`. It firstly loads the feature predictor model (from training) and a pretrained vocoder model (hifi-gan). It then cleans the text and infers the results. Audio & an alignment graph can be produced from this.
