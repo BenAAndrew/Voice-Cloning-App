@@ -12,8 +12,8 @@ omegaconf==2.0.6
 numba==0.47
 webrtcvad==2.0.10
 requests==2.25.1
-torch==1.9.0+cu102 
-torchvision==0.10.0+cu102 
+torch==1.9.0+cu111
+torchvision==0.10.0+cu111
 torchaudio===0.9.0
 deepspeech==0.9.3
 llvmlite==0.32.1
