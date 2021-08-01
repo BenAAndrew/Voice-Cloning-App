@@ -101,9 +101,10 @@
     <h3>Training is not available</h3>
     <p>CUDA is not working on your system. Possible reasons:</p>
     <ul>
+        <li>You are running the CPU only version of the app</li>
         <li>You don't have NVIDIA GPU</li>
         <li>You drivers are not up-to-date, must be version 450.36+ (check by running 'nvidia-smi')</li>
-        <li>You have done a custom installed and accidently installed pytorch cpu only (shows as torch+cpu in 'pip list')</li>
+        <li>You have done a custom install and accidently installed pytorch cpu only (shows as torch+cpu in 'pip list')</li>
     </ul>
     {% endif %}
 </div>
