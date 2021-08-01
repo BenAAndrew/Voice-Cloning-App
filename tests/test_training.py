@@ -4,14 +4,14 @@ import random
 from string import ascii_lowercase
 from unittest import mock
 import torch
-from torch.utils.data import DataLoader
 import shutil
+import pytest
 
 from dataset.clip_generator import CHARACTER_ENCODING
 from training.clean_text import clean_text
 from training.checkpoint import load_checkpoint, save_checkpoint, warm_start_model
 from training.dataset import VoiceDataset
-from training.tacotron2_model import Tacotron2, TextMelCollate
+from training.tacotron2_model import Tacotron2
 from training.train import train, MINIMUM_MEMORY_GB, DEFAULT_ALPHABET, WEIGHT_DECAY
 from training.validate import validate
 from training.utils import (
@@ -89,9 +89,12 @@ class MockedOptimizer:
 @mock.patch("training.train.Tacotron2", return_value=MockedTacotron2)
 @mock.patch("training.train.Tacotron2Loss", return_value=MockedTacotron2Loss)
 @mock.patch("torch.optim.Adam", return_value=MockedOptimizer)
+@mock.patch("training.train.VoiceDataset", return_value=None)
+@mock.patch("training.train.DataLoader", return_value=[(None, None), (None, None)])
 @mock.patch("training.train.process_batch", return_value=(None, None))
+@mock.patch("torch.nn.utils.clip_grad_norm_")
 @mock.patch("training.train.validate", return_value=0.5)
-def test_train(validate, process_batch, Adam, Tacotron2Loss, Tacotron2, get_available_memory, is_available):
+def test_train(validate, clip_grad_norm_, process_batch, DataLoader, VoiceDataset, Adam, Tacotron2Loss, Tacotron2, get_available_memory, is_available):
     metadata_path = os.path.join("test_samples", "dataset", "metadata.csv")
     dataset_directory = os.path.join("test_samples", "dataset", "wavs")
     output_directory = "checkpoint"
@@ -108,22 +111,6 @@ def test_train(validate, process_batch, Adam, Tacotron2Loss, Tacotron2, get_avai
         train_size=train_size,
     )
 
-    # Text & Mel tensor sizes for each sample
-    # expected_sizes = {
-    #     (torch.Size([1, 34]), torch.Size([1, 80, 205])),
-    #     (torch.Size([1, 29]), torch.Size([1, 80, 218])),
-    #     (torch.Size([1, 44]), torch.Size([1, 80, 244])),
-    # }
-    # called_samples = [call[1][0] for call in process_batch.mock_calls]
-    # called_sizes = {(s[0].size(), s[2].size()) for s in called_samples}
-    # assert called_sizes.issubset(expected_sizes)
-
-    # # Check validate iterations called
-    # assert len(validate.mock_calls) == 2
-    # iterations_called = [call[1][3] for call in validate.mock_calls]
-    # assert iterations_called[0] == 0
-    # assert iterations_called[1] == 2
-
     # Check checkpoint
     checkpoint_path = os.path.join(output_directory, "checkpoint_2")
     assert os.path.isfile(checkpoint_path)
@@ -134,14 +121,7 @@ def test_train(validate, process_batch, Adam, Tacotron2Loss, Tacotron2, get_avai
 # Validate
 @mock.patch("training.validate.process_batch", return_value=(None, None))
 def test_validate(process_batch):
-    audio_directory = os.path.join("test_samples", "dataset", "wavs")
-    filepaths_and_text = [("0_2730.wav", "the examination and testimony of the experts")]
-    dataset = VoiceDataset(filepaths_and_text, audio_directory, DEFAULT_ALPHABET)
-    val_loader = DataLoader(
-        dataset, num_workers=0, sampler=None, batch_size=1, pin_memory=False, collate_fn=TextMelCollate()
-    )
-
-    loss = validate(MockedTacotron2(), val_loader, MockedTacotron2Loss(), 0)
+    loss = validate(MockedTacotron2(), [None, None], MockedTacotron2Loss(), 0)
     assert loss == 0.5
 
 
@@ -152,7 +132,8 @@ def test_clean_text():
 
 
 # Dataset
-def test_voice_dataset():
+@mock.patch("training.dataset.clean_text", side_effect=lambda text, engine: text)
+def test_voice_dataset(clean_text):
     random.seed(1234)
 
     metadata_path = os.path.join("test_samples", "dataset", "metadata.csv")
