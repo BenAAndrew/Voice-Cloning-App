@@ -132,20 +132,20 @@ def test_clean_text():
 
 
 # Dataset
-# @pytest.mark.slow
-# def test_voice_dataset():
-#     random.seed(1234)
+@mock.patch("training.dataset.clean_text", side_effect=lambda text, engine: text)
+def test_voice_dataset(clean_text):
+    random.seed(1234)
 
-#     metadata_path = os.path.join("test_samples", "dataset", "metadata.csv")
-#     audio_directory = os.path.join("test_samples", "dataset", "wavs")
-#     with open(metadata_path, encoding=CHARACTER_ENCODING) as f:
-#         filepaths_and_text = [line.strip().split("|") for line in f]
+    metadata_path = os.path.join("test_samples", "dataset", "metadata.csv")
+    audio_directory = os.path.join("test_samples", "dataset", "wavs")
+    with open(metadata_path, encoding=CHARACTER_ENCODING) as f:
+        filepaths_and_text = [line.strip().split("|") for line in f]
 
-#     dataset = VoiceDataset(filepaths_and_text, audio_directory, DEFAULT_ALPHABET)
-#     assert len(dataset) == 3
-#     text, mel = dataset[0]
-#     assert len(text) == len("that five shots may have been")
-#     assert mel.shape[0] == 80
+    dataset = VoiceDataset(filepaths_and_text, audio_directory, DEFAULT_ALPHABET)
+    assert len(dataset) == 3
+    text, mel = dataset[0]
+    assert len(text) == len("that five shots may have been")
+    assert mel.shape[0] == 80
 
 
 # Checkpoints
