@@ -3,7 +3,7 @@ import logging
 from os.path import dirname, abspath
 import sys
 
-sys.path.append(dirname(dirname(abspath(__file__))))
+sys.path.insert(0, dirname(dirname(abspath(__file__))))
 
 from dataset.audio_processing import convert_audio
 from dataset.clip_generator import clip_generator

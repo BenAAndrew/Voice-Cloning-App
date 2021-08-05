@@ -9,7 +9,7 @@ from scipy.io.wavfile import write
 from os.path import dirname, abspath
 import sys
 
-sys.path.append(dirname(dirname(abspath(__file__))))
+sys.path.append(0, dirname(dirname(abspath(__file__))))
 matplotlib.use("Agg")
 
 import glow  # noqa

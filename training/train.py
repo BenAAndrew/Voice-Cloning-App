@@ -6,7 +6,7 @@ import logging
 from os.path import dirname, abspath
 import sys
 
-sys.path.append(dirname(dirname(abspath(__file__))))
+sys.path.insert(0, dirname(dirname(abspath(__file__))))
 logging.getLogger().setLevel(logging.INFO)
 
 import torch
