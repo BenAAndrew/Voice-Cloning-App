@@ -13,7 +13,7 @@ import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
 
-from training.dataset import VoiceDataset
+from training.voice_dataset import VoiceDataset
 from training.checkpoint import load_checkpoint, save_checkpoint, warm_start_model
 from training.validate import validate
 from training.utils import (
