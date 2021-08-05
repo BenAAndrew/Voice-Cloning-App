@@ -231,6 +231,19 @@ if __name__ == "__main__":
     parser.add_argument("-c", "--checkpoint_path", required=False, type=str, help="checkpoint path")
     parser.add_argument("-e", "--epochs", default=8000, type=int, help="num epochs")
     parser.add_argument("-b", "--batch_size", required=False, type=int, help="batch size")
+    parser.add_argument(
+        "-t",
+        "--transfer_learning_path",
+        required=False,
+        type=str,
+        help="path to an model to transfer learn from",
+    )
+    parser.add_argument(
+        "--overwrite_checkpoints",
+        default=False,
+        type=bool,
+        help="whether to delete old checkpoints",
+    )
 
     args = parser.parse_args()
 
@@ -240,10 +253,12 @@ if __name__ == "__main__":
         assert os.path.isfile(args.checkpoint_path)
 
     train(
-        args.metadata_path,
-        args.dataset_directory,
-        args.output_directory,
-        args.checkpoint_path,
-        args.epochs,
-        args.batch_size,
+        metadata_path=args.metadata_path,
+        dataset_directory=args.dataset_directory,
+        output_directory=args.output_directory,
+        checkpoint_path=args.checkpoint_path,
+        epochs=args.epochs,
+        batch_size=args.batch_size,
+        transfer_learning_path=args.transfer_learning_path,
+        overwrite_checkpoints=args.overwrite_checkpoints,
     )
