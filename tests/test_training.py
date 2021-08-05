@@ -132,7 +132,7 @@ def test_clean_text():
 
 
 # Dataset
-@mock.patch("training.dataset.clean_text", side_effect=lambda text, engine: text)
+@mock.patch("training.voice_dataset.clean_text", side_effect=lambda text, engine: text)
 def test_voice_dataset(clean_text):
     random.seed(1234)
 
