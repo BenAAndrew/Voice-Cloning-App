@@ -5,11 +5,10 @@ from string import ascii_lowercase
 from unittest import mock
 import torch
 import shutil
-import pytest
 
 from dataset.clip_generator import CHARACTER_ENCODING
 from training.clean_text import clean_text
-from training.checkpoint import load_checkpoint, save_checkpoint, warm_start_model
+from training.checkpoint import load_checkpoint, save_checkpoint, checkpoint_cleanup, warm_start_model
 from training.voice_dataset import VoiceDataset
 from training.tacotron2_model import Tacotron2
 from training.train import train, MINIMUM_MEMORY_GB, DEFAULT_ALPHABET, WEIGHT_DECAY
@@ -94,7 +93,18 @@ class MockedOptimizer:
 @mock.patch("training.train.process_batch", return_value=(None, None))
 @mock.patch("torch.nn.utils.clip_grad_norm_")
 @mock.patch("training.train.validate", return_value=0.5)
-def test_train(validate, clip_grad_norm_, process_batch, DataLoader, VoiceDataset, Adam, Tacotron2Loss, Tacotron2, get_available_memory, is_available):
+def test_train(
+    validate,
+    clip_grad_norm_,
+    process_batch,
+    DataLoader,
+    VoiceDataset,
+    Adam,
+    Tacotron2Loss,
+    Tacotron2,
+    get_available_memory,
+    is_available,
+):
     metadata_path = os.path.join("test_samples", "dataset", "metadata.csv")
     dataset_directory = os.path.join("test_samples", "dataset", "wavs")
     output_directory = "checkpoint"
@@ -161,20 +171,24 @@ def test_load_and_save_checkpoint():
 
     checkpoint_folder = "test-checkpoints"
     os.makedirs(checkpoint_folder)
-    save_checkpoint(model, optimizer, lr, iteration, epoch, checkpoint_folder)
+    save_checkpoint(model, optimizer, lr, iteration, epoch, checkpoint_folder, 1000, 1000)
     assert "checkpoint_510000" in os.listdir(checkpoint_folder)
 
-    # Overwrite existing
-    save_checkpoint(model, optimizer, lr, 520000, epoch, checkpoint_folder, overwrite_checkpoints=True)
-    assert "checkpoint_520000" in os.listdir(checkpoint_folder)
-    assert "checkpoint_510000" not in os.listdir(checkpoint_folder)
-
-    # Do not overwrite existing
-    save_checkpoint(model, optimizer, lr, 530000, epoch, checkpoint_folder, overwrite_checkpoints=False)
-    assert "checkpoint_520000" in os.listdir(checkpoint_folder)
-    assert "checkpoint_530000" in os.listdir(checkpoint_folder)
-
     shutil.rmtree(checkpoint_folder)
+
+
+@mock.patch("os.remove")
+def test_checkpoint_cleanup_should_remove(remove):
+    # Old checkpoint (checkpoint_1000) should be removed
+    checkpoint_cleanup("checkpoints", 2000, 1000, 10000)
+    remove.assert_called_with(os.path.join("checkpoints", "checkpoint_1000"))
+
+
+@mock.patch("os.remove")
+def test_checkpoint_cleanup_should_not_remove(remove):
+    # Backup checkpoint (checkpoint_20000) should not be removed
+    checkpoint_cleanup("checkpoints", 21000, 1000, 10000)
+    assert not remove.called
 
 
 def test_warm_start_model():

@@ -49,6 +49,7 @@ def train(
     early_stopping=True,
     multi_gpu=True,
     iters_per_checkpoint=1000,
+    iters_per_backup_checkpoint=10000,
     train_size=0.8,
     logging=logging,
 ):
@@ -80,7 +81,9 @@ def train(
     multi_gpu : bool (optional)
         Use multiple GPU's in parallel if available (default is True)
     iters_per_checkpoint : int (optional)
-        How often checkpoints are saved (number of iterations)
+        How often temporary checkpoints are saved (number of iterations)
+    iters_per_backup_checkpoint : int (optional)
+        How often backup checkpoints are saved (number of iterations)
     train_size : float (optional)
         Percentage of samples to use for training (default is 80%/0.8)
     logging : logging (optional)
@@ -206,7 +209,14 @@ def train(
                     )
                 )
                 save_checkpoint(
-                    model, optimizer, learning_rate, iteration, epoch, output_directory, overwrite_checkpoints
+                    model,
+                    optimizer,
+                    learning_rate,
+                    iteration,
+                    epoch,
+                    output_directory,
+                    iters_per_checkpoint,
+                    iters_per_backup_checkpoint,
                 )
 
             iteration += 1
@@ -218,7 +228,16 @@ def train(
 
     logging.info(f"Progress - {epochs}/{epochs}")
     validate(model, val_loader, criterion, iteration)
-    save_checkpoint(model, optimizer, learning_rate, iteration, epochs, output_directory, overwrite_checkpoints)
+    save_checkpoint(
+        model,
+        optimizer,
+        learning_rate,
+        iteration,
+        epochs,
+        output_directory,
+        iters_per_checkpoint,
+        iters_per_backup_checkpoint,
+    )
     logging.info("Saving model and optimizer state at iteration {} to {}".format(iteration, checkpoint_path))
 
 
