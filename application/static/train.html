@@ -49,7 +49,8 @@
             </label>
         </div>
         <div>
-            Time Estimate: <span id="time_estimate"></span>
+            Time Estimate: <span id="time_estimate"></span><br>
+            Disk Usage: <span id="disk_usage"></span>
         </div>
         <br>
         <button type="button" class="collapsible" id="advanced">Advanced Options ∨</button>
@@ -74,10 +75,10 @@
                 </label>
             </div>
             <div class="form-group">
-                <input type="range" id="backup_checkpoint_frequency" name="backup_checkpoint_frequency" step="250" min="2500" max="20000" value="10000" onchange="showCheckpointBackupFrequencyLabel()">
+                <input type="range" id="backup_checkpoint_frequency" name="backup_checkpoint_frequency" step="500" min="2500" max="25000" value="10000" onchange="showCheckpointBackupFrequencyLabel()">
                 <label for="backup_checkpoint_frequency">
                     <a href="#" data-toggle="tooltip" data-placement="top" title="Changes how frequently backup checkpoints are made. Increasing this will use more disk space but means more backup versions will be kept.">Backup Checkpoint Frequency</a>: 
-                    <span id="checkpoint_frequency_label"></span>
+                    <span id="backup_checkpoint_frequency_label"></span>
                 </label>
             </div>
             <div class="form-group">

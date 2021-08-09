@@ -20,7 +20,6 @@ from training.utils import (
     get_available_memory,
     get_batch_size,
     get_learning_rate,
-    check_space,
     load_metadata,
     load_symbols,
     check_early_stopping,
