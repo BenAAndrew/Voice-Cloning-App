@@ -8,8 +8,9 @@ jobs:
     working_directory: ~/repo
     steps:
       - checkout
-      - run: sudo chown -R circleci:circleci /usr/local/bin
-      - run: sudo chown -R circleci:circleci /usr/local/lib/python3.6/site-packages
+      - run:
+          name: Add folder permissions
+          command: sudo chown -R circleci:circleci /usr/local/bin && sudo chown -R circleci:circleci /usr/local/lib/python3.6/site-packages
       - run:
           name: Install os libraries
           command: sudo apt-get install -y ffmpeg libsndfile1
@@ -24,6 +25,9 @@ jobs:
       - run:
           name: Download resources
           command: gdown https://drive.google.com/uc?id=1CJpYcwoQ9zNA8f9gLpNxEijT9yKTqdcT && unzip test_samples.zip -d test_samples && ls test_samples/
+      - run:
+          name: Delete existing test cache
+          command: rm -rf test-dataset/
       - save_cache:
           key: deps-{{ .Environment.CIRCLE_BRANCH }}-{{ .Environment.CACHE_VERSION }}
           paths:
