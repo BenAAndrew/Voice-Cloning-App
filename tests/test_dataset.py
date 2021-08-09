@@ -39,7 +39,7 @@ def test_create_dataset():
     audio_path = os.path.join("test_samples", "audio.wav")
     converted_audio_path = os.path.join("test_samples", "audio-converted.wav")
     text_path = os.path.join("test_samples", "text.txt")
-    dataset_directory = "test-dataset"
+    dataset_directory = "test-create-dataset"
     forced_alignment_path = os.path.join(dataset_directory, "align.json")
     output_directory = os.path.join(dataset_directory, "wavs")
     label_path = os.path.join(dataset_directory, "metadata.csv")
@@ -88,7 +88,7 @@ class FakeSubtitleTranscriptionModel(TranscriptionModel):
 
 
 def test_generate_clips_from_subtitles():
-    dataset_directory = "test-dataset"
+    dataset_directory = "test-subtitles"
     os.makedirs(dataset_directory)
     audio_path = os.path.join("test_samples", "audio.wav")
     subtitle_path = os.path.join("test_samples", "sub.srt")
@@ -120,7 +120,7 @@ def test_generate_clips_from_subtitles():
 
 # Extend dataset
 def test_extend_existing_dataset():
-    dataset_directory = "test-dataset"
+    dataset_directory = "test-extend-dataset"
     audio_folder = os.path.join(dataset_directory, "wavs")
     metadata_file = os.path.join(dataset_directory, "metadata.csv")
     os.makedirs(dataset_directory)
@@ -173,7 +173,7 @@ def test_get_total_audio_duration():
 
 
 def test_validate_dataset():
-    output_directory = "test-dataset"
+    output_directory = "test-validate"
     os.makedirs(output_directory)
 
     # No files

@@ -25,9 +25,6 @@ jobs:
       - run:
           name: Download resources
           command: gdown https://drive.google.com/uc?id=1CJpYcwoQ9zNA8f9gLpNxEijT9yKTqdcT && unzip test_samples.zip -d test_samples && ls test_samples/
-      - run:
-          name: Delete existing test cache
-          command: rm -rf test-dataset/
       - save_cache:
           key: deps-{{ .Environment.CIRCLE_BRANCH }}-{{ .Environment.CACHE_VERSION }}
           paths:
