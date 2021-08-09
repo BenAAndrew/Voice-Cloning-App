@@ -3,11 +3,10 @@ import shutil
 import json
 from pathlib import Path
 import json
-import pytest
 
 from tests.test_synthesis import MIN_SYNTHESIS_SCORE
 from dataset.analysis import get_total_audio_duration, validate_dataset
-from dataset.clip_generator import add_suffix
+from dataset.clip_generator import add_suffix, generate_clips_from_subtitles
 from dataset.create_dataset import create_dataset
 from dataset.extend_existing_dataset import extend_existing_dataset
 from dataset.forced_alignment.search import similarity
@@ -19,6 +18,10 @@ EXPECTED_CLIPS = {
     "0_2730.wav": "the examination and testimony of the experts",
     "2820_5100.wav": "enabled the commission to conclude",
     "5130_7560.wav": "that five shots may have been",
+}
+EXPECTED_SUBTITLE_CLIPS = {
+    "000000000000_000002600000.wav": "The examination and testimony of the experts",
+    "000002900000_000007400000.wav": "enabled the Commission to conclude that five shots may have been fired,",
 }
 
 
@@ -63,9 +66,7 @@ def test_create_dataset():
     with open(forced_alignment_path, "r") as forced_alignment_file:
         data = json.load(forced_alignment_file)
         for segment in data:
-            assert {"start", "end", "name", "score", "text"}.issubset(
-                segment.keys()
-            ), "Alignment JSON missing required keys"
+            assert {"name", "score", "text"}.issubset(segment.keys()), "Alignment JSON missing required keys"
             assert segment["score"] >= min_confidence, "SWS score less than min confidence"
 
     with open(info_path) as f:
@@ -74,6 +75,46 @@ def test_create_dataset():
         assert data["total_clips"] == 3
 
     os.remove(converted_audio_path)
+    shutil.rmtree(dataset_directory)
+
+
+class FakeSubtitleTranscriptionModel(TranscriptionModel):
+    def load_audio(self, path):
+        pass
+
+    def transcribe(self, path):
+        filename = Path(path).name
+        return EXPECTED_SUBTITLE_CLIPS[filename]
+
+
+def test_generate_clips_from_subtitles():
+    dataset_directory = "test-dataset"
+    os.makedirs(dataset_directory)
+    audio_path = os.path.join("test_samples", "audio.wav")
+    subtitle_path = os.path.join("test_samples", "sub.srt")
+
+    result_fragments, clip_lengths = generate_clips_from_subtitles(
+        audio_path=audio_path,
+        subtitle_path=subtitle_path,
+        transcription_model=FakeSubtitleTranscriptionModel(),
+        output_path=dataset_directory,
+    )
+
+    assert result_fragments == [
+        {
+            "name": "000000000000_000002600000.wav",
+            "text": "The examination and testimony of the experts",
+            "score": 1,
+            "duration": 2.6,
+        },
+        {
+            "name": "000002900000_000007400000.wav",
+            "text": "enabled the Commission to conclude that five shots may have been fired,",
+            "score": 1,
+            "duration": 4.5,
+        },
+    ]
+
     shutil.rmtree(dataset_directory)
 
 

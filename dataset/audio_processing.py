@@ -167,6 +167,7 @@ def cut_audio_timestamp(input_path, start, end, output_folder):
     str
         Path of the generated clip
     """
+
     def _timestamp_to_filename(timestamp):
         return re.sub("[^0-9]", "", timestamp)
 
@@ -178,7 +179,6 @@ def cut_audio_timestamp(input_path, start, end, output_folder):
         stderr=STDOUT,
     )
     return output_name
-
 
 
 def add_silence(input_path, silence):

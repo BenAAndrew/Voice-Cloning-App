@@ -17,18 +17,19 @@ from dataset.audio_processing import change_sample_rate, cut_audio_timestamp, ad
 
 MIN_LENGTH = 1.0
 MAX_LENGTH = 10.0
+MIN_CONFIDENCE = 0.85
 CHARACTER_ENCODING = "utf-8"
 
 
-def _generate_clips_from_textfile(
+def generate_clips_from_textfile(
     audio_path,
     script_path,
     transcription_model,
     output_path,
-    logging,
-    min_length,
-    max_length,
-    min_confidence,
+    logging=logging,
+    min_length=MIN_LENGTH,
+    max_length=MAX_LENGTH,
+    min_confidence=MIN_CONFIDENCE,
 ):
     logging.info(f"Loading script from {script_path}...")
     with open(script_path, "r", encoding=CHARACTER_ENCODING) as script_file:
@@ -75,30 +76,31 @@ def _generate_clips_from_textfile(
     return result_fragments, clip_lengths
 
 
-def _generate_clips_from_subtitles(
+def generate_clips_from_subtitles(
     audio_path,
-    script_path,
+    subtitle_path,
     transcription_model,
     output_path,
-    logging,
-    min_length,
-    max_length,
-    min_confidence
+    logging=logging,
+    min_length=MIN_LENGTH,
+    max_length=MAX_LENGTH,
+    min_confidence=MIN_CONFIDENCE,
 ):
     logging.info("Loading subtitles...")
-    subs = pysrt.open(script_path)
+    subs = pysrt.open(subtitle_path)
     total = len(subs)
     logging.info(f"{total} subtitle lines detected...")
 
     result_fragments = []
     clip_lengths = []
     for i, sub in enumerate(subs):
-        duration = sub.duration.seconds
-        if duration >= min_length and duration < max_length:
+        duration = sub.duration.seconds + (sub.duration.milliseconds / 1000)
+        if duration >= min_length and duration <= max_length:
             start = sub.start.to_time()
             end = sub.end.to_time()
-            duration = sub.duration.seconds + (sub.duration.milliseconds / 1000)
-            filename = cut_audio_timestamp(audio_path, start.strftime("%H:%M:%S.%f"), end.strftime("%H:%M:%S.%f"), output_path)
+            filename = cut_audio_timestamp(
+                audio_path, start.strftime("%H:%M:%S.%f"), end.strftime("%H:%M:%S.%f"), output_path
+            )
             clip_path = os.path.join(output_path, filename)
 
             try:
@@ -111,17 +113,11 @@ def _generate_clips_from_subtitles(
                 text = sub.text.strip().replace("\n", " ")
                 score = similarity(transcript, text)
                 if score >= min_confidence:
-                    result_fragments.append({
-                        "name": filename,
-                        "text": text,
-                        "score": score,
-                        "duration": duration
-                    })
+                    result_fragments.append({"name": filename, "text": text, "score": score, "duration": duration})
                     clip_lengths.append(duration)
         logging.info(f"Progress - {i+1}/{total}")
 
     return result_fragments, clip_lengths
-
 
 
 def clip_generator(
@@ -135,7 +131,7 @@ def clip_generator(
     min_length=MIN_LENGTH,
     max_length=MAX_LENGTH,
     silence_padding=0.1,
-    min_confidence=0.85,
+    min_confidence=MIN_CONFIDENCE,
 ):
     """
     Generates dataset clips & label file.
@@ -182,7 +178,7 @@ def clip_generator(
     assert audio_path.endswith(".wav"), "Must be a WAV file"
 
     if script_path.endswith(".srt"):
-        clips, clip_lengths = _generate_clips_from_subtitles(
+        clips, clip_lengths = generate_clips_from_subtitles(
             audio_path,
             script_path,
             transcription_model,
@@ -193,7 +189,7 @@ def clip_generator(
             min_confidence,
         )
     else:
-        clips, clip_lengths = _generate_clips_from_textfile(
+        clips, clip_lengths = generate_clips_from_textfile(
             audio_path,
             script_path,
             transcription_model,

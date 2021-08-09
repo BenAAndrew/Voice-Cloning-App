@@ -1,5 +1,6 @@
 from dataset import similarity
 
+
 def ngrams(s, size):
     """
     Credit: https://github.com/mozilla/DSAlign
