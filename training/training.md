@@ -7,7 +7,6 @@ Once we have a dataset that has been preprocessed, we can begin training the voi
 - **output_directory**: The path to save checkpoints
 - checkpoint_path (optional): The path to a specific checkpoint to start training from
 - transfer_learning_path (optional): The path to an existing model to transfer learn from
-- overwrite_checkpoints (optional): Whether to delete old checkpoints (default is true)
 - epochs: Number of epochs to rub training for
 - batch_size (optional): Batch size/ memory usage. Calculated automatically if not given
 

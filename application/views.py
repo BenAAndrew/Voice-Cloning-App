@@ -200,8 +200,8 @@ def train_post():
     batch_size = request.form["batch_size"]
     early_stopping = request.form.get("early_stopping") is not None
     iters_per_checkpoint = request.form["checkpoint_frequency"]
+    iters_per_backup_checkpoint = request.form["backup_checkpoint_frequency"]
     train_size = 1 - float(request.form["validation_size"])
-    overwrite_checkpoints = request.form.get("overwrite_checkpoints") is not None
     multi_gpu = request.form.get("multi_gpu") is not None
     checkpoint_path = (
         os.path.join(paths["models"], dataset_name, request.form["checkpoint"])
@@ -233,8 +233,8 @@ def train_post():
         batch_size=int(batch_size),
         early_stopping=early_stopping,
         multi_gpu=multi_gpu,
-        overwrite_checkpoints=overwrite_checkpoints,
         iters_per_checkpoint=int(iters_per_checkpoint),
+        iters_per_backup_checkpoint=int(iters_per_backup_checkpoint),
         train_size=train_size,
     )
 

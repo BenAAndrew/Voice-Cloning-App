@@ -43,7 +43,6 @@ def train(
     alphabet_path=None,
     checkpoint_path=None,
     transfer_learning_path=None,
-    overwrite_checkpoints=True,
     epochs=8000,
     batch_size=None,
     early_stopping=True,
@@ -70,8 +69,6 @@ def train(
         Path to a checkpoint to load (default is None)
     transfer_learning_path : str (optional)
         Path to a transfer learning checkpoint to use (default is None)
-    overwrite_checkpoints : bool (optional)
-        Whether to overwrite old checkpoints (default is True)
     epochs : int (optional)
         Number of epochs to run training for (default is 8000)
     batch_size : int (optional)
@@ -160,11 +157,6 @@ def train(
         logging.info("Loaded transfer learning model '{}'".format(transfer_learning_path))
     else:
         logging.info("Generating first checkpoint...")
-
-    # Check available memory
-    if not overwrite_checkpoints:
-        num_iterations = len(train_loader) * epochs - epoch_offset
-        check_space(num_iterations // iters_per_checkpoint)
 
     # Enable Multi GPU
     if multi_gpu and torch.cuda.device_count() > 1:
@@ -257,12 +249,6 @@ if __name__ == "__main__":
         type=str,
         help="path to an model to transfer learn from",
     )
-    parser.add_argument(
-        "--overwrite_checkpoints",
-        default=False,
-        type=bool,
-        help="whether to delete old checkpoints",
-    )
 
     args = parser.parse_args()
 
@@ -279,5 +265,4 @@ if __name__ == "__main__":
         epochs=args.epochs,
         batch_size=args.batch_size,
         transfer_learning_path=args.transfer_learning_path,
-        overwrite_checkpoints=args.overwrite_checkpoints,
     )

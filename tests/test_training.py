@@ -14,7 +14,6 @@ from training.tacotron2_model import Tacotron2
 from training.train import train, MINIMUM_MEMORY_GB, DEFAULT_ALPHABET, WEIGHT_DECAY
 from training.validate import validate
 from training.utils import (
-    check_space,
     load_metadata,
     load_symbols,
     get_available_memory,
@@ -23,7 +22,6 @@ from training.utils import (
     check_early_stopping,
     LEARNING_RATE_PER_BATCH,
     BATCH_SIZE_PER_GB,
-    CHECKPOINT_SIZE_MB,
     PUNCTUATION,
 )
 
@@ -255,23 +253,6 @@ def test_early_stopping():
 
     # Loss not improving
     assert check_early_stopping([0.5, 0.4999, 0.5, 0.4999, 0.5, 0.4998, 0.4999, 0.4996, 0.4997, 0.5]) is True
-
-
-# Disk usage
-@mock.patch("shutil.disk_usage", return_value=(None, None, (CHECKPOINT_SIZE_MB) * (2 ** 20)))
-def test_check_space_failure(disk_usage):
-    exception = False
-    try:
-        check_space(2)
-    except Exception as e:
-        exception = True
-        assert type(e) == AssertionError
-    assert exception, "Insufficent space should throw an exception"
-
-
-@mock.patch("shutil.disk_usage", return_value=(None, None, (CHECKPOINT_SIZE_MB + 1) * (2 ** 20)))
-def test_check_space_success(disk_usage):
-    assert check_space(1) is None, "Sufficent space should not throw an exception"
 
 
 # Test parameters

@@ -137,6 +137,11 @@ function showCheckpointFrequencyLabel(){
 }
 showCheckpointFrequencyLabel();
 
+function showCheckpointBackupFrequencyLabel(){
+    document.getElementById("backup_checkpoint_frequency_label").innerHTML =  document.getElementById("backup_checkpoint_frequency").value;
+}
+showCheckpointBackupFrequencyLabel();
+
 // Validation size
 function showValidationSize(){
     document.getElementById("validation_size_label").innerHTML = document.getElementById("validation_size").value * 100 + "%";
