@@ -7,7 +7,7 @@ import pytest
 
 from tests.test_synthesis import MIN_SYNTHESIS_SCORE
 from dataset.analysis import get_total_audio_duration, validate_dataset
-from dataset.clip_generator import get_filename
+from dataset.clip_generator import add_suffix
 from dataset.create_dataset import create_dataset
 from dataset.extend_existing_dataset import extend_existing_dataset
 from dataset.forced_alignment.search import similarity
@@ -118,8 +118,8 @@ def test_extend_existing_dataset():
     shutil.rmtree(dataset_directory)
 
 
-def test_get_filename():
-    new_filename = get_filename("audio.wav", "converted")
+def test_add_suffix():
+    new_filename = add_suffix("audio.wav", "converted")
     assert new_filename == "audio-converted.wav"
 
 

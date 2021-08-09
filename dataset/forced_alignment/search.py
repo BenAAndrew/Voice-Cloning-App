@@ -1,9 +1,4 @@
-from difflib import SequenceMatcher
-
-
-def similarity(a, b):
-    return SequenceMatcher(None, a, b).ratio()
-
+from dataset import similarity
 
 def ngrams(s, size):
     """

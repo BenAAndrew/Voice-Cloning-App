@@ -1,6 +1,8 @@
+import argparse
 from subprocess import check_output, call, DEVNULL, STDOUT
 from pathlib import Path
 from pydub import AudioSegment
+import re
 import os
 
 devnull = open(os.devnull, "w")
@@ -143,6 +145,40 @@ def cut_audio(input_path, start, end, output_folder):
         stderr=STDOUT,
     )
     return output_name
+
+
+def cut_audio_timestamp(input_path, start, end, output_folder):
+    """
+    Cuts audio to a given start & end timestamp.
+
+    Parameters
+    ----------
+    input_path : str
+        Path to audio file
+    start : int
+        Start timestamp (H:M:S.milli)
+    end : int
+        End timestamp (H:M:S.milli)
+    output_folder : str
+        Folder to save audio clip to
+
+    Returns
+    -------
+    str
+        Path of the generated clip
+    """
+    def _timestamp_to_filename(timestamp):
+        return re.sub("[^0-9]", "", timestamp)
+
+    output_name = f"{_timestamp_to_filename(start)}_{_timestamp_to_filename(end)}.wav"
+    output_path = os.path.join(output_folder, output_name)
+    call(
+        ["ffmpeg", "-ss", start, "-to", end, "-i", input_path, output_path],
+        stdout=DEVNULL,
+        stderr=STDOUT,
+    )
+    return output_name
+
 
 
 def add_silence(input_path, silence):

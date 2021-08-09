@@ -17,7 +17,7 @@ from application.utils import (
     import_dataset,
 )
 from dataset.create_dataset import create_dataset
-from dataset.clip_generator import CHARACTER_ENCODING
+from dataset.clip_generator import CHARACTER_ENCODING, add_suffix
 from dataset.extend_existing_dataset import extend_existing_dataset
 from dataset.analysis import get_total_audio_duration, validate_dataset
 from dataset.transcribe import create_transcription_model
@@ -31,6 +31,7 @@ from flask import redirect, render_template, request, send_file
 
 URLS = {"/": "Build dataset", "/train": "Train", "/synthesis-setup": "Synthesis"}
 TEXT_FILE = "text.txt"
+SUBTITLE_FILE = "sub.srt"
 ALIGNMENT_FILE = "align.json"
 AUDIO_FOLDER = "wavs"
 METADATA_FILE = "metadata.csv"
@@ -96,6 +97,7 @@ def create_dataset_post():
         os.path.join(paths["languages"], language, TRANSCRIPTION_MODEL) if language != ENGLISH_LANGUAGE else None
     )
     transcription_model = create_transcription_model(transcription_model_path)
+    text_file = SUBTITLE_FILE if request.files["text_file"].filename.endswith(".srt") else TEXT_FILE
 
     if request.form["name"]:
         output_folder = os.path.join(paths["datasets"], request.form["name"])
@@ -104,7 +106,7 @@ def create_dataset_post():
             raise Exception("Dataset name taken")
 
         os.makedirs(output_folder, exist_ok=True)
-        text_path = os.path.join(output_folder, TEXT_FILE)
+        text_path = os.path.join(output_folder, text_file)
         audio_path = os.path.join(output_folder, request.files["audio_file"].filename)
         forced_alignment_path = os.path.join(output_folder, ALIGNMENT_FILE)
         output_path = os.path.join(output_folder, AUDIO_FOLDER)
@@ -129,10 +131,10 @@ def create_dataset_post():
     else:
         output_folder = os.path.join(paths["datasets"], request.form["dataset"])
         suffix = get_suffix()
-        text_path = os.path.join(output_folder, f"text-{suffix}.txt")
-        audio_path = os.path.join(output_folder, f"audio-{suffix}.mp3")
-        forced_alignment_path = os.path.join(output_folder, f"align-{suffix}.json")
-        info_path = os.path.join(output_folder, INFO_FILE)
+        text_path = os.path.join(output_folder, add_suffix(text_file, suffix))
+        audio_path = os.path.join(output_folder, add_suffix(request.files["audio_file"].filename, suffix))
+        forced_alignment_path = os.path.join(output_folder, add_suffix(ALIGNMENT_FILE, suffix))
+        info_path = os.path.join(output_folder, add_suffix(INFO_FILE, suffix))
 
         with open(text_path, "w", encoding=CHARACTER_ENCODING) as f:
             f.write(request.files["text_file"].read().decode(CHARACTER_ENCODING, "ignore").replace("\r\n", "\n"))
