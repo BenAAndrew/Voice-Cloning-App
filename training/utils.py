@@ -68,28 +68,6 @@ def get_learning_rate(batch_size):
     return batch_size * LEARNING_RATE_PER_BATCH
 
 
-def check_space(num_checkpoints):
-    """
-    Check if system has enough available storage to save all checkpoints.
-
-    Parameters
-    ----------
-    num_checkpoints : int
-        Number of checkpoints that will be generated in training
-
-    Raises
-    -------
-    AssertionError
-        If system does not have sufficent storage space
-    """
-    _, _, free = shutil.disk_usage("/")
-    free_mb = free // (2 ** 20)
-    required_mb = CHECKPOINT_SIZE_MB * num_checkpoints
-    assert (
-        free_mb >= required_mb
-    ), f"Insufficent storage space (requires {required_mb}mb). Reduce checkpoint frequency or free up space"
-
-
 def load_metadata(metadata_path, train_size):
     """
     Load metadata file and split entries into train and test.
