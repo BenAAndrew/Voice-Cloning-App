@@ -67,7 +67,7 @@ def _generate_clips_from_textfile(
         ):
             fragment_matched = clean_text[fragment["match-start"] : fragment["match-end"]]
             if fragment_matched:
-                fragment["aligned"] = fragment_matched
+                fragment["text"] = fragment_matched
                 clip_lengths.append((fragment["end"] - fragment["start"]) // 1000)
                 result_fragments.append(fragment)
 
@@ -113,7 +113,7 @@ def _generate_clips_from_subtitles(
                 if score >= min_confidence:
                     result_fragments.append({
                         "name": filename,
-                        "aligned": text,
+                        "text": text,
                         "score": score,
                         "duration": duration
                     })
@@ -225,7 +225,7 @@ def clip_generator(
     # Produce metadata file
     with open(label_path, "w", encoding=CHARACTER_ENCODING) as f:
         for fragment in clips:
-            f.write(f"{fragment['name']}|{fragment['aligned']}\n")
+            f.write(f"{fragment['name']}|{fragment['text']}\n")
     logging.info("Generated clips")
 
     return clip_lengths
