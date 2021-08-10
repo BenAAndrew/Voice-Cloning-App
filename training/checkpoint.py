@@ -88,10 +88,19 @@ def get_state_dict(model):
         return model.state_dict()
 
 
-def save_checkpoint(model, optimizer, learning_rate, iteration, epoch, output_directory, overwrite_checkpoints=True):
+def save_checkpoint(
+    model,
+    optimizer,
+    learning_rate,
+    iteration,
+    epoch,
+    output_directory,
+    checkpoint_frequency,
+    checkpoint_backup_frequency,
+):
     """
     Save training checkpoint.
-    Also deletes old checkpoints if overwrite_checkpoints is set.
+    Calls checkpoint cleanup on completion.
 
     Parameters
     ----------
@@ -107,8 +116,10 @@ def save_checkpoint(model, optimizer, learning_rate, iteration, epoch, output_di
         Current epoch
     output_directory : str
         Folder to save checkpoint to
-    overwrite_checkpoints : bool (optional)
-        Whether to delete old checkpoints in output_directory (default is True)
+    checkpoint_frequency : int
+        Frequency of checkpoint creation (in iterations)
+    checkpoint_backup_frequency : int
+        Frequency of checkpoint backups (in iterations)
     """
     checkpoint_name = "checkpoint_{}".format(iteration)
     torch.save(
@@ -121,8 +132,29 @@ def save_checkpoint(model, optimizer, learning_rate, iteration, epoch, output_di
         },
         os.path.join(output_directory, checkpoint_name),
     )
+    checkpoint_cleanup(output_directory, iteration, checkpoint_frequency, checkpoint_backup_frequency)
 
-    if overwrite_checkpoints:
-        for filename in os.listdir(output_directory):
-            if filename != checkpoint_name:
-                os.remove(os.path.join(output_directory, filename))
+
+def checkpoint_cleanup(output_directory, iteration, checkpoint_frequency, checkpoint_backup_frequency):
+    """
+    Deletes previous checkpoint if it should be kept as a backup
+
+    Parameters
+    ----------
+    output_directory : str
+        Checkpoint folder
+    iteration : int
+        Current iteration
+    checkpoint_frequency : int
+        Frequency of checkpoint creation (in iterations)
+    checkpoint_backup_frequency : int
+        Frequency of checkpoint backups (in iterations)
+    """
+    if iteration > 0:
+        last_checkpoint = iteration - checkpoint_frequency
+        if last_checkpoint % checkpoint_backup_frequency != 0:
+            # Last checkpoint shouldn't be kept as a backup
+            try:
+                os.remove(os.path.join(output_directory, "checkpoint_{}".format(last_checkpoint)))
+            except OSError:
+                pass

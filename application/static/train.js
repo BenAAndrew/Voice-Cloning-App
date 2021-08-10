@@ -11,9 +11,10 @@ function addSuggestion(value, low, medium, high){
 }
 
 let SECONDS_PER_ITERATION_PER_SECOND = 0.5;
+let CHECKPOINT_SIZE_GB = 0.333;
 
-// Time estimate
-function estimateTime(){
+// Label info
+function labelInfo(){
     epochs = document.getElementById("epochs").value;
     total_clips = document.getElementById("total_clips").value;
     duration = document.getElementById("duration").value;
@@ -22,6 +23,8 @@ function estimateTime(){
 
     iters_per_epoch = Math.ceil(parseInt(total_clips) / parseInt(batch_size));
     iters = iters_per_epoch * parseInt(epochs);
+
+    // Time estimate
     seconds = Math.ceil(iters * average_duration * SECONDS_PER_ITERATION_PER_SECOND);
 
     days = Math.floor(((seconds / 60) / 60) / 24);
@@ -35,6 +38,12 @@ function estimateTime(){
 
     estimate = days+" days, "+hours+":"+minutes+":"+seconds;
     document.getElementById("time_estimate").innerHTML = estimate;
+
+    // Disk usage
+    backup_checkpoints = iters / parseInt(document.getElementById("backup_checkpoint_frequency").value);
+    console.log(backup_checkpoints);
+    disk_usage_gb = (backup_checkpoints + 1) * CHECKPOINT_SIZE_GB;
+    document.getElementById("disk_usage").innerHTML = disk_usage_gb.toFixed(2) + "GB";
 }
 
 // Epochs
@@ -55,7 +64,7 @@ function showEpochsLabel(){
         text += addSuggestion(newVal, low_epoch_threshold, medium_epoch_threshold, high_epoch_threshold);
     }
     document.getElementById("epochs_label").innerHTML = text;
-    estimateTime();
+    labelInfo();
 }
 document.getElementById("pretrained_model").addEventListener("change", showEpochsLabel, false);
 showEpochsLabel();
@@ -109,7 +118,7 @@ function showDatasetInfo(){
                 text += addSuggestion(duration, low_dataset_threshold, medium_dataset_threshold, high_dataset_threshold);
                 document.getElementById("dataset_label").innerHTML = text;
             }
-            estimateTime();
+            labelInfo();
             showCheckpoints(datasetpath);
         }
     };
@@ -122,7 +131,7 @@ showDatasetInfo();
 function showBatchSize(){
     newVal = document.getElementById("batch_size").value;
     document.getElementById("batch_size_label").value = newVal;
-    estimateTime();
+    labelInfo();
 }
 showBatchSize();
 
@@ -136,6 +145,12 @@ function showCheckpointFrequencyLabel(){
     document.getElementById("checkpoint_frequency_label").innerHTML =  document.getElementById("checkpoint_frequency").value;
 }
 showCheckpointFrequencyLabel();
+
+function showCheckpointBackupFrequencyLabel(){
+    document.getElementById("backup_checkpoint_frequency_label").innerHTML =  document.getElementById("backup_checkpoint_frequency").value;
+    labelInfo();
+}
+showCheckpointBackupFrequencyLabel();
 
 // Validation size
 function showValidationSize(){

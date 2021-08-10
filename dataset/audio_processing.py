@@ -1,38 +1,22 @@
+import argparse
 from subprocess import check_output, call, DEVNULL, STDOUT
 from pathlib import Path
 from pydub import AudioSegment
+import re
 import os
+
+from dataset.utils import add_suffix
 
 devnull = open(os.devnull, "w")
 TARGET_SAMPLE_RATE = 22050
 TARGET_BITRATE = "32k"
 
 
-def rename_file(path, appendix):
-    """
-    Add an appendix to given filename.
-    For example, '1.wav' & an appendix of 'abc' would produce '1-abc.wav'
-
-    Parameters
-    ----------
-    path : str
-        Current path
-    appendix : str
-        String appendix to add to filename
-
-    Returns
-    -------
-    str
-        Path with new filename
-    """
-    p = Path(path)
-    return os.path.join(str(p.parent), f"{p.stem}-{appendix}.wav")
-
-
 def convert_audio(input_path):
     """
     Convert an audio file to the required format.
     This function uses FFmpeg to set the bitrate, sample rate, channels & convert to wav.
+    Also supports extracting audio from video files.
 
     Parameters
     ----------
@@ -44,7 +28,7 @@ def convert_audio(input_path):
     str
         Path of the converted audio
     """
-    output_path = rename_file(input_path, "converted")
+    output_path = input_path.split(".")[0] + "-converted.wav"
     check_output(
         [
             "ffmpeg",
@@ -80,7 +64,7 @@ def change_sample_rate(input_path, new_sample_rate):
     str
         Path of the converted audio
     """
-    output_path = rename_file(input_path, str(new_sample_rate))
+    output_path = add_suffix(input_path, str(new_sample_rate))
     check_output(["ffmpeg", "-i", input_path, "-ar", str(new_sample_rate), output_path])
     return output_path
 
@@ -139,6 +123,40 @@ def cut_audio(input_path, start, end, output_folder):
     output_path = os.path.join(output_folder, output_name)
     call(
         ["ffmpeg", "-ss", start_timestamp, "-t", str(duration), "-i", input_path, output_path],
+        stdout=DEVNULL,
+        stderr=STDOUT,
+    )
+    return output_name
+
+
+def cut_audio_timestamp(input_path, start, end, output_folder):
+    """
+    Cuts audio to a given start & end timestamp.
+
+    Parameters
+    ----------
+    input_path : str
+        Path to audio file
+    start : int
+        Start timestamp (H:M:S.milli)
+    end : int
+        End timestamp (H:M:S.milli)
+    output_folder : str
+        Folder to save audio clip to
+
+    Returns
+    -------
+    str
+        Path of the generated clip
+    """
+
+    def _timestamp_to_filename(timestamp):
+        return re.sub("[^0-9]", "", timestamp)
+
+    output_name = f"{_timestamp_to_filename(start)}_{_timestamp_to_filename(end)}.wav"
+    output_path = os.path.join(output_folder, output_name)
+    call(
+        ["ffmpeg", "-ss", start, "-to", end, "-i", input_path, output_path],
         stdout=DEVNULL,
         stderr=STDOUT,
     )

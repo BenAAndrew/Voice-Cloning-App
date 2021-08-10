@@ -4,18 +4,120 @@ import logging
 import json
 import uuid
 import shutil
+import pysrt
 from pathlib import Path
 from pydub import AudioSegment
 
+from dataset.utils import similarity
 import dataset.forced_alignment.align as align
 from dataset.forced_alignment.search import FuzzySearch
 from dataset.forced_alignment.audio import DEFAULT_RATE
-from dataset.audio_processing import change_sample_rate, add_silence
+from dataset.audio_processing import change_sample_rate, cut_audio_timestamp, add_silence
 
 
 MIN_LENGTH = 1.0
 MAX_LENGTH = 10.0
+MIN_CONFIDENCE = 0.85
 CHARACTER_ENCODING = "utf-8"
+
+
+def generate_clips_from_textfile(
+    audio_path,
+    script_path,
+    transcription_model,
+    output_path,
+    logging=logging,
+    min_length=MIN_LENGTH,
+    max_length=MAX_LENGTH,
+    min_confidence=MIN_CONFIDENCE,
+):
+    logging.info(f"Loading script from {script_path}...")
+    with open(script_path, "r", encoding=CHARACTER_ENCODING) as script_file:
+        clean_text = script_file.read().lower().strip().replace("\n", " ").replace("  ", " ")
+
+    logging.info("Searching text for matching fragments...")
+    search = FuzzySearch(clean_text)
+
+    logging.info("Changing sample rate...")
+    converted_audio_path = change_sample_rate(audio_path, DEFAULT_RATE)
+
+    # Produce segments
+    logging.info("Fetching segments...")
+    segments = align.get_segments(converted_audio_path)
+
+    # Match with text
+    logging.info("Matching segments...")
+    min_length_ms = min_length * 1000
+    max_length_ms = max_length * 1000
+    processed_segments = align.process_segments(
+        audio_path, transcription_model, output_path, segments, min_length_ms, max_length_ms, logging
+    )
+    matched_segments = align.split_match(processed_segments, search)
+    matched_segments = list(filter(lambda f: f is not None, matched_segments))
+    logging.info(f"Matched {len(matched_segments)} segments")
+
+    result_fragments = []
+    clip_lengths = []
+    for fragment in matched_segments:
+        if (
+            fragment["transcript"]
+            and fragment["score"] >= min_confidence
+            and "match-start" in fragment
+            and "match-end" in fragment
+            and fragment["match-end"] - fragment["match-start"] > 0
+        ):
+            fragment_matched = clean_text[fragment["match-start"] : fragment["match-end"]]
+            if fragment_matched:
+                fragment["text"] = fragment_matched
+                clip_lengths.append((fragment["end"] - fragment["start"]) // 1000)
+                result_fragments.append(fragment)
+
+    os.remove(converted_audio_path)
+    return result_fragments, clip_lengths
+
+
+def generate_clips_from_subtitles(
+    audio_path,
+    subtitle_path,
+    transcription_model,
+    output_path,
+    logging=logging,
+    min_length=MIN_LENGTH,
+    max_length=MAX_LENGTH,
+    min_confidence=MIN_CONFIDENCE,
+):
+    logging.info("Loading subtitles...")
+    subs = pysrt.open(subtitle_path)
+    total = len(subs)
+    logging.info(f"{total} subtitle lines detected...")
+
+    result_fragments = []
+    clip_lengths = []
+    for i, sub in enumerate(subs):
+        duration = sub.duration.seconds + (sub.duration.milliseconds / 1000)
+        if duration >= min_length and duration <= max_length:
+            start = sub.start.to_time()
+            end = sub.end.to_time()
+            filename = cut_audio_timestamp(
+                audio_path, start.strftime("%H:%M:%S.%f"), end.strftime("%H:%M:%S.%f"), output_path
+            )
+            clip_path = os.path.join(output_path, filename)
+
+            try:
+                transcript = transcription_model.transcribe(clip_path)
+            except:
+                logging.info(f"Could not transcribe {clip_path}")
+                transcript = None
+
+            if transcript:
+                text = sub.text.strip().replace("\n", " ")
+                score = similarity(transcript, text)
+                if score >= min_confidence:
+                    result_fragments.append({"name": filename, "text": text, "score": score, "duration": duration})
+                    clip_lengths.append(duration)
+        logging.info(f"Progress - {i+1}/{total}")
+
+    return result_fragments, clip_lengths
 
 
 def clip_generator(
@@ -29,7 +131,7 @@ def clip_generator(
     min_length=MIN_LENGTH,
     max_length=MAX_LENGTH,
     silence_padding=0.1,
-    min_confidence=0.85,
+    min_confidence=MIN_CONFIDENCE,
 ):
     """
     Generates dataset clips & label file.
@@ -75,74 +177,57 @@ def clip_generator(
     assert os.path.isfile(script_path), "Script file not found"
     assert audio_path.endswith(".wav"), "Must be a WAV file"
 
-    logging.info(f"Loading script from {script_path}...")
-    with open(script_path, "r", encoding=CHARACTER_ENCODING) as script_file:
-        clean_text = script_file.read().lower().strip().replace("\n", " ").replace("  ", " ")
+    if script_path.endswith(".srt"):
+        clips, clip_lengths = generate_clips_from_subtitles(
+            audio_path,
+            script_path,
+            transcription_model,
+            output_path,
+            logging,
+            min_length,
+            max_length,
+            min_confidence,
+        )
+    else:
+        clips, clip_lengths = generate_clips_from_textfile(
+            audio_path,
+            script_path,
+            transcription_model,
+            output_path,
+            logging,
+            min_length,
+            max_length,
+            min_confidence,
+        )
 
-    logging.info("Searching text for matching fragments...")
-    search = FuzzySearch(clean_text)
-
-    logging.info("Changing sample rate...")
-    new_audio_path = change_sample_rate(audio_path, DEFAULT_RATE)
-
-    # Produce segments
-    logging.info("Fetching segments...")
-    segments = align.get_segments(new_audio_path)
-
-    # Match with text
-    logging.info("Matching segments...")
-    min_length_ms = min_length * 1000
-    max_length_ms = max_length * 1000
-    processed_segments = align.process_segments(
-        audio_path, transcription_model, output_path, segments, min_length_ms, max_length_ms, logging
-    )
-    matched_segments = align.split_match(processed_segments, search)
-    matched_segments = list(filter(lambda f: f is not None, matched_segments))
-    logging.info(f"Matched {len(matched_segments)} segments")
-
-    # Generate final clips
+    # Add silence
     silence = AudioSegment.silent(duration=int(silence_padding * 1000))
-    result_fragments = []
-    clip_lengths = []
-    for fragment in matched_segments:
-        if (
-            fragment["transcript"]
-            and fragment["score"] >= min_confidence
-            and "match-start" in fragment
-            and "match-end" in fragment
-            and fragment["match-end"] - fragment["match-start"] > 0
-        ):
-            fragment_matched = clean_text[fragment["match-start"] : fragment["match-end"]]
-            if fragment_matched:
-                fragment["aligned"] = fragment_matched
-                clip_lengths.append((fragment["end"] - fragment["start"]) // 1000)
-                add_silence(os.path.join(output_path, fragment["name"]), silence)
-                result_fragments.append(fragment)
+    for clip in clips:
+        add_silence(os.path.join(output_path, clip["name"]), silence)
 
     # Delete unused clips
-    fragment_names = [fragment["name"] for fragment in result_fragments]
+    clip_names = [clip["name"] for clip in clips]
     for filename in os.listdir(output_path):
-        if filename not in fragment_names:
+        if filename not in clip_names:
             os.remove(os.path.join(output_path, filename))
-    os.remove(new_audio_path)
 
-    assert result_fragments, "No audio clips could be generated"
+    assert clips, "No audio clips could be generated"
 
     # Produce alignment file
-    logging.info(f"Produced {len(result_fragments)} final fragments")
+    logging.info(f"Produced {len(clips)} final clips")
     with open(forced_alignment_path, "w", encoding=CHARACTER_ENCODING) as result_file:
-        result_file.write(json.dumps(result_fragments, ensure_ascii=False, indent=4))
+        result_file.write(json.dumps(clips, ensure_ascii=False, indent=4))
 
     # Produce metadata file
     with open(label_path, "w", encoding=CHARACTER_ENCODING) as f:
-        for fragment in result_fragments:
-            f.write(f"{fragment['name']}|{fragment['aligned']}\n")
+        for fragment in clips:
+            f.write(f"{fragment['name']}|{fragment['text']}\n")
     logging.info("Generated clips")
 
     return clip_lengths
 
 
-def get_filename(filename, suffix):
+def add_suffix(filename, suffix):
     """
     Adds a suffix to a filename.
 
@@ -209,7 +294,7 @@ def extend_dataset(
     temp_label_path = label_path.replace(Path(label_path).name, "temp.csv")
     temp_wavs_folder = output_path.replace(Path(output_path).name, "temp_wavs")
 
-    clip_generator(
+    clip_lengths = clip_generator(
         audio_path,
         script_path,
         transcription_model,
@@ -226,16 +311,17 @@ def extend_dataset(
     with open(label_path, "a+") as f:
         for line in new_labels:
             filename, text = line.split("|")
-            new_filename = get_filename(filename, suffix)
+            new_filename = add_suffix(filename, suffix)
             f.write(f"{new_filename}|{text}")
 
     for filename in os.listdir(temp_wavs_folder):
-        new_filename = get_filename(filename, suffix)
+        new_filename = add_suffix(filename, suffix)
         shutil.copyfile(os.path.join(temp_wavs_folder, filename), os.path.join(output_path, new_filename))
 
     os.remove(temp_label_path)
     shutil.rmtree(temp_wavs_folder)
     logging.info("Combined dataset")
+    return clip_lengths
 
 
 if __name__ == "__main__":

@@ -13,14 +13,13 @@ import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
 
-from training.dataset import VoiceDataset
+from training.voice_dataset import VoiceDataset
 from training.checkpoint import load_checkpoint, save_checkpoint, warm_start_model
 from training.validate import validate
 from training.utils import (
     get_available_memory,
     get_batch_size,
     get_learning_rate,
-    check_space,
     load_metadata,
     load_symbols,
     check_early_stopping,
@@ -43,12 +42,12 @@ def train(
     alphabet_path=None,
     checkpoint_path=None,
     transfer_learning_path=None,
-    overwrite_checkpoints=True,
     epochs=8000,
     batch_size=None,
     early_stopping=True,
     multi_gpu=True,
     iters_per_checkpoint=1000,
+    iters_per_backup_checkpoint=10000,
     train_size=0.8,
     logging=logging,
 ):
@@ -69,8 +68,6 @@ def train(
         Path to a checkpoint to load (default is None)
     transfer_learning_path : str (optional)
         Path to a transfer learning checkpoint to use (default is None)
-    overwrite_checkpoints : bool (optional)
-        Whether to overwrite old checkpoints (default is True)
     epochs : int (optional)
         Number of epochs to run training for (default is 8000)
     batch_size : int (optional)
@@ -80,7 +77,9 @@ def train(
     multi_gpu : bool (optional)
         Use multiple GPU's in parallel if available (default is True)
     iters_per_checkpoint : int (optional)
-        How often checkpoints are saved (number of iterations)
+        How often temporary checkpoints are saved (number of iterations)
+    iters_per_backup_checkpoint : int (optional)
+        How often backup checkpoints are saved (number of iterations)
     train_size : float (optional)
         Percentage of samples to use for training (default is 80%/0.8)
     logging : logging (optional)
@@ -158,11 +157,6 @@ def train(
     else:
         logging.info("Generating first checkpoint...")
 
-    # Check available memory
-    if not overwrite_checkpoints:
-        num_iterations = len(train_loader) * epochs - epoch_offset
-        check_space(num_iterations // iters_per_checkpoint)
-
     # Enable Multi GPU
     if multi_gpu and torch.cuda.device_count() > 1:
         logging.info(f"Using {torch.cuda.device_count()} GPUs")
@@ -206,7 +200,14 @@ def train(
                     )
                 )
                 save_checkpoint(
-                    model, optimizer, learning_rate, iteration, epoch, output_directory, overwrite_checkpoints
+                    model,
+                    optimizer,
+                    learning_rate,
+                    iteration,
+                    epoch,
+                    output_directory,
+                    iters_per_checkpoint,
+                    iters_per_backup_checkpoint,
                 )
 
             iteration += 1
@@ -218,7 +219,16 @@ def train(
 
     logging.info(f"Progress - {epochs}/{epochs}")
     validate(model, val_loader, criterion, iteration)
-    save_checkpoint(model, optimizer, learning_rate, iteration, epochs, output_directory, overwrite_checkpoints)
+    save_checkpoint(
+        model,
+        optimizer,
+        learning_rate,
+        iteration,
+        epochs,
+        output_directory,
+        iters_per_checkpoint,
+        iters_per_backup_checkpoint,
+    )
     logging.info("Saving model and optimizer state at iteration {} to {}".format(iteration, checkpoint_path))
 
 
@@ -231,6 +241,13 @@ if __name__ == "__main__":
     parser.add_argument("-c", "--checkpoint_path", required=False, type=str, help="checkpoint path")
     parser.add_argument("-e", "--epochs", default=8000, type=int, help="num epochs")
     parser.add_argument("-b", "--batch_size", required=False, type=int, help="batch size")
+    parser.add_argument(
+        "-t",
+        "--transfer_learning_path",
+        required=False,
+        type=str,
+        help="path to an model to transfer learn from",
+    )
 
     args = parser.parse_args()
 
@@ -240,10 +257,11 @@ if __name__ == "__main__":
         assert os.path.isfile(args.checkpoint_path)
 
     train(
-        args.metadata_path,
-        args.dataset_directory,
-        args.output_directory,
-        args.checkpoint_path,
-        args.epochs,
-        args.batch_size,
+        metadata_path=args.metadata_path,
+        dataset_directory=args.dataset_directory,
+        output_directory=args.output_directory,
+        checkpoint_path=args.checkpoint_path,
+        epochs=args.epochs,
+        batch_size=args.batch_size,
+        transfer_learning_path=args.transfer_learning_path,
     )

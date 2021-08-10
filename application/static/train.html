@@ -49,7 +49,8 @@
             </label>
         </div>
         <div>
-            Time Estimate: <span id="time_estimate"></span>
+            Time Estimate: <span id="time_estimate"></span><br>
+            Disk Usage: <span id="disk_usage"></span>
         </div>
         <br>
         <button type="button" class="collapsible" id="advanced">Advanced Options ∨</button>
@@ -69,8 +70,15 @@
             <div class="form-group">
                 <input type="range" id="checkpoint_frequency" name="checkpoint_frequency" step="250" min="250" max="2500" value="1000" onchange="showCheckpointFrequencyLabel()">
                 <label for="checkpoint_frequency">
-                    <a href="#" data-toggle="tooltip" data-placement="top" title="Changes how frequently backup checkpoints are made. Increasing this value will marginally increase performance but may also increase how much progress is lost if training fails.">Checkpoint Frequency</a>: 
+                    <a href="#" data-toggle="tooltip" data-placement="top" title="Changes how frequently checkpoints are made. Increasing this value will marginally increase performance but may also increase how much progress is lost if training fails.">Checkpoint Frequency</a>: 
                     <span id="checkpoint_frequency_label"></span>
+                </label>
+            </div>
+            <div class="form-group">
+                <input type="range" id="backup_checkpoint_frequency" name="backup_checkpoint_frequency" step="500" min="2500" max="25000" value="10000" onchange="showCheckpointBackupFrequencyLabel()">
+                <label for="backup_checkpoint_frequency">
+                    <a href="#" data-toggle="tooltip" data-placement="top" title="Changes how frequently backup checkpoints are made. Increasing this will use more disk space but means more backup versions will be kept.">Backup Checkpoint Frequency</a>: 
+                    <span id="backup_checkpoint_frequency_label"></span>
                 </label>
             </div>
             <div class="form-group">
@@ -79,10 +87,6 @@
                     <a href="#" data-toggle="tooltip" data-placement="top" title="What percentage of data to use for validation">Validation size</a>: 
                     <span id="validation_size_label"></span>
                 </label> 
-            </div>
-            <div class="form-group">
-                <input type="checkbox" id="overwrite_checkpoints" name="overwrite_checkpoints">
-                <label for="overwrite_checkpoints"><a href="#" data-toggle="tooltip" data-placement="top" title="Overwriting checkpoints will reduce disk usage but will also lose earlier checkpoints">Overwrite Checkpoints</a></label>
             </div>
             <div class="form-group">
                 <input type="checkbox" id="multi_gpu" name="multi_gpu" checked>

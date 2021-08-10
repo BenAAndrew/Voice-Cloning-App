@@ -23,13 +23,11 @@ A Python/Pytorch app for easily synthesising human voices
 - NVIDIA GPU with at least 4GB of memory & driver version 450.36+ (optional)
 
 ## Key features
-- Automatic dataset generation
+- Automatic dataset generation (with support for subtitles and audiobooks)
 - Additional language support
 - Local & remote training
 - Easy train start/stop
-- Tools for extracting kindle & audible as data sources
 - Data importing/exporting
-- Word replacement suggestion
 - Multi GPU support
 
 ## Manual Guides
