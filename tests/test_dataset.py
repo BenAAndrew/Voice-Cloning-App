@@ -166,8 +166,8 @@ def test_add_suffix():
 
 
 def test_similarity():
-    assert similarity("abc","def") == 0
-    assert similarity("abc","abc") == 1
+    assert similarity("abc", "def") == 0
+    assert similarity("abc", "abc") == 1
 
 
 # Analysis
