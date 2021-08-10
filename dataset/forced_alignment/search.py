@@ -1,4 +1,4 @@
-from dataset import similarity
+from dataset.utils import similarity
 
 
 def ngrams(s, size):

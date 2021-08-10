@@ -5,12 +5,11 @@ from pathlib import Path
 import json
 
 from tests.test_synthesis import MIN_SYNTHESIS_SCORE
-from dataset import add_suffix
 from dataset.analysis import get_total_audio_duration, get_clip_lengths, validate_dataset
 from dataset.clip_generator import generate_clips_from_subtitles
 from dataset.create_dataset import create_dataset
 from dataset.extend_existing_dataset import extend_existing_dataset
-from dataset.forced_alignment.search import similarity
+from dataset.utils import similarity, add_suffix
 from dataset.transcribe import create_transcription_model, TranscriptionModel, DeepSpeech, Silero
 
 
@@ -160,9 +159,15 @@ def test_extend_existing_dataset():
     shutil.rmtree(dataset_directory)
 
 
+# Utils
 def test_add_suffix():
     new_filename = add_suffix("audio.wav", "converted")
     assert new_filename == "audio-converted.wav"
+
+
+def test_similarity():
+    assert similarity("abc","def") == 0
+    assert similarity("abc","abc") == 1
 
 
 # Analysis

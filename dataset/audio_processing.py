@@ -5,7 +5,7 @@ from pydub import AudioSegment
 import re
 import os
 
-from dataset import add_suffix
+from dataset.utils import add_suffix
 
 devnull = open(os.devnull, "w")
 TARGET_SAMPLE_RATE = 22050

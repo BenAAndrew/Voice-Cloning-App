@@ -8,7 +8,7 @@ import pysrt
 from pathlib import Path
 from pydub import AudioSegment
 
-from dataset import similarity
+from dataset.utils import similarity
 import dataset.forced_alignment.align as align
 from dataset.forced_alignment.search import FuzzySearch
 from dataset.forced_alignment.audio import DEFAULT_RATE

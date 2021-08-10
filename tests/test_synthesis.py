@@ -4,7 +4,7 @@ import numpy as np
 import librosa
 import pytest
 
-from dataset.forced_alignment.search import similarity
+from dataset.utils import similarity
 from dataset.transcribe import create_transcription_model
 from synthesis.synthesize import load_model, synthesize
 from synthesis.vocoders import Waveglow, Hifigan
