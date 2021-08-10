@@ -16,6 +16,7 @@ def convert_audio(input_path):
     """
     Convert an audio file to the required format.
     This function uses FFmpeg to set the bitrate, sample rate, channels & convert to wav.
+    Also supports extracting audio from video files.
 
     Parameters
     ----------
@@ -27,7 +28,7 @@ def convert_audio(input_path):
     str
         Path of the converted audio
     """
-    output_path = add_suffix(input_path, "converted")
+    output_path = input_path.split(".")[0] + "-converted.wav"
     check_output(
         [
             "ffmpeg",
