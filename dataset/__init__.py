@@ -2,6 +2,21 @@ from difflib import SequenceMatcher
 
 
 def similarity(a, b):
+    """
+    Returns the similarity between two strings.
+
+    Parameters
+    ----------
+    a : str
+        String a
+    b : str
+        String b
+
+    Returns
+    -------
+    float
+        Similarity score (between 0-1)
+    """
     return SequenceMatcher(None, a, b).ratio()
 
 

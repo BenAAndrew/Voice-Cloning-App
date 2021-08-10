@@ -6,7 +6,7 @@ import json
 
 from tests.test_synthesis import MIN_SYNTHESIS_SCORE
 from dataset import add_suffix
-from dataset.analysis import get_total_audio_duration, validate_dataset
+from dataset.analysis import get_total_audio_duration, get_clip_lengths, validate_dataset
 from dataset.clip_generator import generate_clips_from_subtitles
 from dataset.create_dataset import create_dataset
 from dataset.extend_existing_dataset import extend_existing_dataset
@@ -171,6 +171,12 @@ def test_get_total_audio_duration():
     duration, total_clips = get_total_audio_duration(info_path)
     assert duration == 10000
     assert total_clips == 100
+
+
+def test_get_clip_lengths():
+    folder = os.path.join("test_samples", "dataset", "wavs")
+    clips_lengths = get_clip_lengths(folder)
+    assert clips_lengths == [2.8299319727891157, 2.379909297052154, 2.529931972789116]
 
 
 def test_validate_dataset():
