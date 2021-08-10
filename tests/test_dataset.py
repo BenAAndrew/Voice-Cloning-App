@@ -5,8 +5,9 @@ from pathlib import Path
 import json
 
 from tests.test_synthesis import MIN_SYNTHESIS_SCORE
+from dataset import add_suffix
 from dataset.analysis import get_total_audio_duration, validate_dataset
-from dataset.clip_generator import add_suffix, generate_clips_from_subtitles
+from dataset.clip_generator import generate_clips_from_subtitles
 from dataset.create_dataset import create_dataset
 from dataset.extend_existing_dataset import extend_existing_dataset
 from dataset.forced_alignment.search import similarity
@@ -71,7 +72,7 @@ def test_create_dataset():
 
     with open(info_path) as f:
         data = json.load(f)
-        assert int(data["total_duration"]) == 7
+        assert int(data["total_duration"]) == 6
         assert data["total_clips"] == 3
 
     os.remove(converted_audio_path)
