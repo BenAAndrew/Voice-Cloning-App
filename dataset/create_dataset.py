@@ -54,7 +54,7 @@ def create_dataset(
     """
     logging.info(f"Coverting {audio_path}...")
     converted_audio = convert_audio(audio_path)
-    clip_generator(
+    clip_lengths = clip_generator(
         converted_audio,
         text_path,
         transcription_model,
@@ -65,7 +65,7 @@ def create_dataset(
         min_confidence=min_confidence,
     )
     logging.info("Getting dataset info...")
-    save_dataset_info(label_path, output_path, info_path)
+    save_dataset_info(label_path, output_path, info_path, clip_lengths)
 
 
 if __name__ == "__main__":
