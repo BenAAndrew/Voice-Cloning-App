@@ -14,9 +14,7 @@ Also ensure the following:
 
 ## Build command
 Before building the executable you will need to create a python environment with the requirements installed (`requirements.txt`) as well as `pyinstaller`.
-Run this command from the root of the project.
-
-`pyinstaller main.py --onefile --hidden-import="sklearn.utils._weight_vector" --hidden-import="scipy.special.cython_special" --add-data "application/static;application/static" --add-data libdeepspeech.so;. --icon application\static\favicon\app-icon.ico --clean`
+You can then run the build script with `python build_exe.py`.
 
 This will add the executable to the `dist` folder.
 
