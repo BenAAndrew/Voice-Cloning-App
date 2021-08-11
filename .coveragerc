@@ -2,6 +2,7 @@
 omit =
     application/*
     tests/*
+    extra-hooks/*
     training/tacotron2_model/*
     glow.py
     main.py
