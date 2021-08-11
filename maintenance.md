@@ -14,9 +14,7 @@ Also ensure the following:
 
 ## Build command
 Before building the executable you will need to create a python environment with the requirements installed (`requirements.txt`) as well as `pyinstaller`.
-Run this command from the root of the project.
-
-`pyinstaller main.py --onefile --hidden-import="sklearn.utils._weight_vector" --hidden-import="scipy.special.cython_special" --add-data "application/static;application/static" --add-data libdeepspeech.so;. --icon application\static\favicon\app-icon.ico --clean`
+You can then run the build script with `python build_exe.py`.
 
 This will add the executable to the `dist` folder.
 
@@ -75,6 +73,6 @@ Found in `train.py` it add a few additions the existing project did not have:
 4. It can enable early-stopping which will stop training if the loss over the last 10 checkpoints has not sufficently decreased (minimum loss reached) 
 
 ## Synthesis
-The synthsis script implements https://github.com/NVIDIA/waveglow and https://github.com/jik876/hifi-gan, either of which can be selected.
+The synthesis script implements https://github.com/jik876/hifi-gan.
 
-The synthesis process is implemented in `synthesize.py`. It firstly loads the feature predictor model (from training) and a pretrained vocoder model (waveglow/hifi-gan). It then cleans the text and infers the results. Audio & an alignment graph can be produced from this.
+The synthesis process is implemented in `synthesize.py`. It firstly loads the feature predictor model (from training) and a pretrained vocoder model (hifi-gan). It then cleans the text and infers the results. Audio & an alignment graph can be produced from this.

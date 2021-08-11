@@ -5,6 +5,7 @@ import traceback
 import shutil
 import zipfile
 import librosa
+import resampy  # noqa
 
 from main import socketio
 from dataset.audio_processing import convert_audio

@@ -49,7 +49,7 @@ A Python/Pytorch app for easily synthesising human voices
 - [Wit.ai transcription](https://colab.research.google.com/drive/1i5hJRZVc0S-tgt5XM8kSoTu2nHBPOPrF#scrollTo=dk689PtThOjn)
 
 ## Acknowledgements
-This project uses a reworked version of [Tacotron2](https://github.com/NVIDIA/tacotron2) & [Waveglow](https://github.com/NVIDIA/waveglow). All rights for belong to NVIDIA and follow the requirements of their BSD-3 licence.
+This project uses a reworked version of [Tacotron2](https://github.com/NVIDIA/tacotron2). All rights for belong to NVIDIA and follow the requirements of their BSD-3 licence.
 
 Additionally, the project uses [DSAlign](https://github.com/mozilla/DSAlign), [Silero](https://github.com/snakers4/silero-models), [DeepSpeech](https://github.com/mozilla/DeepSpeech) & [hifi-gan](https://github.com/jik876/hifi-gan).
 

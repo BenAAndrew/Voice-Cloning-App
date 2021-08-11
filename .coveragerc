@@ -2,9 +2,11 @@
 omit =
     application/*
     tests/*
+    extra-hooks/*
     training/tacotron2_model/*
     glow.py
     main.py
+    build_exe.py
     synthesis/*
 [report]
 exclude_lines =

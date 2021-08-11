@@ -7,7 +7,7 @@ import pytest
 from dataset.utils import similarity
 from dataset.transcribe import create_transcription_model
 from synthesis.synthesize import load_model, synthesize
-from synthesis.vocoders import Waveglow, Hifigan
+from synthesis.vocoders import Hifigan
 from synthesis.vocoders.vocoder import Vocoder
 
 
@@ -70,35 +70,6 @@ def test_synthesize():
 
     os.remove(graph_path)
     os.remove(audio_path)
-
-
-# @pytest.mark.slow
-# def test_waveglow_synthesis():
-#     model_path = os.path.join("test_samples", "model.pt")
-#     waveglow_path = os.path.join("test_samples", "waveglow_256channels_universal_v5.pt")
-#     graph_path = "graph.png"
-#     audio_path = "synthesized_audio.wav"
-#     transcription_model = create_transcription_model()
-
-#     model = load_model(model_path)
-#     waveglow = Waveglow(waveglow_path)
-#     text = "hello everybody my name is david attenborough"
-#     inflect_engine = inflect.engine()
-#     synthesize(
-#         model=model,
-#         text=text,
-#         inflect_engine=inflect_engine,
-#         graph_path=graph_path,
-#         audio_path=audio_path,
-#         vocoder=waveglow,
-#     )
-
-#     assert os.path.isfile(graph_path)
-#     assert os.path.isfile(audio_path)
-#     assert similarity(text, transcription_model.transcribe(audio_path)) > MIN_SYNTHESIS_SCORE
-
-#     os.remove(graph_path)
-#     os.remove(audio_path)
 
 
 @pytest.mark.slow

@@ -8,6 +8,7 @@ import numpy as np
 import deepspeech
 import torch
 import torchaudio  # noqa
+import soundfile  # noqa
 import omegaconf  # noqa
 
 

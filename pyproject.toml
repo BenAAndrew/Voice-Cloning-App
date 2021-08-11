@@ -14,5 +14,4 @@ exclude = [
     "training/tacotron2",
     "synthesis/vocoders/hifigan_model.py",
     "synthesis/vocoders/hifigan.py",
-    "synthesis/vocoders/waveglow.py",
 ]
