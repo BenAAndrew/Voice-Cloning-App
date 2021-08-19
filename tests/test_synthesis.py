@@ -20,7 +20,6 @@ class FakeVocoder(Vocoder):
         return np.zeros(22050).astype("int16")
 
 
-@pytest.mark.slow
 def test_synthesize():
     model_path = os.path.join("test_samples", "model.pt")
     graph_path = "graph.png"
@@ -72,7 +71,6 @@ def test_synthesize():
     os.remove(audio_path)
 
 
-@pytest.mark.slow
 def test_hifigan_synthesis():
     model_path = os.path.join("test_samples", "model.pt")
     hifigan_model_path = os.path.join("test_samples", "hifigan.pt")
