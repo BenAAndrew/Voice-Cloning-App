@@ -1,5 +1,4 @@
 import os
-import inflect
 import numpy as np
 import librosa
 import torch
@@ -9,6 +8,7 @@ from dataset.transcribe import create_transcription_model
 from synthesis.synthesize import load_model, synthesize
 from synthesis.vocoders import Hifigan
 from synthesis.vocoders.vocoder import Vocoder
+from training.tacotron2_model.model import Tacotron2
 
 
 MIN_SYNTHESIS_SCORE = 0.3
@@ -106,3 +106,9 @@ def test_hifigan_synthesis():
     assert similarity(text, transcription_model.transcribe(audio_path)) > MIN_SYNTHESIS_SCORE
 
     os.remove(audio_path)
+
+
+def test_load_model():
+    model_path = os.path.join("test_samples", "model.pt")
+    model = load_model(model_path)
+    assert isinstance(model, Tacotron2)
