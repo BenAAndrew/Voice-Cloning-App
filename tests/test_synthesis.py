@@ -78,18 +78,23 @@ def test_synthesize():
     os.remove(audio_path)
 
 
+class FakeModelForSynthesis:
+    mel_output = torch.load(os.path.join("test_samples", "mel.pt"))
+
+    def inference(self, sequence, max_decoder_steps):
+        return None, self.mel_output, None, None
+
+
 def test_hifigan_synthesis():
-    model_path = os.path.join("test_samples", "model.pt")
     hifigan_model_path = os.path.join("test_samples", "hifigan.pt")
     hifigan_config_path = os.path.join("test_samples", "config.json")
     audio_path = "synthesized_audio.wav"
     transcription_model = create_transcription_model()
 
-    model = load_model(model_path)
     hifigan = Hifigan(hifigan_model_path, hifigan_config_path)
-    text = "hello everybody david attenborough"
+    text = "the monkeys live"
     synthesize(
-        model=model,
+        model=FakeModelForSynthesis(),
         text=text,
         inflect_engine=None,
         graph_path=None,
