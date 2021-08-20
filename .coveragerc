@@ -4,10 +4,10 @@ omit =
     tests/*
     extra-hooks/*
     training/tacotron2_model/*
+    synthesis/hifigan_model.py
     glow.py
     main.py
     build_exe.py
-    synthesis/*
 [report]
 exclude_lines =
     if __name__ == .__main__.:
