@@ -152,7 +152,7 @@ def synthesize(
     if audio_path:
         assert vocoder, "Missing vocoder"
 
-    lines = text.split("\n")
+    lines = [line.strip() for line in text.split("\n") if line.strip()]
     if len(lines) == 1:
         # Single sentence
         text = clean_text(text, inflect_engine)
