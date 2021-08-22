@@ -1,41 +1,47 @@
 import os
-import inflect
 import numpy as np
 import librosa
-import pytest
+import torch
 
 from dataset.utils import similarity
 from dataset.transcribe import create_transcription_model
 from synthesis.synthesize import load_model, synthesize
 from synthesis.vocoders import Hifigan
 from synthesis.vocoders.vocoder import Vocoder
+from training.tacotron2_model.model import Tacotron2
 
 
 MIN_SYNTHESIS_SCORE = 0.3
 
 
 class FakeVocoder(Vocoder):
+    # 1 second of silence
+    audio = np.zeros(22050).astype("int16")
     def generate_audio(self, mel_output):
-        # 1 second of silence
-        return np.zeros(22050).astype("int16")
+        return self.audio
 
 
-@pytest.mark.slow
+class FakeModel:
+    mel_output = torch.zeros((1, 80, 10), dtype=torch.float16)
+    alignment = torch.zeros((1, 10, 5), dtype=torch.float16)
+
+    def inference(self, sequence, max_decoder_steps):
+        return None, self.mel_output, None, self.alignment
+
+
 def test_synthesize():
-    model_path = os.path.join("test_samples", "model.pt")
     graph_path = "graph.png"
     audio_path = "synthesized_audio.wav"
 
-    model = load_model(model_path)
+    model = FakeModel()
     vocoder = FakeVocoder()
-    inflect_engine = inflect.engine()
 
     # Single line
     text = "hello everybody my name is david attenborough"
     synthesize(
         model=model,
         text=text,
-        inflect_engine=inflect_engine,
+        inflect_engine=None,
         graph_path=graph_path,
         audio_path=audio_path,
         vocoder=vocoder,
@@ -51,12 +57,12 @@ def test_synthesize():
 
     # Multi line
     text = (
-        "The monkeys live in the jungle with their families.\nHowever, I prefer to live on the beach and enjoy the sun."
+        "the monkeys live in the jungle with their families.\nhowever, i prefer to live on the beach and enjoy the sun."
     )
     synthesize(
         model=model,
         text=text,
-        inflect_engine=inflect_engine,
+        inflect_engine=None,
         graph_path=graph_path,
         audio_path=audio_path,
         vocoder=vocoder,
@@ -72,31 +78,37 @@ def test_synthesize():
     os.remove(audio_path)
 
 
-@pytest.mark.slow
+class FakeModelForSynthesis:
+    mel_output = torch.load(os.path.join("test_samples", "mel.pt"))
+
+    def inference(self, sequence, max_decoder_steps):
+        return None, self.mel_output, None, None
+
+
 def test_hifigan_synthesis():
-    model_path = os.path.join("test_samples", "model.pt")
     hifigan_model_path = os.path.join("test_samples", "hifigan.pt")
     hifigan_config_path = os.path.join("test_samples", "config.json")
-    graph_path = "graph.png"
     audio_path = "synthesized_audio.wav"
     transcription_model = create_transcription_model()
 
-    model = load_model(model_path)
     hifigan = Hifigan(hifigan_model_path, hifigan_config_path)
-    text = "hello everybody my name is david attenborough"
-    inflect_engine = inflect.engine()
+    text = "the monkeys live"
     synthesize(
-        model=model,
+        model=FakeModelForSynthesis(),
         text=text,
-        inflect_engine=inflect_engine,
-        graph_path=graph_path,
+        inflect_engine=None,
+        graph_path=None,
         audio_path=audio_path,
         vocoder=hifigan,
     )
 
-    assert os.path.isfile(graph_path)
     assert os.path.isfile(audio_path)
     assert similarity(text, transcription_model.transcribe(audio_path)) > MIN_SYNTHESIS_SCORE
 
-    os.remove(graph_path)
     os.remove(audio_path)
+
+
+def test_load_model():
+    model_path = os.path.join("test_samples", "model.pt")
+    model = load_model(model_path)
+    assert isinstance(model, Tacotron2)
