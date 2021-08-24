@@ -15,9 +15,9 @@ from dataset.transcribe import create_transcription_model, TranscriptionModel, D
 
 TEXT = "the examination and testimony of the experts enabled the commission to conclude that five shots may have been fired"
 EXPECTED_CLIPS = {
-    "0_2730.wav": "the examination and testimony of the experts",
-    "2820_5100.wav": "enabled the commission to conclude",
-    "5130_7560.wav": "that five shots may have been",
+    "000000000_000002730.wav": "the examination and testimony of the experts",
+    "000002820_000005100.wav": "enabled the commission to conclude",
+    "000005130_000007560.wav": "that five shots may have been",
 }
 EXPECTED_SUBTITLE_CLIPS = {
     "000000000000_000002600000.wav": "The examination and testimony of the experts",
@@ -66,12 +66,12 @@ def test_create_dataset():
     with open(forced_alignment_path, "r") as forced_alignment_file:
         data = json.load(forced_alignment_file)
         for segment in data:
-            assert {"name", "score", "text"}.issubset(segment.keys()), "Alignment JSON missing required keys"
+            assert {"name", "start", "end", "duration", "score", "transcript", "text"}.issubset(segment.keys()), "Alignment JSON missing required keys"
             assert segment["score"] >= min_confidence, "SWS score less than min confidence"
 
     with open(info_path) as f:
         data = json.load(f)
-        assert int(data["total_duration"]) == 6
+        assert int(data["total_duration"]) == 7
         assert data["total_clips"] == 3
 
     os.remove(converted_audio_path)
@@ -103,12 +103,18 @@ def test_generate_clips_from_subtitles():
     assert result_fragments == [
         {
             "name": "000000000000_000002600000.wav",
+            "start": "00:00:00.000000", 
+            "end": "00:00:02.600000",
+            "transcript": "The examination and testimony of the experts",
             "text": "The examination and testimony of the experts",
             "score": 1,
             "duration": 2.6,
         },
         {
             "name": "000002900000_000007400000.wav",
+            "start": "00:00:02.900000", 
+            "end": "00:00:07.400000",
+            "transcript": "enabled the Commission to conclude that five shots may have been fired,",
             "text": "enabled the Commission to conclude that five shots may have been fired,",
             "score": 1,
             "duration": 4.5,
