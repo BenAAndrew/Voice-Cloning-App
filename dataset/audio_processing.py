@@ -99,38 +99,6 @@ def get_timestamp(milliseconds):
 
 def cut_audio(input_path, start, end, output_folder):
     """
-    Cuts audio to a given start & end point.
-
-    Parameters
-    ----------
-    input_path : str
-        Path to audio file
-    start : int
-        Start time in milliseconds
-    end : int
-        End time in milliseconds
-    output_folder : str
-        Folder to save audio clip to
-
-    Returns
-    -------
-    str
-        Path of the generated clip (named in the format 'start_end.wav')
-    """
-    start_timestamp = get_timestamp(start)
-    duration = (end - start) / 1000
-    output_name = f"{start}_{end}.wav"
-    output_path = os.path.join(output_folder, output_name)
-    call(
-        ["ffmpeg", "-ss", start_timestamp, "-t", str(duration), "-i", input_path, output_path],
-        stdout=DEVNULL,
-        stderr=STDOUT,
-    )
-    return output_name
-
-
-def cut_audio_timestamp(input_path, start, end, output_folder):
-    """
     Cuts audio to a given start & end timestamp.
 
     Parameters
@@ -149,7 +117,6 @@ def cut_audio_timestamp(input_path, start, end, output_folder):
     str
         Path of the generated clip
     """
-
     def _timestamp_to_filename(timestamp):
         return re.sub("[^0-9]", "", timestamp)
 

@@ -12,7 +12,7 @@ from dataset.utils import similarity
 import dataset.forced_alignment.align as align
 from dataset.forced_alignment.search import FuzzySearch
 from dataset.forced_alignment.audio import DEFAULT_RATE
-from dataset.audio_processing import change_sample_rate, cut_audio_timestamp, add_silence
+from dataset.audio_processing import change_sample_rate, cut_audio, add_silence
 
 
 MIN_LENGTH = 1.0
@@ -69,7 +69,7 @@ def generate_clips_from_textfile(
             fragment_matched = clean_text[fragment["match-start"] : fragment["match-end"]]
             if fragment_matched:
                 fragment["text"] = fragment_matched
-                clip_lengths.append((fragment["end"] - fragment["start"]) // 1000)
+                clip_lengths.append(fragment["duration"])
                 result_fragments.append(fragment)
 
     os.remove(converted_audio_path)
@@ -96,10 +96,10 @@ def generate_clips_from_subtitles(
     for i, sub in enumerate(subs):
         duration = sub.duration.seconds + (sub.duration.milliseconds / 1000)
         if duration >= min_length and duration <= max_length:
-            start = sub.start.to_time()
-            end = sub.end.to_time()
-            filename = cut_audio_timestamp(
-                audio_path, start.strftime("%H:%M:%S.%f"), end.strftime("%H:%M:%S.%f"), output_path
+            start = sub.start.to_time().strftime("%H:%M:%S.%f")
+            end = sub.end.to_time().strftime("%H:%M:%S.%f")
+            filename = cut_audio(
+                audio_path, start, end, output_path
             )
             clip_path = os.path.join(output_path, filename)
 
@@ -113,7 +113,7 @@ def generate_clips_from_subtitles(
                 text = sub.text.strip().replace("\n", " ")
                 score = similarity(transcript, text)
                 if score >= min_confidence:
-                    result_fragments.append({"name": filename, "text": text, "score": score, "duration": duration})
+                    result_fragments.append({"name": filename, "start": start, "end": end, "duration": duration, "transcript": transcript, "text": text, "score": score})
                     clip_lengths.append(duration)
         logging.info(f"Progress - {i+1}/{total}")
 
@@ -171,7 +171,7 @@ def clip_generator(
     list
         List of clip lengths in seconds
     """
-    assert not os.path.isdir(output_path), "Output directory already exists"
+    assert not os.path.isdir(output_path), "Output directory already exists. Did you mean to use 'Extend existing dataset'?"
     os.makedirs(output_path, exist_ok=False)
     assert os.path.isfile(audio_path), "Audio file not found"
     assert os.path.isfile(script_path), "Script file not found"

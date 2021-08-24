@@ -38,6 +38,8 @@ A Python/Pytorch app for easily synthesising human voices
 - [Making changes](maintenance.md)
 
 ## Future Improvements
+- Clip combining
+- Automatic sentence splitting
 - Add support for alternative models
 - Improved batch size estimation
 - AMD GPU support

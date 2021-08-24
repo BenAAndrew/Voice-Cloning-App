@@ -2,7 +2,7 @@ import os
 import logging
 
 from dataset.forced_alignment.audio import DEFAULT_RATE, read_frames_from_file, vad_split
-from dataset.audio_processing import cut_audio
+from dataset.audio_processing import get_timestamp, cut_audio
 
 
 logging.getLogger().setLevel(logging.INFO)
@@ -96,14 +96,15 @@ def process_segments(audio_path, transcription_model, output_path, segments, min
     logging.info("Generating segments...")
     samples = []
     total = len(segments)
-    index = 0
     for i in range(total):
         segment = segments[i]
         _, time_start, time_end = segment
-        time_length = time_end - time_start
+        duration = time_end - time_start
 
-        if time_length >= min_length and time_length <= max_length:
-            name = cut_audio(audio_path, int(time_start), int(time_end), output_path)
+        if duration >= min_length and duration <= max_length:
+            start = get_timestamp(int(time_start))
+            end = get_timestamp(int(time_end))
+            name = cut_audio(audio_path, start, end, output_path)
             clip_path = os.path.join(output_path, name)
 
             try:
@@ -115,14 +116,13 @@ def process_segments(audio_path, transcription_model, output_path, segments, min
             if transcript:
                 samples.append(
                     {
-                        "index": index,
-                        "start": time_start,
-                        "end": time_end,
                         "name": name,
+                        "start": start,
+                        "end": end,
+                        "duration": duration / 1000,
                         "transcript": transcript.strip(),
                     }
                 )
-                index += 1
 
         logging.info(f"Progress - {i+1}/{total}")
     return samples
