@@ -17,6 +17,7 @@ MIN_SYNTHESIS_SCORE = 0.3
 class FakeVocoder(Vocoder):
     # 1 second of silence
     audio = np.zeros(22050).astype("int16")
+
     def generate_audio(self, mel_output):
         return self.audio
 

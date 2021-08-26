@@ -21,6 +21,7 @@ def create_dataset(
     info_path,
     logging=logging,
     min_confidence=0.85,
+    combine_clips=True,
 ):
     """
     Generates a dataset.
@@ -63,6 +64,7 @@ def create_dataset(
         label_path,
         logging=logging,
         min_confidence=min_confidence,
+        combine_clips=combine_clips,
     )
     logging.info("Getting dataset info...")
     save_dataset_info(label_path, output_path, info_path, clip_lengths)

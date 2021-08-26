@@ -22,6 +22,7 @@ def extend_existing_dataset(
     info_path,
     logging=logging,
     min_confidence=0.85,
+    combine_clips=True,
 ):
     """
     Extends an existing dataset.
@@ -69,6 +70,7 @@ def extend_existing_dataset(
         suffix,
         logging=logging,
         min_confidence=min_confidence,
+        combine_clips=combine_clips,
     )
     logging.info("Getting dataset info...")
     save_dataset_info(label_path, output_path, info_path, clip_lengths)

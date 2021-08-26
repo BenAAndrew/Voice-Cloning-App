@@ -7,6 +7,7 @@ import shutil
 import pysrt
 from pathlib import Path
 from pydub import AudioSegment
+from datetime import datetime
 
 from dataset.utils import similarity
 import dataset.forced_alignment.align as align
@@ -19,6 +20,48 @@ MIN_LENGTH = 1.0
 MAX_LENGTH = 10.0
 MIN_CONFIDENCE = 0.85
 CHARACTER_ENCODING = "utf-8"
+
+
+def clip_combiner(audio_path, output_path, clips, max_length):
+    def _get_duration(start, end):
+        return (datetime.strptime(end, "%H:%M:%S.%f") - datetime.strptime(start, "%H:%M:%S.%f")).total_seconds()
+
+    def _combine_clip(combined_clip, audio_path, output_path):
+        if len(combined_clip) > 1:
+            start = combined_clip[0]["start"]
+            end = combined_clip[-1]["end"]
+            duration = _get_duration(start, end)
+            filename = cut_audio(audio_path, start, end, output_path)
+            return {
+                "name": filename,
+                "start": start,
+                "end": end,
+                "duration": duration,
+                "transcript": ", ".join(clip["transcript"] for clip in combined_clip),
+                "text": ", ".join(clip["text"] for clip in combined_clip),
+                "score": sum([clip["score"] for clip in combined_clip]) / len(combined_clip),
+            }, duration
+        else:
+            return combined_clip[0], combined_clip[0]["duration"]
+
+    output_clips = []
+    clip_lengths = []
+    combined_clip = []
+    for clip in clips:
+        if combined_clip:
+            if _get_duration(combined_clip[0]["start"], clip["end"]) > max_length:
+                new_clip, duration = _combine_clip(combined_clip, audio_path, output_path)
+                output_clips.append(new_clip)
+                clip_lengths.append(duration)
+                combined_clip = []
+        combined_clip.append(clip)
+
+    # Add final combined clip
+    if combined_clip:
+        new_clip, duration = _combine_clip(combined_clip, audio_path, output_path)
+        output_clips.append(new_clip)
+        clip_lengths.append(duration)
+    return output_clips, clip_lengths
 
 
 def generate_clips_from_textfile(
@@ -98,9 +141,7 @@ def generate_clips_from_subtitles(
         if duration >= min_length and duration <= max_length:
             start = sub.start.to_time().strftime("%H:%M:%S.%f")
             end = sub.end.to_time().strftime("%H:%M:%S.%f")
-            filename = cut_audio(
-                audio_path, start, end, output_path
-            )
+            filename = cut_audio(audio_path, start, end, output_path)
             clip_path = os.path.join(output_path, filename)
 
             try:
@@ -113,7 +154,17 @@ def generate_clips_from_subtitles(
                 text = sub.text.strip().replace("\n", " ")
                 score = similarity(transcript, text)
                 if score >= min_confidence:
-                    result_fragments.append({"name": filename, "start": start, "end": end, "duration": duration, "transcript": transcript, "text": text, "score": score})
+                    result_fragments.append(
+                        {
+                            "name": filename,
+                            "start": start,
+                            "end": end,
+                            "duration": duration,
+                            "transcript": transcript,
+                            "text": text,
+                            "score": score,
+                        }
+                    )
                     clip_lengths.append(duration)
         logging.info(f"Progress - {i+1}/{total}")
 
@@ -132,6 +183,7 @@ def clip_generator(
     max_length=MAX_LENGTH,
     silence_padding=0.1,
     min_confidence=MIN_CONFIDENCE,
+    combine_clips=True,
 ):
     """
     Generates dataset clips & label file.
@@ -160,6 +212,8 @@ def clip_generator(
         Padding of silence at the end of each clip in seconds
     min_confidence : float (optional)
         Minimum confidence score to generate a clip for
+    combine_clips : bool (optional)
+        Whether to combine clips to make them longer
 
     Raises
     -------
@@ -171,7 +225,9 @@ def clip_generator(
     list
         List of clip lengths in seconds
     """
-    assert not os.path.isdir(output_path), "Output directory already exists. Did you mean to use 'Extend existing dataset'?"
+    assert not os.path.isdir(
+        output_path
+    ), "Output directory already exists. Did you mean to use 'Extend existing dataset'?"
     os.makedirs(output_path, exist_ok=False)
     assert os.path.isfile(audio_path), "Audio file not found"
     assert os.path.isfile(script_path), "Script file not found"
@@ -199,6 +255,10 @@ def clip_generator(
             max_length,
             min_confidence,
         )
+
+    if combine_clips:
+        logging.info("Combining clips")
+        clips, clip_lengths = clip_combiner(audio_path, output_path, clips, max_length)
 
     # Add silence
     silence = AudioSegment.silent(duration=int(silence_padding * 1000))

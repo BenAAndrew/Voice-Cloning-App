@@ -6,7 +6,7 @@ import json
 
 from tests.test_synthesis import MIN_SYNTHESIS_SCORE
 from dataset.analysis import get_total_audio_duration, get_clip_lengths, validate_dataset
-from dataset.clip_generator import generate_clips_from_subtitles
+from dataset.clip_generator import generate_clips_from_subtitles, clip_combiner
 from dataset.create_dataset import create_dataset
 from dataset.extend_existing_dataset import extend_existing_dataset
 from dataset.utils import similarity, add_suffix
@@ -66,7 +66,9 @@ def test_create_dataset():
     with open(forced_alignment_path, "r") as forced_alignment_file:
         data = json.load(forced_alignment_file)
         for segment in data:
-            assert {"name", "start", "end", "duration", "score", "transcript", "text"}.issubset(segment.keys()), "Alignment JSON missing required keys"
+            assert {"name", "start", "end", "duration", "score", "transcript", "text"}.issubset(
+                segment.keys()
+            ), "Alignment JSON missing required keys"
             assert segment["score"] >= min_confidence, "SWS score less than min confidence"
 
     with open(info_path) as f:
@@ -103,7 +105,7 @@ def test_generate_clips_from_subtitles():
     assert result_fragments == [
         {
             "name": "000000000000_000002600000.wav",
-            "start": "00:00:00.000000", 
+            "start": "00:00:00.000000",
             "end": "00:00:02.600000",
             "transcript": "The examination and testimony of the experts",
             "text": "The examination and testimony of the experts",
@@ -112,7 +114,7 @@ def test_generate_clips_from_subtitles():
         },
         {
             "name": "000002900000_000007400000.wav",
-            "start": "00:00:02.900000", 
+            "start": "00:00:02.900000",
             "end": "00:00:07.400000",
             "transcript": "enabled the Commission to conclude that five shots may have been fired,",
             "text": "enabled the Commission to conclude that five shots may have been fired,",
@@ -122,6 +124,88 @@ def test_generate_clips_from_subtitles():
     ]
 
     shutil.rmtree(dataset_directory)
+
+
+# Clip combiner
+def test_clip_combiner():
+    output_directory = "test-clip-combiner"
+    audio_path = os.path.join("test_samples", "audio.wav")
+    os.makedirs(output_directory)
+
+    clips = [
+        # Should combine first 2 (duration would be 8 seconds)
+        {
+            "name": "000000000_000002000.wav",
+            "start": "00:00:00.000",
+            "end": "00:00:02.000",
+            "duration": 2,
+            "transcript": "abcd",
+            "text": "abc",
+            "score": 0.8,
+        },
+        {
+            "name": "000004000_000008000.wav",
+            "start": "00:00:04.000",
+            "end": "00:00:08.000",
+            "duration": 4,
+            "transcript": "xyz",
+            "text": "xyz",
+            "score": 1.0,
+        },
+        # Shouldn't combine last 2 (duration would be 12 seconds)
+        {
+            "name": "000010000_000015000.wav",
+            "start": "00:00:10.000",
+            "end": "00:00:15.000",
+            "duration": 5,
+            "transcript": "apple",
+            "text": "apple",
+            "score": 1.0,
+        },
+        {
+            "name": "000017000_000022000.wav",
+            "start": "00:00:17.000",
+            "end": "00:00:22.000",
+            "duration": 5,
+            "transcript": "banana",
+            "text": "banana",
+            "score": 1.0,
+        },
+    ]
+
+    clips, clip_lengths = clip_combiner(audio_path, output_directory, clips, max_length=10)
+
+    assert clips == [
+        {
+            "name": "000000000_000008000.wav",
+            "start": "00:00:00.000",
+            "end": "00:00:08.000",
+            "duration": 8,
+            "transcript": "abcd xyz",
+            "text": "abc xyz",
+            "score": 0.9,
+        },
+        {
+            "name": "000010000_000015000.wav",
+            "start": "00:00:10.000",
+            "end": "00:00:15.000",
+            "duration": 5,
+            "transcript": "apple",
+            "text": "apple",
+            "score": 1.0,
+        },
+        {
+            "name": "000017000_000022000.wav",
+            "start": "00:00:17.000",
+            "end": "00:00:22.000",
+            "duration": 5,
+            "transcript": "banana",
+            "text": "banana",
+            "score": 1.0,
+        },
+    ]
+
+    shutil.rmtree(output_directory)
 
 
 # Extend dataset

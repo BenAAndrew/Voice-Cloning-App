@@ -90,6 +90,7 @@ def get_datasource():
 def create_dataset_post():
     min_confidence = float(request.form["confidence"])
     language = request.form["language"]
+    combine_clips = request.form.get("combine_clips") is not None
     transcription_model_path = (
         os.path.join(paths["languages"], language, TRANSCRIPTION_MODEL) if language != ENGLISH_LANGUAGE else None
     )
@@ -124,6 +125,7 @@ def create_dataset_post():
             label_path=label_path,
             info_path=info_path,
             min_confidence=min_confidence,
+            combine_clips=combine_clips,
         )
     else:
         output_folder = os.path.join(paths["datasets"], request.form["dataset"])
@@ -151,6 +153,7 @@ def create_dataset_post():
             suffix=suffix,
             info_path=info_path,
             min_confidence=min_confidence,
+            combine_clips=combine_clips,
         )
 
     return render_template("progress.html", next_url=get_next_url(URLS, request.path))

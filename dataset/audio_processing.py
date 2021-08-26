@@ -117,6 +117,7 @@ def cut_audio(input_path, start, end, output_folder):
     str
         Path of the generated clip
     """
+
     def _timestamp_to_filename(timestamp):
         return re.sub("[^0-9]", "", timestamp)
 
