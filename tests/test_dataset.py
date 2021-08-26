@@ -181,8 +181,8 @@ def test_clip_combiner():
             "start": "00:00:00.000",
             "end": "00:00:08.000",
             "duration": 8,
-            "transcript": "abcd xyz",
-            "text": "abc xyz",
+            "transcript": "abcd, xyz",
+            "text": "abc, xyz",
             "score": 0.9,
         },
         {
