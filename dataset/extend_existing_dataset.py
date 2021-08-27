@@ -7,7 +7,7 @@ import sys
 sys.path.append(dirname(dirname(abspath(__file__))))
 
 from dataset.audio_processing import convert_audio
-from dataset.clip_generator import extend_dataset
+from dataset.clip_generator import extend_dataset, MIN_LENGTH, MAX_LENGTH
 from dataset.analysis import save_dataset_info
 
 
@@ -21,6 +21,8 @@ def extend_existing_dataset(
     suffix,
     info_path,
     logging=logging,
+    min_length=MIN_LENGTH,
+    max_length=MAX_LENGTH,
     min_confidence=0.85,
     combine_clips=True,
 ):
@@ -69,6 +71,8 @@ def extend_existing_dataset(
         label_path,
         suffix,
         logging=logging,
+        min_length=min_length,
+        max_length=max_length,
         min_confidence=min_confidence,
         combine_clips=combine_clips,
     )

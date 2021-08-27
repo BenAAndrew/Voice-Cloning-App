@@ -91,6 +91,8 @@ def create_dataset_post():
     min_confidence = float(request.form["confidence"])
     language = request.form["language"]
     combine_clips = request.form.get("combine_clips") is not None
+    min_length = float(request.form["min_length"])
+    max_length = float(request.form["max_length"])
     transcription_model_path = (
         os.path.join(paths["languages"], language, TRANSCRIPTION_MODEL) if language != ENGLISH_LANGUAGE else None
     )
@@ -124,6 +126,8 @@ def create_dataset_post():
             output_path=output_path,
             label_path=label_path,
             info_path=info_path,
+            min_length=min_length,
+            max_length=max_length,
             min_confidence=min_confidence,
             combine_clips=combine_clips,
         )
@@ -152,6 +156,8 @@ def create_dataset_post():
             label_path=existing_label_path,
             suffix=suffix,
             info_path=info_path,
+            min_length=min_length,
+            max_length=max_length,
             min_confidence=min_confidence,
             combine_clips=combine_clips,
         )

@@ -14,6 +14,7 @@ import dataset.forced_alignment.align as align
 from dataset.forced_alignment.search import FuzzySearch
 from dataset.forced_alignment.audio import DEFAULT_RATE
 from dataset.audio_processing import change_sample_rate, cut_audio, add_silence
+from training import PUNCTUATION, BASE_SYMBOLS
 
 
 MIN_LENGTH = 1.0
@@ -26,6 +27,9 @@ def clip_combiner(audio_path, output_path, clips, max_length):
     def _get_duration(start, end):
         return (datetime.strptime(end, "%H:%M:%S.%f") - datetime.strptime(start, "%H:%M:%S.%f")).total_seconds()
 
+    def _join_text(lines):
+        return " ".join([line+"," if not line[-1] in PUNCTUATION and i != len(lines)-1 else line for i, line in enumerate(lines)])
+
     def _combine_clip(combined_clip, audio_path, output_path):
         if len(combined_clip) > 1:
             start = combined_clip[0]["start"]
@@ -37,8 +41,8 @@ def clip_combiner(audio_path, output_path, clips, max_length):
                 "start": start,
                 "end": end,
                 "duration": duration,
-                "transcript": ", ".join(clip["transcript"] for clip in combined_clip),
-                "text": ", ".join(clip["text"] for clip in combined_clip),
+                "transcript": _join_text([clip["transcript"] for clip in combined_clip]),
+                "text": _join_text([clip["text"] for clip in combined_clip]),
                 "score": sum([clip["score"] for clip in combined_clip]) / len(combined_clip),
             }, duration
         else:
@@ -316,7 +320,10 @@ def extend_dataset(
     label_path,
     suffix=str(uuid.uuid4()),
     logging=logging,
-    min_confidence=0.85,
+    min_length=MIN_LENGTH,
+    max_length=MAX_LENGTH,
+    min_confidence=MIN_CONFIDENCE,
+    combine_clips=True,
 ):
     """
     Extends an existing dataset.
@@ -362,7 +369,10 @@ def extend_dataset(
         temp_wavs_folder,
         temp_label_path,
         logging,
+        min_length=min_length,
+        max_length=max_length,
         min_confidence=min_confidence,
+        combine_clips=combine_clips
     )
 
     with open(temp_label_path) as f:

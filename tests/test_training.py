@@ -22,7 +22,7 @@ from training.utils import (
     check_early_stopping,
     LEARNING_RATE_PER_BATCH,
     BATCH_SIZE_PER_GB,
-    PUNCTUATION,
+    BASE_SYMBOLS,
 )
 
 
@@ -240,7 +240,7 @@ def test_load_symbols():
     alphabet_path = os.path.join("test_samples", "english.txt")
     symbols = set(load_symbols(alphabet_path))
     assert set(ascii_lowercase).issubset(symbols)
-    assert set(PUNCTUATION).issubset(symbols)
+    assert set(BASE_SYMBOLS).issubset(symbols)
 
 
 # Early stopping

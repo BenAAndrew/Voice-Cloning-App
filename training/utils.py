@@ -1,15 +1,14 @@
-import shutil
 import torch
 import random
 
 
 from dataset.clip_generator import CHARACTER_ENCODING
+from training import BASE_SYMBOLS
 
 
 CHECKPOINT_SIZE_MB = 333
 BATCH_SIZE_PER_GB = 2.5
 LEARNING_RATE_PER_BATCH = 3.125e-5
-PUNCTUATION = list("_-!'(),.:;? ")
 EARLY_STOPPING_WINDOW = 10
 EARLY_STOPPING_MIN_DIFFERENCE = 0.0005
 
@@ -109,7 +108,7 @@ def load_symbols(alphabet_file):
     list
         List of symbols (punctuation + alphabet)
     """
-    symbols = PUNCTUATION.copy()
+    symbols = BASE_SYMBOLS.copy()
 
     with open(alphabet_file) as f:
         lines = [l.strip() for l in f.readlines() if l.strip() and not l.startswith("#")]
