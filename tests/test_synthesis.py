@@ -57,9 +57,10 @@ def test_synthesize():
     os.remove(audio_path)
 
     # Multi line
-    text = (
-        "the monkeys live in the jungle with their families.\nhowever, i prefer to live on the beach and enjoy the sun."
-    )
+    text = [
+        "the monkeys live in the jungle with their families.", 
+        "however, i prefer to live on the beach and enjoy the sun."
+    ]
     synthesize(
         model=model,
         text=text,
@@ -76,6 +77,25 @@ def test_synthesize():
     assert librosa.get_duration(filename=audio_path) == 2.5
 
     os.remove(graph_path)
+    os.remove(audio_path)
+
+    # Split text
+    text = "the monkeys live in the jungle with their families. however, i prefer to live on the beach and enjoy the sun."
+    synthesize(
+        model=model,
+        text=text,
+        inflect_engine=None,
+        graph_path=None,
+        audio_path=audio_path,
+        vocoder=vocoder,
+        silence_padding=0.5,
+        sample_rate=22050,
+        split_text=True
+    )
+
+    assert os.path.isfile(audio_path)
+    assert librosa.get_duration(filename=audio_path) == 2.5
+
     os.remove(audio_path)
 
 

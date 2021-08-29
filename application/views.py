@@ -296,7 +296,11 @@ def synthesis_post():
     if request.method == "GET":
         return render_template("synthesis.html")
     else:
-        text = request.form["text"]
+        text = request.form.getlist("text")
+        if len(text) == 1:
+            text = text[0]
+        method = request.form["text_method"]
+        split_text = method == "paragraph"
         folder_name = get_suffix()
         results_folder = os.path.join(paths["results"], folder_name)
         os.makedirs(results_folder)
@@ -317,10 +321,12 @@ def synthesis_post():
             vocoder,
             silence,
             max_decoder_steps=max_decoder_steps,
+            split_text=split_text
         )
         return render_template(
             "synthesis.html",
-            text=text.strip(),
+            text=text,
+            method=method,
             graph=graph_web_path,
             audio=audio_web_path,
             silence=silence,

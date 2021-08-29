@@ -9,6 +9,9 @@ from scipy.io.wavfile import write
 from os.path import dirname, abspath
 import sys
 
+import nltk
+nltk.download('punkt')
+
 sys.path.append(dirname(dirname(abspath(__file__))))
 matplotlib.use("Agg")
 
@@ -114,6 +117,7 @@ def synthesize(
     silence_padding=0.15,
     sample_rate=22050,
     max_decoder_steps=1000,
+    split_text=False
 ):
     """
     Synthesise text for a given model.
@@ -124,8 +128,8 @@ def synthesize(
     ----------
     model : Tacotron2
         Tacotron2 model
-    text : str
-        Text to synthesize
+    text : str/list
+        Text to synthesize (or list of lines to synthesize)
     inflect_engine : Inflect
         Inflect.engine() object
     symbols : list
@@ -143,6 +147,9 @@ def synthesize(
     max_decoder_steps : int (optional)
         Max decoder steps controls sequence length and memory usage during inference.
         Increasing this will use more memory but may allow for longer sentences. (default is 1000)
+    split_text : bool (optional)
+        Whether to use the split text tool to convert a block of text into multiple shorter sentences
+        to synthesize (default is True)
 
     Raises
     -------
@@ -152,24 +159,16 @@ def synthesize(
     if audio_path:
         assert vocoder, "Missing vocoder"
 
-    lines = [line.strip() for line in text.split("\n") if line.strip()]
-    if len(lines) == 1:
-        # Single sentence
-        text = clean_text(text, inflect_engine)
-        sequence = text_to_sequence(text, symbols)
-        _, mel_outputs_postnet, _, alignment = model.inference(sequence, max_decoder_steps)
+    if not isinstance(text, list) and split_text:
+        # Split text into multiple lines
+        text = nltk.tokenize.sent_tokenize(text)
 
-        if graph_path:
-            generate_graph(alignment, graph_path)
-
-        if audio_path:
-            audio = vocoder.generate_audio(mel_outputs_postnet)
-            write(audio_path, sample_rate, audio)
-    else:
-        # Multi sentence
+    if isinstance(text, list):
+        # Multi-lines given
+        text = [line.strip() for line in text if line.strip()]
         mels = []
         alignments = []
-        for line in lines:
+        for line in text:
             text = clean_text(line, inflect_engine)
             sequence = text_to_sequence(text, symbols)
             _, mel_outputs_postnet, _, alignment = model.inference(sequence, max_decoder_steps)
@@ -188,6 +187,18 @@ def synthesize(
                     audio_segments.append(silence)
 
             audio = np.concatenate(audio_segments)
+            write(audio_path, sample_rate, audio)
+    else:
+        # Single sentence
+        text = clean_text(text.strip(), inflect_engine)
+        sequence = text_to_sequence(text, symbols)
+        _, mel_outputs_postnet, _, alignment = model.inference(sequence, max_decoder_steps)
+
+        if graph_path:
+            generate_graph(alignment, graph_path)
+
+        if audio_path:
+            audio = vocoder.generate_audio(mel_outputs_postnet)
             write(audio_path, sample_rate, audio)
 
 
