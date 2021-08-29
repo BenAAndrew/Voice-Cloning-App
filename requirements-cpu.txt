@@ -18,3 +18,4 @@ torchaudio===0.9.0
 deepspeech==0.9.3
 llvmlite==0.32.1
 pysrt==1.1.2
+nltk==3.6.2
