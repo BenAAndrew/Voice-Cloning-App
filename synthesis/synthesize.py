@@ -117,7 +117,7 @@ def synthesize(
     silence_padding=0.15,
     sample_rate=22050,
     max_decoder_steps=1000,
-    split_text=True
+    split_text=False
 ):
     """
     Synthesise text for a given model.
