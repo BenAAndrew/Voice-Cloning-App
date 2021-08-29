@@ -9,8 +9,16 @@
         <p style="text-align: center; font-size: 20px;">{{ text }}</p>
     {% endif %}
     <div class="form-group">
-        <label for="text">Text (For multiple sentences, seperate with newlines)</label>
-        <textarea class="form-control" rows="4" name="text" id="text" required>{{text}}</textarea>
+        <label for="text_method">Method</label>
+        <select class="form-control" id="text_method" name="text_method" onchange="changeTextMethod()">
+            <option value="single">Single line</option>
+            <option value="paragraph">Paragraph</option>
+            <option value="multi">Multi line</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="text">Text</label><br>
+        <span id="text_input"></span>
     </div>
     <button type="button" class="collapsible" id="advanced">Advanced Options ∨</button>
     <div class="content">
