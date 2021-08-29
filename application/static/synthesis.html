@@ -6,14 +6,22 @@
         <audio controls>
             <source src="{{audio}}" type="audio/wav">
         </audio>
-        <p style="text-align: center; font-size: 20px;">{{ text }}</p>
+        <p style="text-align: center; font-size: 20px;">
+            {% if text is string %}
+                {{ text }}
+            {% else %}
+                {% for item in text %}
+                    {{ item }}<br>
+                {% endfor %}
+            {% endif %}
+        </p>
     {% endif %}
     <div class="form-group">
         <label for="text_method">Method</label>
         <select class="form-control" id="text_method" name="text_method" onchange="changeTextMethod()">
-            <option value="single">Single line</option>
-            <option value="paragraph">Paragraph</option>
-            <option value="multi">Multi line</option>
+            <option value="single" {% if method == "single" %}selected{% endif %}>Single line</option>
+            <option value="paragraph" {% if method == "paragraph" %}selected{% endif %}>Paragraph</option>
+            <option value="multi" {% if method == "multi" %}selected{% endif %}>Multi line</option>
         </select>
     </div>
     <div class="form-group">
@@ -40,6 +48,9 @@
     <br>
     <input type="submit" class="btn btn-primary">
 </form>
+<script>
+let text = {% if text %}{% if text is string %}"{{ text }}"{% else %}{{ text|safe }}{% endif %}{% else %}""{% endif %};
+</script>
 <script src="{{ url_for('static', filename='advanced.js') }}"></script>
 <script src="{{ url_for('static', filename='synthesis.js') }}"></script>
 {% endblock %}

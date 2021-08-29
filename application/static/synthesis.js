@@ -1,17 +1,19 @@
-function createTextInput(){
+function createTextInput(value){
     var element = document.createElement("input");
     element.className = "form-control";
     element.type = "text";
     element.id = "text";
     element.name = "text";
     element.required = true;
+    if(value)
+        element.value = value;
     return element;
 }
 
-function addTextInput(){
+function addTextInput(value){
     var section = document.getElementById("multi-text");
     section.appendChild(document.createElement("br"));
-    section.appendChild(createTextInput());
+    section.appendChild(createTextInput(value));
 }
 
 function changeTextMethod(){
@@ -30,9 +32,9 @@ function changeTextMethod(){
             container.appendChild(createTextInput());
 
             var link = document.createElement("a");
-            link.onclick = addTextInput;
+            link.onclick = function() { addTextInput(); };
             link.href = "#";
-            link.appendChild(document.createTextNode("Hi"));
+            link.appendChild(document.createTextNode("Add line"));
             section.appendChild(link);
         }
     } else {
@@ -43,6 +45,22 @@ function changeTextMethod(){
         element.rows = "4";
         element.required = true;
         section.appendChild(element);
+    }
+
+    // Populate existing data
+    if(text){
+        if(method == "single" || method == "paragraph"){
+            document.getElementById("text").value = text;
+        } else {
+            if(Array.isArray(text)){
+                document.getElementById("text").value = text[0];
+                for(var i = 1; i < text.length; i++){
+                    addTextInput(text[i]);
+                }
+            } else {
+                document.getElementById("text").value = text;
+            }
+        }
     }
 }
 changeTextMethod();

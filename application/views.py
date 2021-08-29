@@ -299,7 +299,8 @@ def synthesis_post():
         text = request.form.getlist("text")
         if len(text) == 1:
             text = text[0]
-        split_text = request.form["text_method"] == "paragraph"
+        method = request.form["text_method"]
+        split_text = method == "paragraph"
         folder_name = get_suffix()
         results_folder = os.path.join(paths["results"], folder_name)
         os.makedirs(results_folder)
@@ -325,6 +326,7 @@ def synthesis_post():
         return render_template(
             "synthesis.html",
             text=text,
+            method=method,
             graph=graph_web_path,
             audio=audio_web_path,
             silence=silence,
