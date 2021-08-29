@@ -10,7 +10,7 @@ import resampy  # noqa
 from main import socketio
 from dataset.audio_processing import convert_audio
 from dataset.analysis import save_dataset_info
-from dataset.clip_generator import MIN_LENGTH, MAX_LENGTH, CHARACTER_ENCODING
+from dataset.clip_generator import CHARACTER_ENCODING
 
 
 class SocketIOHandler(logging.Handler):
@@ -194,14 +194,11 @@ def import_dataset(dataset, dataset_directory, audio_folder, logging):
                     f.write(data)
                     new_path = convert_audio(path)
                     duration = librosa.get_duration(filename=new_path)
-                    assert (
-                        duration >= MIN_LENGTH and duration <= MAX_LENGTH
-                    ), f"{wav} is an invalid duration (must be {MIN_LENGTH}-{MAX_LENGTH}, is {duration})"
                     clip_lengths.append(duration)
-
                     filenames[path] = new_path
                 logging.info(f"Progress - {i+1}/{total_wavs}")
 
+            logging.info(f"Longest clip: {max(clip_lengths)}s, Shortest clip: {min(clip_lengths)}s")
             # Get around "file in use" by using delay
             logging.info("Deleting temp files")
             for old_path, new_path in filenames.items():
