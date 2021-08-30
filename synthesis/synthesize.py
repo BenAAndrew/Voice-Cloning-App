@@ -219,9 +219,7 @@ if __name__ == "__main__":
     assert os.path.isfile(args.vocoder_model_path), "vocoder model not found"
 
     model = load_model(args.model_path)
-    vocoder_type = args.vocoder_type
     vocoder = Hifigan(args.vocoder_model_path, args.hifigan_config_path)
-
     inflect_engine = inflect.engine()
 
     synthesize(
