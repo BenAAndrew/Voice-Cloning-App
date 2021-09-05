@@ -161,6 +161,7 @@ def test_load_and_save_checkpoint():
     model_path = os.path.join("test_samples", "model.pt")
     model = Tacotron2()
     lr = 0.1
+    symbols = list('ABC')
     optimizer = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=WEIGHT_DECAY)
     model, optimizer, iteration, epoch = load_checkpoint(model_path, model, optimizer, [None] * 10000)
 
@@ -169,7 +170,7 @@ def test_load_and_save_checkpoint():
 
     checkpoint_folder = "test-checkpoints"
     os.makedirs(checkpoint_folder)
-    save_checkpoint(model, optimizer, lr, iteration, epoch, checkpoint_folder, 1000, 1000)
+    save_checkpoint(model, optimizer, lr, iteration, symbols, epoch, checkpoint_folder, 1000, 1000)
     assert "checkpoint_510000" in os.listdir(checkpoint_folder)
 
     shutil.rmtree(checkpoint_folder)

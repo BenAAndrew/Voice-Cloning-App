@@ -46,7 +46,22 @@ def load_checkpoint(checkpoint_path, model, optimizer, train_loader):
     return model, optimizer, iteration, epoch
 
 
-def transfer_symbols_embedding(original_embedding_weight: torch.Tensor, embedding_layer, original_symbols: Optional[list], new_symbols: list):
+def transfer_symbols_embedding(original_embedding_weight: torch.Tensor, embedding_layer, new_symbols: list, original_symbols: Optional[list] = None):
+    """
+    Transfer embedding information from transfer learning model to reduce embedding time.
+    If symbol is not found it is initialised with mean/std.
+    
+    Parameters
+    ----------
+    original_embedding_weight : Torch.tensor
+        Checkpoint embeddings
+    embedding_layer : torch.nn.modules.sparse.Embedding
+        Model embedding layer
+    new_symbols : list
+        list of text symbols used by the model currently loaded
+    original_symbols : list (optional)
+        list of symbols used by the checkpoint model (defaults to NVIDIA_ALPHABET)
+    """
     if original_symbols is None:
         original_symbols = NVIDIA_ALPHABET
     assert len(original_symbols) == original_embedding_weight.shape[0], f'length of original_symbols does not match length of checkpoint model embedding! Got {len(original_symbols)} and {original_embedding_weight.shape[0]}.'
@@ -81,7 +96,7 @@ def transfer_symbols_embedding(original_embedding_weight: torch.Tensor, embeddin
             # to ensure no large loss spikes when the new symbol is seen for the first time.
             embedding_layer.weight.data[symbol_index] = weight_tensor[0].clone().normal_(original_mean, original_std)
 
-def warm_start_model(checkpoint_path, model, symbols=None, old_symbols=None, ignore_layers=["embedding.weight"]):
+def warm_start_model(checkpoint_path, model, symbols=None, ignore_layers=["embedding.weight"]):
     """
     Credit: https://github.com/NVIDIA/tacotron2
 
@@ -97,8 +112,6 @@ def warm_start_model(checkpoint_path, model, symbols=None, old_symbols=None, ign
         list of layers to ignore (default is ["embedding.weight"])
     symbols : list
         list of text symbols used by the fresh model currently loaded
-    old_symbols : list (optional)
-        list of text symbols used by the model in the checkpoint_path (default is symbols from nvidia/tacotron2)
     
     Returns
     -------
@@ -115,12 +128,11 @@ def warm_start_model(checkpoint_path, model, symbols=None, old_symbols=None, ign
     model.load_state_dict(model_dict)
     
     # transfer embedding.weight manually to prevent size conflicts
+    old_symbols = model_dict.get("symbols", None)
     if symbols is None:
         print("WARNING: called warm_start_model with symbols not set. This will be unsupported in the future.")
-    if old_symbols is None:
-        old_symbols = NVIDIA_ALPHABET
     if symbols is not None and old_symbols != symbols and hasattr(model, 'embedding') and 'embedding.weight' in model_dict:
-        transfer_symbols_embedding(checkpoint_dict["state_dict"]['embedding.weight'], model.embedding, old_symbols, symbols)
+        transfer_symbols_embedding(checkpoint_dict["state_dict"]['embedding.weight'], model.embedding, symbols, old_symbols)
     return model
 
 
@@ -150,6 +162,7 @@ def save_checkpoint(
     optimizer,
     learning_rate,
     iteration,
+    symbols,
     epoch,
     output_directory,
     checkpoint_frequency,
@@ -169,6 +182,8 @@ def save_checkpoint(
         Learning rate
     iteration : int
         Current iteration
+    symbols : list
+        list of valid symbols for model input text
     epoch : int
         Current epoch
     output_directory : str
@@ -186,6 +201,7 @@ def save_checkpoint(
             "optimizer": optimizer.state_dict(),
             "learning_rate": learning_rate,
             "epoch": epoch,
+            "symbols": symbols,
         },
         os.path.join(output_directory, checkpoint_name),
     )

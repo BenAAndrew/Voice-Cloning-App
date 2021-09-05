@@ -176,7 +176,7 @@ def train(
             y, y_pred = process_batch(batch, model)
 
             loss = criterion(y_pred, y)
-            avg_prob = calc_avgmax_attention(batch, y_pred)
+            avg_prob = calc_avgmax_attention(batch[-1], batch[1], y_pred[-1])
             reduced_loss = loss.item()
             loss.backward()
 
@@ -204,6 +204,7 @@ def train(
                     optimizer,
                     learning_rate,
                     iteration,
+                    symbols,
                     epoch,
                     output_directory,
                     iters_per_checkpoint,
@@ -224,6 +225,7 @@ def train(
         optimizer,
         learning_rate,
         iteration,
+        symbols,
         epochs,
         output_directory,
         iters_per_checkpoint,
@@ -232,13 +234,32 @@ def train(
     logging.info("Saving model and optimizer state at iteration {} to {}".format(iteration, checkpoint_path))
 
 
-def calc_avgmax_attention(batch, y_pred):
-    mel_mask = get_mask_from_lengths(batch[-1], device=y_pred[-1].device)
-    txt_mask = get_mask_from_lengths(batch[1], device=y_pred[-1].device)
+def calc_avgmax_attention(mel_lengths, text_lengths, alignment):
+    """
+    Calculate Average Max Attention for Tacotron2 Alignment.
+    Roughly represents how well the model is linking the text to the audio.
+    Low values during training typically result in unstable speech during inference.
+    
+    Parameters
+    ----------
+    mel_lengths : torch.Tensor
+        lengths of each mel in the batch
+    text_lengths : torch.Tensor
+        lengths of each text in the batch
+    alignment : torch.Tensor
+        alignments from model of shape [B, mel_length, text_length]
+    
+    Returns
+    -------
+    float
+        average max attention
+    """
+    mel_mask = get_mask_from_lengths(mel_lengths, device=alignment.device)
+    txt_mask = get_mask_from_lengths(text_lengths, device=alignment.device)
     attention_mask = txt_mask.unsqueeze(1) & mel_mask.unsqueeze(2)# [B, mel_T, 1] * [B, 1, txt_T] -> [B, mel_T, txt_T]
     
-    y_pred[-1].data.masked_fill_(~attention_mask, 0.0)
-    avg_prob = y_pred[-1].data.amax(dim=2).sum(1).div(batch[-1].to(y_pred[-1])).mean().item() # [B, mel_T, txt_T]
+    alignment = alignment.data.masked_fill(~attention_mask, 0.0)
+    avg_prob = alignment.data.amax(dim=2).sum(1).div(mel_lengths.to(alignment)).mean().item() # [B, mel_T, txt_T]
     return avg_prob
 
 

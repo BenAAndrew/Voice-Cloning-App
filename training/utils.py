@@ -8,8 +8,8 @@ from training import BASE_SYMBOLS
 
 CHECKPOINT_SIZE_MB = 333
 BATCH_SIZE_PER_GB = 2.5
-LEARNING_RATE_PER_64 = 4e-4 # corrected learning rate to match paper. # Tacotron2 alignment forms best between 2e-4 and 5e-5
-MAXIMUM_LEARNING_RATE = 4e-4 # caps learning rate to avoid destabilizing model if batch_size is massive
+LEARNING_RATE_PER_64 = 4e-4
+MAXIMUM_LEARNING_RATE = 4e-4
 EARLY_STOPPING_WINDOW = 10
 EARLY_STOPPING_MIN_DIFFERENCE = 0.0005
 
