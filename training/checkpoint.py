@@ -171,7 +171,7 @@ def save_checkpoint(
     """
     Save training checkpoint.
     Calls checkpoint cleanup on completion.
-
+    
     Parameters
     ----------
     model : Tacotron2
