@@ -56,10 +56,10 @@ def transfer_symbols_embedding(original_embedding_weight: torch.Tensor, embeddin
     original_mean = weight_tensor.mean()
     
     weight_dict = {}
-    for symbol_index, symbol in original_symbols:
+    for symbol_index, symbol in enumerate(original_symbols):
         weight_dict[symbol] = weight_tensor[symbol_index] # save vector for each symbol into it's own key
     
-    for symbol_index, new_symbol in new_symbols:
+    for symbol_index, new_symbol in enumerate(new_symbols):
         # transfers matching symbols from pretrained model to new model  e.g: 'e' -> 'e'
         if new_symbol in weight_dict:
             embedding_layer.weight.data[symbol_index] = weight_dict[new_symbol]
