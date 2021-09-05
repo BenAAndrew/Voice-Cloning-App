@@ -193,7 +193,8 @@ def test_warm_start_model():
     model_path = os.path.join("test_samples", "model.pt")
     model = Tacotron2()
     ignore_layers = ["embedding.weight"]
-    model = warm_start_model(model_path, model, ignore_layers)
+    symbols = list('ABC')
+    model = warm_start_model(model_path, model, symbols, ignore_layers=ignore_layers)
     model_dict = model.state_dict()
 
     checkpoint_dict = torch.load(model_path, map_location="cpu")["state_dict"]

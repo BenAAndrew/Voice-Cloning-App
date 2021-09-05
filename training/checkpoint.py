@@ -1,6 +1,16 @@
 import os
 import torch
+from typing import Optional
+from unidecode import unidecode
 
+NVIDIA_ALPHABET = ['_', '-', '!', "'", '(', ')', ',', '.', ':', ';', '?', ' ',
+                   'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
+                   'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
+                   '@AA', '@AA0', '@AA1', '@AA2', '@AE', '@AE0', '@AE1', '@AE2', '@AH', '@AH0', '@AH1', '@AH2', '@AO', '@AO0', '@AO1', '@AO2', '@AW',
+                   '@AW0', '@AW1', '@AW2', '@AY', '@AY0', '@AY1', '@AY2', '@B', '@CH', '@D', '@DH', '@EH', '@EH0', '@EH1', '@EH2', '@ER', '@ER0',
+                   '@ER1', '@ER2', '@EY', '@EY0', '@EY1', '@EY2', '@F', '@G', '@HH', '@IH', '@IH0', '@IH1', '@IH2', '@IY', '@IY0', '@IY1', '@IY2',
+                   '@JH', '@K', '@L', '@M', '@N', '@NG', '@OW', '@OW0', '@OW1', '@OW2', '@OY', '@OY0', '@OY1', '@OY2', '@P', '@R', '@S', '@SH', '@T',
+                   '@TH', '@UH', '@UH0', '@UH1', '@UH2', '@UW', '@UW0', '@UW1', '@UW2', '@V', '@W', '@Y', '@Z', '@ZH']
 
 def load_checkpoint(checkpoint_path, model, optimizer, train_loader):
     """
@@ -36,7 +46,42 @@ def load_checkpoint(checkpoint_path, model, optimizer, train_loader):
     return model, optimizer, iteration, epoch
 
 
-def warm_start_model(checkpoint_path, model, ignore_layers=["embedding.weight"]):
+def transfer_symbols_embedding(original_embedding_weight: torch.Tensor, embedding_layer, original_symbols: Optional[list], new_symbols: list):
+    if original_symbols is None:
+        original_symbols = NVIDIA_ALPHABET
+    assert len(original_symbols) == original_embedding_weight.shape[0], f'length of original_symbols does not match length of checkpoint model embedding! Got {len(original_symbols)} and {original_embedding_weight.shape[0]}.'
+    
+    weight_tensor = original_embedding_weight.data
+    original_std = weight_tensor.std()
+    original_mean = weight_tensor.mean()
+    
+    weight_dict = {}
+    for symbol_index, symbol in original_symbols:
+        weight_dict[symbol] = weight_tensor[symbol_index] # save vector for each symbol into it's own key
+    
+    for symbol_index, new_symbol in new_symbols:
+        # transfers matching symbols from pretrained model to new model  e.g: 'e' -> 'e'
+        if new_symbol in weight_dict:
+            embedding_layer.weight.data[symbol_index] = weight_dict[new_symbol]
+        
+        # transfers non-ascii symbols from pretrained model to new model  e.g: 'e' -> 'é'
+        elif unidecode(new_symbol) in weight_dict:
+            embedding_layer.weight.data[symbol_index] = weight_dict[unidecode(new_symbol)]
+        
+        # transfers upper-case symbols from pretrained model to new model  e.g: 'E' -> 'e'
+        elif new_symbol.upper() in weight_dict:
+            embedding_layer.weight.data[symbol_index] = weight_dict[new_symbol.upper()]
+        
+        # transfers lower-case symbols from pretrained model to new model  e.g: 'e' -> 'E'
+        elif new_symbol.lower() in weight_dict:
+            embedding_layer.weight.data[symbol_index] = weight_dict[new_symbol.lower()]
+        
+        else:# if new_symbol doesn't exist in pretrained model
+            # initialize new symbol with average mean+std of the pretrained embedding,
+            # to ensure no large loss spikes when the new symbol is seen for the first time.
+            embedding_layer.weight.data[symbol_index] = weight_tensor[0].clone().normal_(original_mean, original_std)
+
+def warm_start_model(checkpoint_path, model, symbols=None, old_symbols=None, ignore_layers=["embedding.weight"]):
     """
     Credit: https://github.com/NVIDIA/tacotron2
 
@@ -49,8 +94,12 @@ def warm_start_model(checkpoint_path, model, ignore_layers=["embedding.weight"])
     model : Tacotron2
         tacotron2 model to load checkpoint into
     ignore_layers : list (optional)
-        list of layers to ignore (default is ['embedding.weight'])
-
+        list of layers to ignore (default is [])
+    symbols : list
+        list of text symbols used by the fresh model currently loaded
+    old_symbols : list (optional)
+        list of text symbols used by the model in the checkpoint_path (default is symbols from nvidia/tacotron2)
+    
     Returns
     -------
     Tacotron2
@@ -64,6 +113,14 @@ def warm_start_model(checkpoint_path, model, ignore_layers=["embedding.weight"])
         dummy_dict.update(model_dict)
         model_dict = dummy_dict
     model.load_state_dict(model_dict)
+    
+    # transfer embedding.weight manually to prevent size conflicts
+    if symbols is None:
+        print("WARNING: called warm_start_model with symbols not set. This will be unsupported in the future.")
+    if old_symbols is None:
+        old_symbols = NVIDIA_ALPHABET
+    if symbols is not None and old_symbols != symbols and hasattr(model, 'embedding') and 'embedding.weight' in model_dict:
+        transfer_symbols_embedding(model_dict['embedding.weight'], model.embedding, old_symbols, symbols)
     return model
 
 

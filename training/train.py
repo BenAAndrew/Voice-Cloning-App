@@ -152,7 +152,7 @@ def train(
         iteration += 1
         logging.info("Loaded checkpoint '{}' from iteration {}".format(checkpoint_path, iteration))
     elif transfer_learning_path:
-        model = warm_start_model(transfer_learning_path, model)
+        model = warm_start_model(transfer_learning_path, model, symbols)
         logging.info("Loaded transfer learning model '{}'".format(transfer_learning_path))
     else:
         logging.info("Generating first checkpoint...")
