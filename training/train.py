@@ -45,7 +45,7 @@ def train(
     batch_size=None,
     early_stopping=True,
     multi_gpu=True,
-    iters_per_checkpoint=250,
+    iters_per_checkpoint=1000,
     iters_per_backup_checkpoint=10000,
     train_size=0.8,
     logging=logging,
