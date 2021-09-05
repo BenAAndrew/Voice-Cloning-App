@@ -25,8 +25,7 @@ from training.utils import (
     check_early_stopping,
 )
 from training.tacotron2_model import Tacotron2, TextMelCollate, Tacotron2Loss
-from training.tacotron2_model.utils import process_batch
-
+from training.tacotron2_model.utils import process_batch, get_mask_from_lengths
 
 MINIMUM_MEMORY_GB = 4
 WEIGHT_DECAY = 1e-6
@@ -46,7 +45,7 @@ def train(
     batch_size=None,
     early_stopping=True,
     multi_gpu=True,
-    iters_per_checkpoint=1000,
+    iters_per_checkpoint=250,
     iters_per_backup_checkpoint=10000,
     train_size=0.8,
     logging=logging,
@@ -177,6 +176,7 @@ def train(
             y, y_pred = process_batch(batch, model)
 
             loss = criterion(y_pred, y)
+            avg_prob = calc_avgmax_attention(batch, y_pred)
             reduced_loss = loss.item()
             loss.backward()
 
@@ -185,8 +185,8 @@ def train(
 
             duration = time.perf_counter() - start
             logging.info(
-                "Status - [Epoch {}: Iteration {}] Train loss {:.6f} {:.2f}s/it".format(
-                    epoch, iteration, reduced_loss, duration
+                "Status - [Epoch {}: Iteration {}] Train loss {:.6f} {:.2f}s/it {:.2f}att_str".format(
+                    epoch, iteration, reduced_loss, duration, avg_prob
                 )
             )
 
@@ -230,6 +230,16 @@ def train(
         iters_per_backup_checkpoint,
     )
     logging.info("Saving model and optimizer state at iteration {} to {}".format(iteration, checkpoint_path))
+
+
+def calc_avgmax_attention(batch, y_pred):
+    mel_mask = get_mask_from_lengths(batch[-1], device=y_pred[-1].device)
+    txt_mask = get_mask_from_lengths(batch[1], device=y_pred[-1].device)
+    attention_mask = txt_mask.unsqueeze(1) & mel_mask.unsqueeze(2)# [B, mel_T, 1] * [B, 1, txt_T] -> [B, mel_T, txt_T]
+    
+    y_pred[-1].data.masked_fill_(~attention_mask, 0.0)
+    avg_prob = y_pred[-1].data.amax(dim=2).sum(1).div(batch[-1].to(y_pred[-1])).mean().item() # [B, mel_T, txt_T]
+    return avg_prob
 
 
 if __name__ == "__main__":

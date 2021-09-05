@@ -120,7 +120,7 @@ def warm_start_model(checkpoint_path, model, symbols=None, old_symbols=None, ign
     if old_symbols is None:
         old_symbols = NVIDIA_ALPHABET
     if symbols is not None and old_symbols != symbols and hasattr(model, 'embedding') and 'embedding.weight' in model_dict:
-        transfer_symbols_embedding(model_dict['embedding.weight'], model.embedding, old_symbols, symbols)
+        transfer_symbols_embedding(checkpoint_dict["state_dict"]['embedding.weight'], model.embedding, old_symbols, symbols)
     return model
 
 

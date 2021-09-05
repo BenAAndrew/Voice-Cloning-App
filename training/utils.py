@@ -8,7 +8,8 @@ from training import BASE_SYMBOLS
 
 CHECKPOINT_SIZE_MB = 333
 BATCH_SIZE_PER_GB = 2.5
-LEARNING_RATE_PER_BATCH = 3.125e-5
+LEARNING_RATE_PER_64 = 4e-4 # corrected learning rate to match paper. # Tacotron2 alignment forms best between 2e-4 and 5e-5
+MAXIMUM_LEARNING_RATE = 4e-4 # caps learning rate to avoid destabilizing model if batch_size is massive
 EARLY_STOPPING_WINDOW = 10
 EARLY_STOPPING_MIN_DIFFERENCE = 0.0005
 
@@ -64,7 +65,10 @@ def get_learning_rate(batch_size):
     float
         Learning rate
     """
-    return batch_size * LEARNING_RATE_PER_BATCH
+    return min(
+        (batch_size/64)**0.5 * LEARNING_RATE_PER_64, # Adam Learning Rate is proportional to sqrt(batch_size)
+        MAXIMUM_LEARNING_RATE,
+    )
 
 
 def load_metadata(metadata_path, train_size):
