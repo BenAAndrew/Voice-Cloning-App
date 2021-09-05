@@ -62,7 +62,7 @@ def extend_existing_dataset(
     assert os.path.isfile(label_path), "Missing existing dataset metadata file"
     logging.info(f"Coverting {audio_path}...")
     converted_audio = convert_audio(audio_path)
-    clip_lengths = extend_dataset(
+    extend_dataset(
         converted_audio,
         text_path,
         transcription_model,
@@ -77,7 +77,8 @@ def extend_existing_dataset(
         combine_clips=combine_clips,
     )
     logging.info("Getting dataset info...")
-    save_dataset_info(label_path, output_path, info_path, clip_lengths)
+    # Do not pass clip lengths from extend_dataset as we need to get size of entire dataset (not just new clips)
+    save_dataset_info(label_path, output_path, info_path)
 
 
 if __name__ == "__main__":
