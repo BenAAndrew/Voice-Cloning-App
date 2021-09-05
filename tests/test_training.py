@@ -20,7 +20,7 @@ from training.utils import (
     get_learning_rate,
     get_batch_size,
     check_early_stopping,
-    LEARNING_RATE_PER_BATCH,
+    LEARNING_RATE_PER_64,
     BATCH_SIZE_PER_GB,
     BASE_SYMBOLS,
 )
@@ -88,9 +88,10 @@ class MockedOptimizer:
 @mock.patch("torch.optim.Adam", return_value=MockedOptimizer)
 @mock.patch("training.train.VoiceDataset", return_value=None)
 @mock.patch("training.train.DataLoader", return_value=[(None, None), (None, None)])
-@mock.patch("training.train.process_batch", return_value=(None, None))
+@mock.patch("training.train.process_batch", return_value=((None, None), (None,)))
 @mock.patch("torch.nn.utils.clip_grad_norm_")
 @mock.patch("training.train.validate", return_value=0.5)
+@mock.patch("training.train.calc_avgmax_attention", return_value=0.5)
 def test_train(
     validate,
     clip_grad_norm_,
@@ -102,6 +103,7 @@ def test_train(
     Tacotron2,
     get_available_memory,
     is_available,
+    calc_avgmax_attention
 ):
     metadata_path = os.path.join("test_samples", "dataset", "metadata.csv")
     dataset_directory = os.path.join("test_samples", "dataset", "wavs")
@@ -261,7 +263,7 @@ def test_early_stopping():
 def test_get_learning_rate():
     batch_size = 40
     lr = get_learning_rate(batch_size)
-    assert lr == batch_size * LEARNING_RATE_PER_BATCH
+    assert lr == (batch_size/64)**0.5 * LEARNING_RATE_PER_64
 
 
 def test_get_batch_size():
