@@ -94,7 +94,7 @@ def warm_start_model(checkpoint_path, model, symbols=None, old_symbols=None, ign
     model : Tacotron2
         tacotron2 model to load checkpoint into
     ignore_layers : list (optional)
-        list of layers to ignore (default is [])
+        list of layers to ignore (default is ["embedding.weight"])
     symbols : list
         list of text symbols used by the fresh model currently loaded
     old_symbols : list (optional)
