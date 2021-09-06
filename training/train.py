@@ -186,18 +186,18 @@ def train(
 
             duration = time.perf_counter() - start
             logging.info(
-                "Status - [Epoch {}: Iteration {}] Train loss {:.6f} Attention score {:.2f} {:.2f}s/it".format(
+                "Status - [Epoch {}: Iteration {}] Train loss {:.5f} Attention score {:.5f} {:.2f}s/it".format(
                     epoch, iteration, reduced_loss, avgmax_attention, duration
                 )
             )
 
             # Validate & save checkpoint
             if iteration % iters_per_checkpoint == 0:
-                val_loss = validate(model, val_loader, criterion, iteration)
+                val_loss, avgmax_attention = validate(model, val_loader, criterion, iteration)
                 validation_losses.append(val_loss)
                 logging.info(
-                    "Saving model and optimizer state at iteration {} to {}. Scored {}".format(
-                        iteration, output_directory, val_loss
+                    "Saving model and optimizer state at iteration {} to {}. Validation score = {:.5f}, Attention score = {:.5f}".format(
+                        iteration, output_directory, val_loss, avgmax_attention
                     )
                 )
                 save_checkpoint(

@@ -23,8 +23,8 @@ def validate(model, val_loader, criterion, iteration):
 
     Returns
     -------
-    float
-        Validation loss
+    (float, float)
+        Validation loss & Attention score
     """
     model.eval()
     with torch.no_grad():
@@ -42,4 +42,4 @@ def validate(model, val_loader, criterion, iteration):
 
     model.train()
     print("Iteration {}: Validation loss {:.6f} Attention score {:.6f}".format(iteration, val_loss, val_avgmax_attention))
-    return val_loss
+    return val_loss, val_avgmax_attention

@@ -90,7 +90,7 @@ class MockedOptimizer:
 @mock.patch("training.train.DataLoader", return_value=[(None, None), (None, None)])
 @mock.patch("training.train.process_batch", return_value=((None, None), (None,)))
 @mock.patch("torch.nn.utils.clip_grad_norm_")
-@mock.patch("training.train.validate", return_value=0.5)
+@mock.patch("training.train.validate", return_value=(0.5, 0.5))
 @mock.patch("training.train.calc_avgmax_attention", return_value=0.5)
 def test_train(
     validate,
@@ -129,10 +129,12 @@ def test_train(
 
 
 # Validate
-@mock.patch("training.validate.process_batch", return_value=(None, None))
-def test_validate(process_batch):
-    loss = validate(MockedTacotron2(), [None, None], MockedTacotron2Loss(), 0)
+@mock.patch("training.validate.process_batch", return_value=((None,), (None,)))
+@mock.patch("training.validate.calc_avgmax_attention", return_value=0.5)
+def test_validate(process_batch, calc_avgmax_attention):
+    loss, avgmax_attention = validate(MockedTacotron2(), [(None, None), (None, None)], MockedTacotron2Loss(), 0)
     assert loss == 0.5
+    assert avgmax_attention == 0.5
 
 
 # Clean text
