@@ -58,8 +58,8 @@ def test_synthesize():
 
     # Multi line
     text = [
-        "the monkeys live in the jungle with their families.", 
-        "however, i prefer to live on the beach and enjoy the sun."
+        "the monkeys live in the jungle with their families.",
+        "however, i prefer to live on the beach and enjoy the sun.",
     ]
     synthesize(
         model=model,
@@ -80,7 +80,9 @@ def test_synthesize():
     os.remove(audio_path)
 
     # Split text
-    text = "the monkeys live in the jungle with their families. however, i prefer to live on the beach and enjoy the sun."
+    text = (
+        "the monkeys live in the jungle with their families. however, i prefer to live on the beach and enjoy the sun."
+    )
     synthesize(
         model=model,
         text=text,
@@ -90,7 +92,7 @@ def test_synthesize():
         vocoder=vocoder,
         silence_padding=0.5,
         sample_rate=22050,
-        split_text=True
+        split_text=True,
     )
 
     assert os.path.isfile(audio_path)

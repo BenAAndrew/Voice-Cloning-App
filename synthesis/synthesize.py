@@ -10,7 +10,8 @@ from os.path import dirname, abspath
 import sys
 
 import nltk
-nltk.download('punkt')
+
+nltk.download("punkt")
 
 sys.path.append(dirname(dirname(abspath(__file__))))
 matplotlib.use("Agg")
@@ -117,7 +118,7 @@ def synthesize(
     silence_padding=0.15,
     sample_rate=22050,
     max_decoder_steps=1000,
-    split_text=False
+    split_text=False,
 ):
     """
     Synthesise text for a given model.

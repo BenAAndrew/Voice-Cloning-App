@@ -54,7 +54,7 @@ def test_create_dataset():
         output_path=output_directory,
         label_path=label_path,
         info_path=info_path,
-        combine_clips=False
+        combine_clips=False,
     )
 
     assert os.listdir(output_directory) == list(EXPECTED_CLIPS.keys()), "Unexpected audio clips"
@@ -235,7 +235,7 @@ def test_extend_existing_dataset():
         label_path=label_path,
         suffix=suffix,
         info_path=info_path,
-        combine_clips=False
+        combine_clips=False,
     )
 
     assert os.listdir(audio_folder) == [

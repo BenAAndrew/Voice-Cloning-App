@@ -321,7 +321,7 @@ def synthesis_post():
             vocoder,
             silence,
             max_decoder_steps=max_decoder_steps,
-            split_text=split_text
+            split_text=split_text,
         )
         return render_template(
             "synthesis.html",

@@ -28,7 +28,12 @@ def clip_combiner(audio_path, output_path, clips, max_length):
         return (datetime.strptime(end, "%H:%M:%S.%f") - datetime.strptime(start, "%H:%M:%S.%f")).total_seconds()
 
     def _join_text(lines):
-        return " ".join([line+"," if not line[-1] in PUNCTUATION and i != len(lines)-1 else line for i, line in enumerate(lines)])
+        return " ".join(
+            [
+                line + "," if not line[-1] in PUNCTUATION and i != len(lines) - 1 else line
+                for i, line in enumerate(lines)
+            ]
+        )
 
     def _combine_clip(combined_clip, audio_path, output_path):
         if len(combined_clip) > 1:
@@ -372,7 +377,7 @@ def extend_dataset(
         min_length=min_length,
         max_length=max_length,
         min_confidence=min_confidence,
-        combine_clips=combine_clips
+        combine_clips=combine_clips,
     )
 
     with open(temp_label_path) as f:
