@@ -23,9 +23,10 @@ from training.utils import (
     load_metadata,
     load_symbols,
     check_early_stopping,
+    calc_avgmax_attention
 )
 from training.tacotron2_model import Tacotron2, TextMelCollate, Tacotron2Loss
-from training.tacotron2_model.utils import process_batch, get_mask_from_lengths
+from training.tacotron2_model.utils import process_batch
 
 MINIMUM_MEMORY_GB = 4
 WEIGHT_DECAY = 1e-6
@@ -176,7 +177,7 @@ def train(
             y, y_pred = process_batch(batch, model)
 
             loss = criterion(y_pred, y)
-            avg_prob = calc_avgmax_attention(batch[-1], batch[1], y_pred[-1])
+            avgmax_attention = calc_avgmax_attention(batch[-1], batch[1], y_pred[-1])
             reduced_loss = loss.item()
             loss.backward()
 
@@ -185,8 +186,8 @@ def train(
 
             duration = time.perf_counter() - start
             logging.info(
-                "Status - [Epoch {}: Iteration {}] Train loss {:.6f} {:.2f}s/it {:.2f}att_str".format(
-                    epoch, iteration, reduced_loss, duration, avg_prob
+                "Status - [Epoch {}: Iteration {}] Train loss {:.6f} Attention score {:.2f} {:.2f}s/it".format(
+                    epoch, iteration, reduced_loss, avgmax_attention, duration
                 )
             )
 
@@ -232,35 +233,6 @@ def train(
         iters_per_backup_checkpoint,
     )
     logging.info("Saving model and optimizer state at iteration {} to {}".format(iteration, checkpoint_path))
-
-
-def calc_avgmax_attention(mel_lengths, text_lengths, alignment):
-    """
-    Calculate Average Max Attention for Tacotron2 Alignment.
-    Roughly represents how well the model is linking the text to the audio.
-    Low values during training typically result in unstable speech during inference.
-    
-    Parameters
-    ----------
-    mel_lengths : torch.Tensor
-        lengths of each mel in the batch
-    text_lengths : torch.Tensor
-        lengths of each text in the batch
-    alignment : torch.Tensor
-        alignments from model of shape [B, mel_length, text_length]
-    
-    Returns
-    -------
-    float
-        average max attention
-    """
-    mel_mask = get_mask_from_lengths(mel_lengths, device=alignment.device)
-    txt_mask = get_mask_from_lengths(text_lengths, device=alignment.device)
-    attention_mask = txt_mask.unsqueeze(1) & mel_mask.unsqueeze(2)# [B, mel_T, 1] * [B, 1, txt_T] -> [B, mel_T, txt_T]
-    
-    alignment = alignment.data.masked_fill(~attention_mask, 0.0)
-    avg_prob = alignment.data.amax(dim=2).sum(1).div(mel_lengths.to(alignment)).mean().item() # [B, mel_T, txt_T]
-    return avg_prob
 
 
 if __name__ == "__main__":
