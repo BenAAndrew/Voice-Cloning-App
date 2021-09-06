@@ -196,11 +196,6 @@ def test_transfer_symbols_embedding():
     original_symbols = ["a", "c", "e"]
     new_symbols = ["a", "b", "é"]
 
-    weight_tensor = original_embedding_weight.data
-    original_std = weight_tensor.std()
-    original_mean = weight_tensor.mean()
-    default = weight_tensor[0].clone().normal_(original_mean, original_std)
-
     transfer_symbols_embedding(original_embedding_weight, embedding_layer, new_symbols, original_symbols)
 
     # Should match existing value in original_embedding_weight
