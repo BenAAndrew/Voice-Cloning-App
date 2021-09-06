@@ -8,7 +8,13 @@ import shutil
 
 from dataset.clip_generator import CHARACTER_ENCODING
 from training.clean_text import clean_text
-from training.checkpoint import load_checkpoint, save_checkpoint, checkpoint_cleanup, warm_start_model
+from training.checkpoint import (
+    load_checkpoint,
+    save_checkpoint,
+    checkpoint_cleanup,
+    warm_start_model,
+    transfer_symbols_embedding,
+)
 from training.voice_dataset import VoiceDataset
 from training.tacotron2_model import Tacotron2
 from training.train import train, MINIMUM_MEMORY_GB, DEFAULT_ALPHABET, WEIGHT_DECAY
@@ -20,7 +26,7 @@ from training.utils import (
     get_learning_rate,
     get_batch_size,
     check_early_stopping,
-    LEARNING_RATE_PER_BATCH,
+    LEARNING_RATE_PER_64,
     BATCH_SIZE_PER_GB,
     BASE_SYMBOLS,
 )
@@ -88,9 +94,10 @@ class MockedOptimizer:
 @mock.patch("torch.optim.Adam", return_value=MockedOptimizer)
 @mock.patch("training.train.VoiceDataset", return_value=None)
 @mock.patch("training.train.DataLoader", return_value=[(None, None), (None, None)])
-@mock.patch("training.train.process_batch", return_value=(None, None))
+@mock.patch("training.train.process_batch", return_value=((None, None), (None,)))
 @mock.patch("torch.nn.utils.clip_grad_norm_")
-@mock.patch("training.train.validate", return_value=0.5)
+@mock.patch("training.train.validate", return_value=(0.5, 0.5))
+@mock.patch("training.train.calc_avgmax_attention", return_value=0.5)
 def test_train(
     validate,
     clip_grad_norm_,
@@ -102,6 +109,7 @@ def test_train(
     Tacotron2,
     get_available_memory,
     is_available,
+    calc_avgmax_attention,
 ):
     metadata_path = os.path.join("test_samples", "dataset", "metadata.csv")
     dataset_directory = os.path.join("test_samples", "dataset", "wavs")
@@ -127,10 +135,12 @@ def test_train(
 
 
 # Validate
-@mock.patch("training.validate.process_batch", return_value=(None, None))
-def test_validate(process_batch):
-    loss = validate(MockedTacotron2(), [None, None], MockedTacotron2Loss(), 0)
+@mock.patch("training.validate.process_batch", return_value=((None,), (None,)))
+@mock.patch("training.validate.calc_avgmax_attention", return_value=0.5)
+def test_validate(process_batch, calc_avgmax_attention):
+    loss, avgmax_attention = validate(MockedTacotron2(), [(None, None), (None, None)], MockedTacotron2Loss(), 0)
     assert loss == 0.5
+    assert avgmax_attention == 0.5
 
 
 # Clean text
@@ -161,6 +171,7 @@ def test_load_and_save_checkpoint():
     model_path = os.path.join("test_samples", "model.pt")
     model = Tacotron2()
     lr = 0.1
+    symbols = list("ABC")
     optimizer = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=WEIGHT_DECAY)
     model, optimizer, iteration, epoch = load_checkpoint(model_path, model, optimizer, [None] * 10000)
 
@@ -169,10 +180,30 @@ def test_load_and_save_checkpoint():
 
     checkpoint_folder = "test-checkpoints"
     os.makedirs(checkpoint_folder)
-    save_checkpoint(model, optimizer, lr, iteration, epoch, checkpoint_folder, 1000, 1000)
+    save_checkpoint(model, optimizer, lr, iteration, symbols, epoch, checkpoint_folder, 1000, 1000)
     assert "checkpoint_510000" in os.listdir(checkpoint_folder)
 
     shutil.rmtree(checkpoint_folder)
+
+
+class MockedEmbeddingLayer:
+    weight = torch.zeros(3)
+
+
+def test_transfer_symbols_embedding():
+    original_embedding_weight = torch.Tensor([0.1, 0.2, 0.3])
+    embedding_layer = MockedEmbeddingLayer()
+    original_symbols = ["a", "c", "e"]
+    new_symbols = ["a", "b", "é"]
+
+    transfer_symbols_embedding(original_embedding_weight, embedding_layer, new_symbols, original_symbols)
+
+    # Should match existing value in original_embedding_weight
+    assert embedding_layer.weight[0] == 0.1
+    # Should not match existing value in original_embedding_weight
+    assert embedding_layer.weight[1] not in original_embedding_weight
+    # Should map e -> é
+    assert embedding_layer.weight[2] == 0.3
 
 
 @mock.patch("os.remove")
@@ -193,7 +224,8 @@ def test_warm_start_model():
     model_path = os.path.join("test_samples", "model.pt")
     model = Tacotron2()
     ignore_layers = ["embedding.weight"]
-    model = warm_start_model(model_path, model, ignore_layers)
+    symbols = list("ABC")
+    model = warm_start_model(model_path, model, symbols, ignore_layers=ignore_layers)
     model_dict = model.state_dict()
 
     checkpoint_dict = torch.load(model_path, map_location="cpu")["state_dict"]
@@ -259,7 +291,7 @@ def test_early_stopping():
 def test_get_learning_rate():
     batch_size = 40
     lr = get_learning_rate(batch_size)
-    assert lr == batch_size * LEARNING_RATE_PER_BATCH
+    assert lr == (batch_size / 64) ** 0.5 * LEARNING_RATE_PER_64
 
 
 def test_get_batch_size():

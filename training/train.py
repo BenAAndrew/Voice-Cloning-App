@@ -23,10 +23,10 @@ from training.utils import (
     load_metadata,
     load_symbols,
     check_early_stopping,
+    calc_avgmax_attention,
 )
 from training.tacotron2_model import Tacotron2, TextMelCollate, Tacotron2Loss
 from training.tacotron2_model.utils import process_batch
-
 
 MINIMUM_MEMORY_GB = 4
 WEIGHT_DECAY = 1e-6
@@ -152,7 +152,7 @@ def train(
         iteration += 1
         logging.info("Loaded checkpoint '{}' from iteration {}".format(checkpoint_path, iteration))
     elif transfer_learning_path:
-        model = warm_start_model(transfer_learning_path, model)
+        model = warm_start_model(transfer_learning_path, model, symbols)
         logging.info("Loaded transfer learning model '{}'".format(transfer_learning_path))
     else:
         logging.info("Generating first checkpoint...")
@@ -177,6 +177,7 @@ def train(
             y, y_pred = process_batch(batch, model)
 
             loss = criterion(y_pred, y)
+            avgmax_attention = calc_avgmax_attention(batch[-1], batch[1], y_pred[-1])
             reduced_loss = loss.item()
             loss.backward()
 
@@ -185,18 +186,18 @@ def train(
 
             duration = time.perf_counter() - start
             logging.info(
-                "Status - [Epoch {}: Iteration {}] Train loss {:.6f} {:.2f}s/it".format(
-                    epoch, iteration, reduced_loss, duration
+                "Status - [Epoch {}: Iteration {}] Train loss {:.5f} Attention score {:.5f} {:.2f}s/it".format(
+                    epoch, iteration, reduced_loss, avgmax_attention, duration
                 )
             )
 
             # Validate & save checkpoint
             if iteration % iters_per_checkpoint == 0:
-                val_loss = validate(model, val_loader, criterion, iteration)
+                val_loss, avgmax_attention = validate(model, val_loader, criterion, iteration)
                 validation_losses.append(val_loss)
                 logging.info(
-                    "Saving model and optimizer state at iteration {} to {}. Scored {}".format(
-                        iteration, output_directory, val_loss
+                    "Saving model and optimizer state at iteration {} to {}. Validation score = {:.5f}, Attention score = {:.5f}".format(
+                        iteration, output_directory, val_loss, avgmax_attention
                     )
                 )
                 save_checkpoint(
@@ -204,6 +205,7 @@ def train(
                     optimizer,
                     learning_rate,
                     iteration,
+                    symbols,
                     epoch,
                     output_directory,
                     iters_per_checkpoint,
@@ -224,6 +226,7 @@ def train(
         optimizer,
         learning_rate,
         iteration,
+        symbols,
         epochs,
         output_directory,
         iters_per_checkpoint,
