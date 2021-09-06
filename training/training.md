@@ -11,4 +11,9 @@ Once we have a dataset that has been preprocessed, we can begin training the voi
 - batch_size (optional): Batch size/ memory usage. Calculated automatically if not given
 
 ## How to run
-`python train.py -m dataset/metadata.csv -d dataset/wavs -o dataset/checkpoints `
+
+1. Download NVIDIA's [Tacotron 2](https://github.com/NVIDIA/tacotron2#training-using-a-pre-trained-model) model
+   
+2. Move into `tacotron2_statedict.pt` into `training` folder
+
+3. Run `python train.py -m dataset/metadata.csv -d dataset/wavs -o dataset/checkpoints -t tacotron2_statedict.pt`
