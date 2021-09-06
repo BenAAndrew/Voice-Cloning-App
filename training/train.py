@@ -248,6 +248,7 @@ if __name__ == "__main__":
         type=str,
         help="path to an model to transfer learn from",
     )
+    parser.add_argument("-a", "--alphabet_path", required=False, type=str, help="path to alphabet file")
 
     args = parser.parse_args()
 
@@ -260,6 +261,7 @@ if __name__ == "__main__":
         metadata_path=args.metadata_path,
         dataset_directory=args.dataset_directory,
         output_directory=args.output_directory,
+        alphabet_path=args.alphabet_path,
         checkpoint_path=args.checkpoint_path,
         epochs=args.epochs,
         batch_size=args.batch_size,
