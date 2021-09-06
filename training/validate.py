@@ -41,5 +41,7 @@ def validate(model, val_loader, criterion, iteration):
         val_avgmax_attention = val_avgmax_attention / (i + 1)
 
     model.train()
-    print("Iteration {}: Validation loss {:.6f} Attention score {:.6f}".format(iteration, val_loss, val_avgmax_attention))
+    print(
+        "Iteration {}: Validation loss {:.6f} Attention score {:.6f}".format(iteration, val_loss, val_avgmax_attention)
+    )
     return val_loss, val_avgmax_attention

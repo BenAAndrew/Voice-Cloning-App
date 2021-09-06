@@ -23,7 +23,7 @@ from training.utils import (
     load_metadata,
     load_symbols,
     check_early_stopping,
-    calc_avgmax_attention
+    calc_avgmax_attention,
 )
 from training.tacotron2_model import Tacotron2, TextMelCollate, Tacotron2Loss
 from training.tacotron2_model.utils import process_batch

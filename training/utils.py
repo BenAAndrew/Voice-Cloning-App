@@ -67,7 +67,7 @@ def get_learning_rate(batch_size):
         Learning rate
     """
     return min(
-        (batch_size/64)**0.5 * LEARNING_RATE_PER_64, # Adam Learning Rate is proportional to sqrt(batch_size)
+        (batch_size / 64) ** 0.5 * LEARNING_RATE_PER_64,  # Adam Learning Rate is proportional to sqrt(batch_size)
         MAXIMUM_LEARNING_RATE,
     )
 
@@ -152,7 +152,7 @@ def calc_avgmax_attention(mel_lengths, text_lengths, alignment):
     Calculate Average Max Attention for Tacotron2 Alignment.
     Roughly represents how well the model is linking the text to the audio.
     Low values during training typically result in unstable speech during inference.
-    
+
     Parameters
     ----------
     mel_lengths : torch.Tensor
@@ -161,7 +161,7 @@ def calc_avgmax_attention(mel_lengths, text_lengths, alignment):
         lengths of each text in the batch
     alignment : torch.Tensor
         alignments from model of shape [B, mel_length, text_length]
-    
+
     Returns
     -------
     float
@@ -169,8 +169,10 @@ def calc_avgmax_attention(mel_lengths, text_lengths, alignment):
     """
     mel_mask = get_mask_from_lengths(mel_lengths, device=alignment.device)
     txt_mask = get_mask_from_lengths(text_lengths, device=alignment.device)
-    attention_mask = txt_mask.unsqueeze(1) & mel_mask.unsqueeze(2)# [B, mel_T, 1] * [B, 1, txt_T] -> [B, mel_T, txt_T]
-    
+    # [B, mel_T, 1] * [B, 1, txt_T] -> [B, mel_T, txt_T]
+    attention_mask = txt_mask.unsqueeze(1) & mel_mask.unsqueeze(2)
+
     alignment = alignment.data.masked_fill(~attention_mask, 0.0)
-    avg_prob = alignment.data.amax(dim=2).sum(1).div(mel_lengths.to(alignment)).mean().item() # [B, mel_T, txt_T]
+    # [B, mel_T, txt_T]
+    avg_prob = alignment.data.amax(dim=2).sum(1).div(mel_lengths.to(alignment)).mean().item()
     return avg_prob

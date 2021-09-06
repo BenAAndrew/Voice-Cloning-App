@@ -103,7 +103,7 @@ def test_train(
     Tacotron2,
     get_available_memory,
     is_available,
-    calc_avgmax_attention
+    calc_avgmax_attention,
 ):
     metadata_path = os.path.join("test_samples", "dataset", "metadata.csv")
     dataset_directory = os.path.join("test_samples", "dataset", "wavs")
@@ -165,7 +165,7 @@ def test_load_and_save_checkpoint():
     model_path = os.path.join("test_samples", "model.pt")
     model = Tacotron2()
     lr = 0.1
-    symbols = list('ABC')
+    symbols = list("ABC")
     optimizer = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=WEIGHT_DECAY)
     model, optimizer, iteration, epoch = load_checkpoint(model_path, model, optimizer, [None] * 10000)
 
@@ -198,7 +198,7 @@ def test_warm_start_model():
     model_path = os.path.join("test_samples", "model.pt")
     model = Tacotron2()
     ignore_layers = ["embedding.weight"]
-    symbols = list('ABC')
+    symbols = list("ABC")
     model = warm_start_model(model_path, model, symbols, ignore_layers=ignore_layers)
     model_dict = model.state_dict()
 
@@ -265,7 +265,7 @@ def test_early_stopping():
 def test_get_learning_rate():
     batch_size = 40
     lr = get_learning_rate(batch_size)
-    assert lr == (batch_size/64)**0.5 * LEARNING_RATE_PER_64
+    assert lr == (batch_size / 64) ** 0.5 * LEARNING_RATE_PER_64
 
 
 def test_get_batch_size():
