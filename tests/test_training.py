@@ -8,7 +8,13 @@ import shutil
 
 from dataset.clip_generator import CHARACTER_ENCODING
 from training.clean_text import clean_text
-from training.checkpoint import load_checkpoint, save_checkpoint, checkpoint_cleanup, warm_start_model
+from training.checkpoint import (
+    load_checkpoint,
+    save_checkpoint,
+    checkpoint_cleanup,
+    warm_start_model,
+    transfer_symbols_embedding,
+)
 from training.voice_dataset import VoiceDataset
 from training.tacotron2_model import Tacotron2
 from training.train import train, MINIMUM_MEMORY_GB, DEFAULT_ALPHABET, WEIGHT_DECAY
@@ -178,6 +184,31 @@ def test_load_and_save_checkpoint():
     assert "checkpoint_510000" in os.listdir(checkpoint_folder)
 
     shutil.rmtree(checkpoint_folder)
+
+
+class MockedEmbeddingLayer:
+    weight = torch.zeros(3)
+
+
+def test_transfer_symbols_embedding():
+    original_embedding_weight = torch.Tensor([0.1, 0.2, 0.3])
+    embedding_layer = MockedEmbeddingLayer()
+    original_symbols = ["a", "c", "e"]
+    new_symbols = ["a", "b", "é"]
+
+    weight_tensor = original_embedding_weight.data
+    original_std = weight_tensor.std()
+    original_mean = weight_tensor.mean()
+    default = weight_tensor[0].clone().normal_(original_mean, original_std)
+
+    transfer_symbols_embedding(original_embedding_weight, embedding_layer, new_symbols, original_symbols)
+
+    # Should match existing value in original_embedding_weight
+    assert embedding_layer.weight[0] == 0.1
+    # Should not match existing value in original_embedding_weight
+    assert embedding_layer.weight[1] not in original_embedding_weight
+    # Should map e -> é
+    assert embedding_layer.weight[2] == 0.3
 
 
 @mock.patch("os.remove")
