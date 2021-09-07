@@ -71,12 +71,12 @@ showEpochsLabel();
 
 // Checkpoints
 function showCheckpoints(dataset){
+    select = document.getElementById("checkpoint");
+    // Delete options
+    for (i = select.options.length-1; i >= 0; i--) {
+        select.options[i] = null;
+    }
     if(dataset in checkpoints){
-        select = document.getElementById("checkpoint");
-        // Delete options
-        for (i = select.options.length-1; i >= 0; i--) {
-            select.options[i] = null;
-        }
         matching_checkpoints = checkpoints[dataset];
         // Add checkpoint options
         for (i = 0; i < matching_checkpoints.length; i++) {
