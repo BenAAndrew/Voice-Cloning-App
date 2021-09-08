@@ -145,12 +145,12 @@ def test_validate(process_batch, calc_avgmax_attention):
 
 # Clean text
 def test_clean_text():
-    text = clean_text("1st $500 Mr. 10.5 2,000 30 a\tb ~", inflect.engine())
+    text = clean_text("1st $500 Mr. 10.5 2,000 30 a\tb ~")
     assert text == "first five hundred dollars mister ten point five two thousand thirty a b "
 
 
 # Dataset
-@mock.patch("training.voice_dataset.clean_text", side_effect=lambda text, engine: text)
+@mock.patch("training.voice_dataset.clean_text", side_effect=lambda text: text)
 def test_voice_dataset(clean_text):
     random.seed(1234)
 
