@@ -43,7 +43,6 @@ class VoiceDataset(torch.utils.data.Dataset):
     def __init__(self, filepaths_and_text, dataset_path, symbols):
         self.filepaths_and_text = filepaths_and_text
         self.dataset_path = dataset_path
-        self.inflect_engine = inflect.engine()
         self.symbol_to_id = {s: i for i, s in enumerate(symbols)}
         self.max_wav_value = 32768.0
         self.sampling_rate = 22050
@@ -117,7 +116,7 @@ class VoiceDataset(torch.utils.data.Dataset):
         Tensor
             Int tensor of symbol ids
         """
-        text = clean_text(text, self.inflect_engine)
+        text = clean_text(text)
         sequence = [self.symbol_to_id[s] for s in text if s != "_"]
         text_norm = torch.IntTensor(sequence)
         return text_norm

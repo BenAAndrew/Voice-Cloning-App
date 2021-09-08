@@ -42,7 +42,6 @@ def test_synthesize():
     synthesize(
         model=model,
         text=text,
-        inflect_engine=None,
         graph_path=graph_path,
         audio_path=audio_path,
         vocoder=vocoder,
@@ -64,7 +63,6 @@ def test_synthesize():
     synthesize(
         model=model,
         text=text,
-        inflect_engine=None,
         graph_path=graph_path,
         audio_path=audio_path,
         vocoder=vocoder,
@@ -86,7 +84,6 @@ def test_synthesize():
     synthesize(
         model=model,
         text=text,
-        inflect_engine=None,
         graph_path=None,
         audio_path=audio_path,
         vocoder=vocoder,
@@ -119,7 +116,6 @@ def test_hifigan_synthesis():
     synthesize(
         model=FakeModelForSynthesis(),
         text=text,
-        inflect_engine=None,
         graph_path=None,
         audio_path=audio_path,
         vocoder=hifigan,

@@ -4,6 +4,7 @@ import re
 import inflect
 from unidecode import unidecode
 
+INFLECT_ENGINE = inflect.engine()
 COMMA_NUMBER_RE = re.compile(r"([0-9][0-9\,]+[0-9])")
 DECIMAL_NUMBER_RE = re.compile(r"([0-9]+\.[0-9]+)")
 NUMBER_RE = re.compile(r"[0-9]+")
@@ -11,7 +12,6 @@ ORDINALS = re.compile(r"([0-9]+[st|nd|rd|th]+)")
 CURRENCY = re.compile(r"([£|$|€]+[0-9]+)")
 WHITESPACE_RE = re.compile(r"\s+")
 ALLOWED_CHARACTERS_RE = re.compile("[^a-z ,.!?'-]+")
-
 MONETARY_REPLACEMENT = {"$": " dollars", "£": " pounds", "€": " euros"}
 ABBREVIATION_REPLACEMENT = {
     "mr.": "mister",
@@ -36,7 +36,7 @@ ABBREVIATION_REPLACEMENT = {
 }
 
 
-def clean_text(text, inflect_engine):
+def clean_text(text):
     """
     Cleans text. This includes:
     - Replacing monetary terms (i.e. $ -> dollars)
@@ -49,8 +49,6 @@ def clean_text(text, inflect_engine):
     ----------
     text : str
         Text to clean
-    inflect_engine : inflect.engine()
-        inflect.engine() object
 
     Returns
     -------
@@ -69,15 +67,15 @@ def clean_text(text, inflect_engine):
     # Convert ordinals to words
     ordinals = re.findall(ORDINALS, text)
     for ordinal in ordinals:
-        text = text.replace(ordinal, inflect_engine.number_to_words(ordinal))
+        text = text.replace(ordinal, INFLECT_ENGINE.number_to_words(ordinal))
     # Convert comma & decimal numbers to words
     numbers = re.findall(COMMA_NUMBER_RE, text) + re.findall(DECIMAL_NUMBER_RE, text)
     for number in numbers:
-        text = text.replace(number, inflect_engine.number_to_words(number))
+        text = text.replace(number, INFLECT_ENGINE.number_to_words(number))
     # Convert standard numbers to words
     numbers = re.findall(NUMBER_RE, text)
     for number in numbers:
-        text = text.replace(number, inflect_engine.number_to_words(number))
+        text = text.replace(number, INFLECT_ENGINE.number_to_words(number))
     # Replace abbreviations
     for key, value in ABBREVIATION_REPLACEMENT.items():
         text = text.replace(" " + key + " ", " " + value + " ")
@@ -99,11 +97,10 @@ if __name__ == "__main__":
         rows = f.readlines()
 
     cleaned_text = []
-    inflect_engine = inflect.engine()
 
     for row in rows:
         filename, text = row.split("|")
-        text = clean_text(text, inflect_engine)
+        text = clean_text(text)
         cleaned_text.append(f"{filename}|{text}")
 
     with open(args.output, "w") as f:

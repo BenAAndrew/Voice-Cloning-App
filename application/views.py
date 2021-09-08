@@ -44,7 +44,6 @@ ENGLISH_LANGUAGE = "English"
 
 model = None
 vocoder = None
-inflect_engine = inflect.engine()
 symbols = None
 
 
@@ -316,7 +315,6 @@ def synthesis_post():
         synthesize(
             model,
             text,
-            inflect_engine,
             symbols,
             graph_path,
             audio_path,
