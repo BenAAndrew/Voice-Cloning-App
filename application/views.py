@@ -4,6 +4,7 @@ import io
 import zipfile
 import traceback
 import torch
+from datetime import datetime
 
 from main import app, paths
 from application.utils import (
@@ -301,8 +302,9 @@ def synthesis_post():
             text = text[0]
         method = request.form["text_method"]
         split_text = method == "paragraph"
-        folder_name = get_suffix()
-        results_folder = os.path.join(paths["results"], folder_name)
+        parent_folder = os.path.join(paths["results"], datetime.now().strftime("%Y-%m"))
+        os.makedirs(parent_folder, exist_ok=True)
+        results_folder = os.path.join(parent_folder, get_suffix() + "-" + text.replace(" ", "_")[:20])
         os.makedirs(results_folder)
         graph_path = os.path.join(results_folder, GRAPH_FILE)
         audio_path = os.path.join(results_folder, RESULTS_FILE)
