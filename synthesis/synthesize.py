@@ -110,7 +110,6 @@ def join_alignment_graphs(alignments):
 def synthesize(
     model,
     text,
-    inflect_engine,
     symbols=DEFAULT_ALPHABET,
     graph_path=None,
     audio_path=None,
@@ -131,8 +130,6 @@ def synthesize(
         Tacotron2 model
     text : str/list
         Text to synthesize (or list of lines to synthesize)
-    inflect_engine : Inflect
-        Inflect.engine() object
     symbols : list
         List of symbols (default is English)
     graph_path : str (optional)
@@ -170,7 +167,7 @@ def synthesize(
         mels = []
         alignments = []
         for line in text:
-            text = clean_text(line, inflect_engine)
+            text = clean_text(line)
             sequence = text_to_sequence(text, symbols)
             _, mel_outputs_postnet, _, alignment = model.inference(sequence, max_decoder_steps)
             mels.append(mel_outputs_postnet)
@@ -191,7 +188,7 @@ def synthesize(
             write(audio_path, sample_rate, audio)
     else:
         # Single sentence
-        text = clean_text(text.strip(), inflect_engine)
+        text = clean_text(text.strip())
         sequence = text_to_sequence(text, symbols)
         _, mel_outputs_postnet, _, alignment = model.inference(sequence, max_decoder_steps)
 
@@ -221,12 +218,10 @@ if __name__ == "__main__":
 
     model = load_model(args.model_path)
     vocoder = Hifigan(args.vocoder_model_path, args.hifigan_config_path)
-    inflect_engine = inflect.engine()
 
     synthesize(
         model=model,
         text=args.text,
-        inflect_engine=inflect_engine,
         graph_path=args.graph_output_path,
         audio_path=args.audio_output_path,
         vocoder=vocoder,
