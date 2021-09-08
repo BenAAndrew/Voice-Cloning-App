@@ -13,6 +13,7 @@ import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
 
+from training import DEFAULT_ALPHABET
 from training.voice_dataset import VoiceDataset
 from training.checkpoint import load_checkpoint, save_checkpoint, warm_start_model
 from training.validate import validate
@@ -27,13 +28,13 @@ from training.utils import (
 )
 from training.tacotron2_model import Tacotron2, TextMelCollate, Tacotron2Loss
 from training.tacotron2_model.utils import process_batch
+from synthesis.synthesize import load_model, synthesize
 
 MINIMUM_MEMORY_GB = 4
 WEIGHT_DECAY = 1e-6
 GRAD_CLIP_THRESH = 1.0
 SEED = 1234
-DEFAULT_ALPHABET = "_-!'(),.:;? ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
-
+TEMP_GRAPH_PATH = os.path.join("data", "results", "training.png")
 
 def train(
     metadata_path,
@@ -212,8 +213,17 @@ def train(
                     iters_per_backup_checkpoint,
                 )
                 if True:
-                    logging.info("Generating test sample to listen to")
-                    logging.info(f"Sample - {iteration}, data/results/graph.png, data/results/out.wav")
+                    try:
+                        synthesize(
+                            load_model(checkpoint_path),
+                            "the monkeys live in the trees with their families.",
+                            symbols=symbols,
+                            graph_path=TEMP_GRAPH_PATH
+                        )
+                        graph = TEMP_GRAPH_PATH.replace('\\', '/')
+                        logging.info(f"Sample - {iteration}, {graph}, data/results/out.wav")
+                    except Exception:
+                        logging.info("Failed to generate sample, you may need to train for longer before this is possible")
 
             iteration += 1
 

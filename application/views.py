@@ -19,7 +19,8 @@ from dataset.clip_generator import CHARACTER_ENCODING, add_suffix
 from dataset.extend_existing_dataset import extend_existing_dataset
 from dataset.analysis import get_total_audio_duration, validate_dataset
 from dataset.transcribe import create_transcription_model
-from training.train import train, DEFAULT_ALPHABET
+from training import DEFAULT_ALPHABET
+from training.train import train
 from training.utils import get_available_memory, get_batch_size, load_symbols
 from synthesis.synthesize import load_model, synthesize
 from synthesis.vocoders import Hifigan

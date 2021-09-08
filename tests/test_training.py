@@ -7,6 +7,7 @@ import torch
 import shutil
 
 from dataset.clip_generator import CHARACTER_ENCODING
+from training import DEFAULT_ALPHABET
 from training.clean_text import clean_text
 from training.checkpoint import (
     load_checkpoint,
@@ -17,7 +18,7 @@ from training.checkpoint import (
 )
 from training.voice_dataset import VoiceDataset
 from training.tacotron2_model import Tacotron2
-from training.train import train, MINIMUM_MEMORY_GB, DEFAULT_ALPHABET, WEIGHT_DECAY
+from training.train import train, MINIMUM_MEMORY_GB, WEIGHT_DECAY
 from training.validate import validate
 from training.utils import (
     load_metadata,
