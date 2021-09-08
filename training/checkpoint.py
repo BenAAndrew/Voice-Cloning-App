@@ -211,6 +211,7 @@ def save_checkpoint(
         Frequency of checkpoint backups (in iterations)
     """
     checkpoint_name = "checkpoint_{}".format(iteration)
+    output_path = os.path.join(output_directory, checkpoint_name)
     torch.save(
         {
             "iteration": iteration,
@@ -220,9 +221,10 @@ def save_checkpoint(
             "epoch": epoch,
             "symbols": symbols,
         },
-        os.path.join(output_directory, checkpoint_name),
+       output_path,
     )
     checkpoint_cleanup(output_directory, iteration, checkpoint_frequency, checkpoint_backup_frequency)
+    return output_path
 
 
 def checkpoint_cleanup(output_directory, iteration, checkpoint_frequency, checkpoint_backup_frequency):

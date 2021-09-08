@@ -27,6 +27,10 @@ class SocketIOHandler(logging.Handler):
             socketio.emit("progress", {"number": current, "total": total}, namespace="/voice")
         elif text.startswith("Status"):
             socketio.emit("status", {"text": text.replace("Status -", "")}, namespace="/voice")
+        elif text.startswith("Sample"):
+            text = text.split("- ")[1]
+            iteration, image, audio = text.split(", ")
+            socketio.emit("sample", {"iteration": iteration, "image": image, "audio": audio}, namespace="/voice")
         else:
             socketio.emit("logs", {"text": text}, namespace="/voice")
 

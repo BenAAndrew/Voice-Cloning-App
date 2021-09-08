@@ -200,7 +200,7 @@ def train(
                         iteration, output_directory, val_loss, avgmax_attention
                     )
                 )
-                save_checkpoint(
+                checkpoint_path = save_checkpoint(
                     model,
                     optimizer,
                     learning_rate,
@@ -211,6 +211,9 @@ def train(
                     iters_per_checkpoint,
                     iters_per_backup_checkpoint,
                 )
+                if True:
+                    logging.info("Generating test sample to listen to")
+                    logging.info(f"Sample - {iteration}, data/results/graph.png, data/results/out.wav")
 
             iteration += 1
 

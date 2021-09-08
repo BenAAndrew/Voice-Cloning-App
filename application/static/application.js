@@ -27,6 +27,16 @@ $(document).ready(function(){
         $('#pinned').text(msg.text);
     });
 
+    socket.on('sample', function(msg) {
+        $('#sample-heading').text("Latest sample - iteration " + msg.iteration)
+        $('#sample-img').attr("src", msg.image);
+        $('#sample-audio').attr("src", msg.audio);
+
+        var audio = $("#player");
+        audio[0].pause();
+        audio[0].load();
+    });
+
     socket.on('logs', function(msg) {
         console.log(msg);
         $('#logs').append(msg.text+"<br>");
