@@ -89,7 +89,10 @@ class Silero(TranscriptionModel):
             self.model, self.decoder = init_jit_model(model, self.device)
         else:
             self.model, self.decoder, _ = torch.hub.load(
-                repo_or_dir="snakers4/silero-models", model="silero_stt", language=language, device=self.device, source="github"
+                repo_or_dir="snakers4/silero-models",
+                model="silero_stt",
+                language=language,
+                device=self.device,
             )
 
     def load_audio(self, path):

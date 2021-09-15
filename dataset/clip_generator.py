@@ -14,7 +14,7 @@ import dataset.forced_alignment.align as align
 from dataset.forced_alignment.search import FuzzySearch
 from dataset.forced_alignment.audio import DEFAULT_RATE
 from dataset.audio_processing import change_sample_rate, cut_audio, add_silence
-from training import PUNCTUATION, BASE_SYMBOLS
+from training import PUNCTUATION
 
 
 MIN_LENGTH = 1.0
@@ -24,10 +24,32 @@ CHARACTER_ENCODING = "utf-8"
 
 
 def clip_combiner(audio_path, output_path, clips, max_length):
+    """
+    Combines clips to make them as long as possible without exceeding max length.
+
+    Parameters
+    ----------
+    audio_path : str
+        Path to audio file (must have been converted using convert_audio)
+    output_path : str
+        Path to save audio clips to
+    clips : list
+        List of current clips
+    max_length : float (optional)
+        Maximum duration of a clip in seconds
+
+    Returns
+    -------
+    (list, list)
+        List of clips and clip lengths in seconds
+    """
+
     def _get_duration(start, end):
+        """Gets the duration in seconds between two string timestamps"""
         return (datetime.strptime(end, "%H:%M:%S.%f") - datetime.strptime(start, "%H:%M:%S.%f")).total_seconds()
 
     def _join_text(lines):
+        """Joins list of lines with comma seperation"""
         return " ".join(
             [
                 line + "," if not line[-1] in PUNCTUATION and i != len(lines) - 1 else line
@@ -36,6 +58,7 @@ def clip_combiner(audio_path, output_path, clips, max_length):
         )
 
     def _combine_clip(combined_clip, audio_path, output_path):
+        """Combines multiple clips to produce one new clip (or returns existing if list contains only one clip)"""
         if len(combined_clip) > 1:
             start = combined_clip[0]["start"]
             end = combined_clip[-1]["end"]
@@ -83,6 +106,33 @@ def generate_clips_from_textfile(
     max_length=MAX_LENGTH,
     min_confidence=MIN_CONFIDENCE,
 ):
+    """
+    Generates clips from plain text file.
+
+    Parameters
+    ----------
+    audio_path : str
+        Path to audio file (must have been converted using convert_audio)
+    script_path : str
+        Path to text file
+    transcription_model : TranscriptionModel
+        Transcription model
+    output_path : str
+        Path to save audio clips to
+    logging : logging (optional)
+        Logging object to write logs to
+    min_length : float (optional)
+        Minimum duration of a clip in seconds
+    max_length : float (optional)
+        Maximum duration of a clip in seconds
+    min_confidence : float (optional)
+        Minimum confidence score to generate a clip for
+
+    Returns
+    -------
+    (list, list)
+        List of clips and clip lengths in seconds
+    """
     logging.info(f"Loading script from {script_path}...")
     with open(script_path, "r", encoding=CHARACTER_ENCODING) as script_file:
         clean_text = script_file.read().lower().strip().replace("\n", " ").replace("  ", " ")
@@ -138,6 +188,33 @@ def generate_clips_from_subtitles(
     max_length=MAX_LENGTH,
     min_confidence=MIN_CONFIDENCE,
 ):
+    """
+    Generates clips from subtitles.
+
+    Parameters
+    ----------
+    audio_path : str
+        Path to audio file (must have been converted using convert_audio)
+    subtitle_path : str
+        Path to subtitle file
+    transcription_model : TranscriptionModel
+        Transcription model
+    output_path : str
+        Path to save audio clips to
+    logging : logging (optional)
+        Logging object to write logs to
+    min_length : float (optional)
+        Minimum duration of a clip in seconds
+    max_length : float (optional)
+        Maximum duration of a clip in seconds
+    min_confidence : float (optional)
+        Minimum confidence score to generate a clip for
+
+    Returns
+    -------
+    (list, list)
+        List of clips and clip lengths in seconds
+    """
     logging.info("Loading subtitles...")
     subs = pysrt.open(subtitle_path)
     total = len(subs)
@@ -196,6 +273,7 @@ def clip_generator(
 ):
     """
     Generates dataset clips & label file.
+    Also combines clips, adds silence, produces metadata/info & does cleanup.
 
     Parameters
     ----------
@@ -203,8 +281,8 @@ def clip_generator(
         Path to audio file (must have been converted using convert_audio)
     script_path : str
         Path to source text
-    transcription_model : DeepSpeech
-        DeepSpeech transcription model
+    transcription_model : TranscriptionModel
+        Transcription model
     forced_alignment_path : str
         Path to save alignment JSON to
     output_path : str
@@ -340,8 +418,8 @@ def extend_dataset(
         Path to audio file (must have been converted using convert_audio)
     script_path : str
         Path to source text
-    transcription_model : DeepSpeech
-        DeepSpeech transcription model
+    transcription_model : TranscriptionModel
+        Transcription model
     forced_alignment_path : str
         Path to save alignment JSON to
     output_path : str

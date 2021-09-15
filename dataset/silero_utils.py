@@ -15,29 +15,27 @@ from typing import List
 from itertools import groupby
 
 
-class Decoder():
-    def __init__(self,
-                 labels: List[str]):
+class Decoder:
+    def __init__(self, labels: List[str]):
         self.labels = labels
-        self.blank_idx = self.labels.index('_')
-        self.space_idx = self.labels.index(' ')
+        self.blank_idx = self.labels.index("_")
+        self.space_idx = self.labels.index(" ")
 
-    def process(self,
-                probs, wav_len, word_align):
+    def process(self, probs, wav_len, word_align):
         assert len(self.labels) == probs.shape[1]
         for_string = []
         argm = torch.argmax(probs, axis=1)
         align_list = [[]]
         for j, i in enumerate(argm):
-            if i == self.labels.index('2'):
+            if i == self.labels.index("2"):
                 try:
                     prev = for_string[-1]
-                    for_string.append('$')
+                    for_string.append("$")
                     for_string.append(prev)
                     align_list[-1].append(j)
                     continue
                 except:
-                    for_string.append(' ')
+                    for_string.append(" ")
                     warnings.warn('Token "2" detected a the beginning of sentence, omitting')
                     align_list.append([])
                     continue
@@ -48,7 +46,7 @@ class Decoder():
                 else:
                     align_list[-1].append(j)
 
-        string = ''.join([x[0] for x in groupby(for_string)]).replace('$', '').strip()
+        string = "".join([x[0] for x in groupby(for_string)]).replace("$", "").strip()
 
         align_list = list(filter(lambda x: x, align_list))
 
@@ -64,25 +62,26 @@ class Decoder():
                     to_move = min(1.5, len(argm) - i)
                     align_word[-1] = align_word[-1] + to_move
                 else:
-                    to_move = min(1.5, (align_list[i+1][0] - align_word[-1]) / 2)
+                    to_move = min(1.5, (align_list[i + 1][0] - align_word[-1]) / 2)
                     align_word[-1] = align_word[-1] + to_move
 
             for word, timing in zip(string.split(), align_list):
-                align_dicts.append({'word': word,
-                                    'start_ts': round(timing[0] * linear_align_coeff, 2),
-                                    'end_ts': round(timing[-1] * linear_align_coeff, 2)})
+                align_dicts.append(
+                    {
+                        "word": word,
+                        "start_ts": round(timing[0] * linear_align_coeff, 2),
+                        "end_ts": round(timing[-1] * linear_align_coeff, 2),
+                    }
+                )
 
             return string, align_dicts
         return string
 
-    def __call__(self,
-                 probs: torch.Tensor,
-                 wav_len: float = 0,
-                 word_align: bool = False):
+    def __call__(self, probs: torch.Tensor, wav_len: float = 0, word_align: bool = False):
         return self.process(probs, wav_len, word_align)
 
 
-def init_jit_model(model_path: str, device: torch.device = torch.device('cpu')):
+def init_jit_model(model_path: str, device: torch.device = torch.device("cpu")):
     torch.set_grad_enabled(False)
     model = torch.jit.load(model_path, map_location=device)
     model.eval()
