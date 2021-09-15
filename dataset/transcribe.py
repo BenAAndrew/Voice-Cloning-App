@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 import argparse
 import os
-
+import sys
 import librosa
 import wave
 import numpy as np
@@ -10,6 +10,8 @@ import torch
 import torchaudio  # noqa
 import soundfile  # noqa
 import omegaconf  # noqa
+
+from dataset.silero_utils import init_jit_model
 
 
 class TranscriptionModel(ABC):
@@ -82,9 +84,13 @@ class Silero(TranscriptionModel):
 
     def __init__(self, language="en"):
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        self.model, self.decoder, _ = torch.hub.load(
-            repo_or_dir="snakers4/silero-models", model="silero_stt", language=language, device=self.device
-        )
+        model = os.path.join(getattr(sys, "_MEIPASS", ""), "en_v5.jit")
+        if os.path.isfile(model):
+            self.model, self.decoder = init_jit_model(model, self.device)
+        else:
+            self.model, self.decoder, _ = torch.hub.load(
+                repo_or_dir="snakers4/silero-models", model="silero_stt", language=language, device=self.device, source="github"
+            )
 
     def load_audio(self, path):
         try:

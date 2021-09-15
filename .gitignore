@@ -6,6 +6,7 @@ __pycache__/
 
 .coverage
 latest_silero_models.yml
+en_v5.jit
 test_samples/
 research/timelapse/
 data/

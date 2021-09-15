@@ -3,6 +3,7 @@ omit =
     application/*
     tests/*
     extra-hooks/*
+    dataset/silero_utils.py
     training/tacotron2_model/*
     synthesis/vocoders/hifigan_model.py
     synthesis/vocoders/vocoder.py
