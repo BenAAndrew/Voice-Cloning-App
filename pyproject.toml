@@ -9,7 +9,7 @@ exclude = [
     "main.py",
     "application",
     "tests",
-    "dataset/silero_utils.py"
+    "dataset/silero_utils.py",
     "dataset/transcribe.py",
     "dataset/forced_alignment/search.py",
     "training/tacotron2_model",
