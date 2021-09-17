@@ -18,7 +18,7 @@ matplotlib.use("Agg")
 
 from training.tacotron2_model import Tacotron2
 from training.clean_text import clean_text
-from training.train import DEFAULT_ALPHABET
+from training import DEFAULT_ALPHABET
 from synthesis.vocoders import Hifigan
 
 

@@ -14,6 +14,7 @@ import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
 
+from training import DEFAULT_ALPHABET
 from training.clean_text import clean_text
 from training.voice_dataset import VoiceDataset
 from training.checkpoint import load_checkpoint, save_checkpoint, warm_start_model
@@ -35,7 +36,6 @@ MINIMUM_MEMORY_GB = 4
 WEIGHT_DECAY = 1e-6
 GRAD_CLIP_THRESH = 1.0
 SEED = 1234
-DEFAULT_ALPHABET = "_-!'(),.:;? ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
 TEMP_GRAPH_PATH = os.path.join("data", "results", "training.png")
 
 
