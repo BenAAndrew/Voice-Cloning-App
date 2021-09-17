@@ -5,6 +5,8 @@ from PyInstaller.utils.hooks import get_package_paths
 
 
 if __name__ == "__main__":
+    assert os.path.isfile("ffmpeg\\bin\\ffmpeg.exe")
+    assert os.path.isfile("en_v5.jit")
     pytorch_libs = os.path.join(get_package_paths("torch")[1], "lib")
     PyInstaller.__main__.run(
         [
@@ -21,6 +23,8 @@ if __name__ == "__main__":
             "--hidden-import=sklearn.tree._utils",
             "--hidden-import=sklearn.tree",
             "--hidden-import=scipy.special.cython_special",
+            "--add-data=ffmpeg/bin/ffmpeg.exe;.",
+            "--add-data=en_v5.jit;.",
             "--add-data",
             pytorch_libs + ";.",
         ]

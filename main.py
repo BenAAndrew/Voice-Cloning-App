@@ -27,7 +27,7 @@ def cleanup_mei():
     """
     Rudimentary workaround for https://github.com/pyinstaller/pyinstaller/issues/2379
     """
-    mei_bundle = getattr(sys, "_MEIPASS", False)
+    mei_bundle = getattr(sys, "_MEIPASS", None)
 
     if mei_bundle:
         dir_mei, current_mei = mei_bundle.split("_MEI")

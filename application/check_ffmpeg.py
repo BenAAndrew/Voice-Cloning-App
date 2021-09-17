@@ -1,4 +1,5 @@
 import os
+import sys
 from sys import platform
 from subprocess import check_output
 import requests
@@ -6,7 +7,7 @@ from zipfile import ZipFile
 
 
 FFMPEG_COMMAND = "ffmpeg -version"
-FFMPEG_WINDOWS_INSTALL_PATH = os.path.abspath("ffmpeg\\bin")
+FFMPEG_PATHS = [os.path.abspath(os.path.join(getattr(sys, "_MEIPASS", ""))), os.path.abspath("ffmpeg\\bin")]
 FFMPEG_WINDOWS_URL = "https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip"
 FFMPEG_LINUX_INSTALL = "sudo apt-get install -y ffmpeg"
 
@@ -45,6 +46,23 @@ def install_ffmpeg_linux():
     check_output(FFMPEG_LINUX_INSTALL.split(" "))
 
 
+def try_ffmpeg_paths():
+    """
+    Try ffmpeg paths to find existing install
+
+    Returns
+    -------
+    str
+        Path to existing install (or None if not found)
+    """
+    for path in FFMPEG_PATHS:
+        if os.path.isdir(path):
+            os.environ["PATH"] += os.pathsep + path
+            if is_ffmpeg_installed():
+                return path
+    return None
+
+
 def check_ffmpeg():
     """Checks if FFmpeg is installed, and if not will install
 
@@ -55,8 +73,10 @@ def check_ffmpeg():
     """
     if not is_ffmpeg_installed():
         if platform == "win32":
-            os.environ["PATH"] += os.pathsep + FFMPEG_WINDOWS_INSTALL_PATH
-            if not is_ffmpeg_installed():
+            existing_install = try_ffmpeg_paths()
+            if existing_install:
+                print("USING FFMPEG INSTALL", existing_install)
+            else:
                 print("INSTALLING FFMPEG")
                 install_ffmpeg_windows()
                 print("VERIFYING FFMPEG INSTALL")

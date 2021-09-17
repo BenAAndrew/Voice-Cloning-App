@@ -119,6 +119,7 @@ def cut_audio(input_path, start, end, output_folder):
     """
 
     def _timestamp_to_filename(timestamp):
+        """Removes non-numeric characters from timestamp"""
         return re.sub("[^0-9]", "", timestamp)
 
     output_name = f"{_timestamp_to_filename(start)}_{_timestamp_to_filename(end)}.wav"
