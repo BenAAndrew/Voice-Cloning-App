@@ -1,5 +1,6 @@
 import os
 import random
+from synthesis.synthesize import load_model
 import time
 import argparse
 import logging
@@ -13,6 +14,7 @@ import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
 
+from training.clean_text import clean_text
 from training.voice_dataset import VoiceDataset
 from training.checkpoint import load_checkpoint, save_checkpoint, warm_start_model
 from training.validate import validate
@@ -27,12 +29,14 @@ from training.utils import (
 )
 from training.tacotron2_model import Tacotron2, TextMelCollate, Tacotron2Loss
 from training.tacotron2_model.utils import process_batch
+from synthesis.synthesize import text_to_sequence, generate_graph
 
 MINIMUM_MEMORY_GB = 4
 WEIGHT_DECAY = 1e-6
 GRAD_CLIP_THRESH = 1.0
 SEED = 1234
 DEFAULT_ALPHABET = "_-!'(),.:;? ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+TEMP_GRAPH_PATH = os.path.join("data", "results", "training.png")
 
 
 def train(
@@ -49,6 +53,7 @@ def train(
     iters_per_checkpoint=1000,
     iters_per_backup_checkpoint=10000,
     train_size=0.8,
+    alignment_sentence="",
     logging=logging,
 ):
     """
@@ -162,6 +167,9 @@ def train(
         logging.info(f"Using {torch.cuda.device_count()} GPUs")
         model = nn.DataParallel(model)
 
+    # Alignment sentence
+    alignment_sequence = text_to_sequence(clean_text(alignment_sentence.strip()), symbols) if alignment_sentence else None
+
     model.train()
     validation_losses = []
     for epoch in range(epoch_offset, epochs):
@@ -200,7 +208,7 @@ def train(
                         iteration, output_directory, val_loss, avgmax_attention
                     )
                 )
-                save_checkpoint(
+                checkpoint_path = save_checkpoint(
                     model,
                     optimizer,
                     learning_rate,
@@ -211,6 +219,14 @@ def train(
                     iters_per_checkpoint,
                     iters_per_backup_checkpoint,
                 )
+                if alignment_sequence:
+                    try:
+                        _, _, _, alignment = load_model(checkpoint_path).inference(alignment_sequence)
+                        generate_graph(alignment, TEMP_GRAPH_PATH)
+                        graph = TEMP_GRAPH_PATH.replace('\\', '/')
+                        logging.info(f"Sample - {iteration}, {graph}")
+                    except Exception:
+                        logging.info("Failed to generate alignment sample, you may need to train for longer before this is possible")
 
             iteration += 1
 

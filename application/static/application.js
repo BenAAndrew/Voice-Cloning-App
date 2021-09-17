@@ -27,6 +27,11 @@ $(document).ready(function(){
         $('#pinned').text(msg.text);
     });
 
+    socket.on('alignment', function(msg) {
+        $('#alignment-heading').text("Latest sample - iteration " + msg.iteration)
+        $('#alignment-img').attr("src", msg.image);
+    });
+
     socket.on('logs', function(msg) {
         console.log(msg);
         $('#logs').append(msg.text+"<br>");
