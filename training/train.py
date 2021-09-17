@@ -219,12 +219,12 @@ def train(
                     iters_per_checkpoint,
                     iters_per_backup_checkpoint,
                 )
-                if alignment_sequence:
+                if alignment_sequence is not None:
                     try:
                         _, _, _, alignment = load_model(checkpoint_path).inference(alignment_sequence)
                         generate_graph(alignment, TEMP_GRAPH_PATH)
                         graph = TEMP_GRAPH_PATH.replace('\\', '/')
-                        logging.info(f"Sample - {iteration}, {graph}")
+                        logging.info(f"Alignment - {iteration}, {graph}")
                     except Exception:
                         logging.info("Failed to generate alignment sample, you may need to train for longer before this is possible")
 

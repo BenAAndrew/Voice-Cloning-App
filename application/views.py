@@ -211,6 +211,7 @@ def train_post():
     iters_per_checkpoint = request.form["checkpoint_frequency"]
     iters_per_backup_checkpoint = request.form["backup_checkpoint_frequency"]
     train_size = 1 - float(request.form["validation_size"])
+    alignment_sentence = request.form["alignment_sentence"]
     multi_gpu = request.form.get("multi_gpu") is not None
     checkpoint_path = (
         os.path.join(paths["models"], dataset_name, request.form["checkpoint"])
@@ -245,6 +246,7 @@ def train_post():
         iters_per_checkpoint=int(iters_per_checkpoint),
         iters_per_backup_checkpoint=int(iters_per_backup_checkpoint),
         train_size=train_size,
+        alignment_sentence=alignment_sentence
     )
 
     return render_template("progress.html", next_url=get_next_url(URLS, request.path))
