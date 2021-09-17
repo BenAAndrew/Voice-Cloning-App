@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 import random
 from synthesis.synthesize import load_model
 import time
@@ -36,7 +37,7 @@ MINIMUM_MEMORY_GB = 4
 WEIGHT_DECAY = 1e-6
 GRAD_CLIP_THRESH = 1.0
 SEED = 1234
-TEMP_GRAPH_PATH = os.path.join("data", "results", "training.png")
+TRAINING_PATH = os.path.join("data", "training")
 
 
 def train(
@@ -168,7 +169,12 @@ def train(
         model = nn.DataParallel(model)
 
     # Alignment sentence
-    alignment_sequence = text_to_sequence(clean_text(alignment_sentence.strip()), symbols) if alignment_sentence else None
+    alignment_sequence = None
+    alignment_folder = None
+    if alignment_sentence:
+        alignment_sequence = text_to_sequence(clean_text(alignment_sentence.strip()), symbols)
+        alignment_folder = os.path.join(TRAINING_PATH, Path(output_directory).stem)
+        os.makedirs(alignment_folder, exist_ok=True)
 
     model.train()
     validation_losses = []
@@ -222,8 +228,9 @@ def train(
                 if alignment_sequence is not None:
                     try:
                         _, _, _, alignment = load_model(checkpoint_path).inference(alignment_sequence)
-                        generate_graph(alignment, TEMP_GRAPH_PATH)
-                        graph = TEMP_GRAPH_PATH.replace('\\', '/')
+                        graph_path = os.path.join(alignment_folder, "checkpoint_{}.png".format(iteration))
+                        generate_graph(alignment, graph_path)
+                        graph = graph_path.replace('\\', '/')
                         logging.info(f"Alignment - {iteration}, {graph}")
                     except Exception:
                         logging.info("Failed to generate alignment sample, you may need to train for longer before this is possible")

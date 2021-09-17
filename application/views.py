@@ -281,12 +281,12 @@ def synthesis_setup_post():
     return redirect("/synthesis")
 
 
-@app.route("/data/results/<path:path>")
-def get_result_file(path):
+@app.route("/data/<path:path>")
+def get_file(path):
     filename = path.split("/")[-1]
     mimetype = "image/png" if filename.endswith("png") else "audio/wav"
 
-    with open(os.path.join(paths["results"], path), "rb") as f:
+    with open(os.path.join("data", path.replace("/", os.sep)), "rb") as f:
         return send_file(io.BytesIO(f.read()), attachment_filename=filename, mimetype=mimetype, as_attachment=True)
 
 

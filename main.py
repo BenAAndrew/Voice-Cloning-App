@@ -17,6 +17,7 @@ def load_paths():
         "hifigan": os.path.join("data", "hifigan"),
         "results": os.path.join("data", "results"),
         "languages": os.path.join("data", "languages"),
+        "training": os.path.join("data", "training")
     }
     for path in paths.values():
         os.makedirs(path, exist_ok=True)
