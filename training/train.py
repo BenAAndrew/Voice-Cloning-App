@@ -89,7 +89,7 @@ def train(
     train_size : float (optional)
         Percentage of samples to use for training (default is 80%/0.8)
     alignment_sentence : str (optional)
-        Percentage of samples to use for training (default is 80%/0.8)
+        Sentence for alignment graph to analyse performance
     logging : logging (optional)
         Logging object to write logs to
 
