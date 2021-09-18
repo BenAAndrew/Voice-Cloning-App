@@ -1,14 +1,15 @@
 import os
-import inflect
 import io
 import zipfile
 import traceback
 import torch
 from datetime import datetime
+from pathlib import Path
 
 from main import app, paths
 from application.utils import (
     start_progress_thread,
+    serve_file,
     get_next_url,
     get_suffix,
     delete_folder,
@@ -19,8 +20,9 @@ from dataset.clip_generator import CHARACTER_ENCODING, add_suffix
 from dataset.extend_existing_dataset import extend_existing_dataset
 from dataset.analysis import get_total_audio_duration, validate_dataset
 from dataset.transcribe import create_transcription_model
-from training.train import train, DEFAULT_ALPHABET
-from training.utils import get_available_memory, get_batch_size, load_symbols
+from training import DEFAULT_ALPHABET
+from training.train import train, TRAINING_PATH
+from training.utils import get_available_memory, get_batch_size, load_symbols, generate_timelapse_gif
 from synthesis.synthesize import load_model, synthesize
 from synthesis.vocoders import Hifigan
 
@@ -210,6 +212,7 @@ def train_post():
     iters_per_checkpoint = request.form["checkpoint_frequency"]
     iters_per_backup_checkpoint = request.form["backup_checkpoint_frequency"]
     train_size = 1 - float(request.form["validation_size"])
+    alignment_sentence = request.form["alignment_sentence"]
     multi_gpu = request.form.get("multi_gpu") is not None
     checkpoint_path = (
         os.path.join(paths["models"], dataset_name, request.form["checkpoint"])
@@ -244,9 +247,21 @@ def train_post():
         iters_per_checkpoint=int(iters_per_checkpoint),
         iters_per_backup_checkpoint=int(iters_per_backup_checkpoint),
         train_size=train_size,
+        alignment_sentence=alignment_sentence,
     )
 
-    return render_template("progress.html", next_url=get_next_url(URLS, request.path))
+    return render_template(
+        "progress.html", next_url=get_next_url(URLS, request.path), voice=Path(checkpoint_folder).stem
+    )
+
+
+@app.route("/alignment-timelapse", methods=["GET"])
+def download_alignment_timelapse():
+    name = request.args.get("name")
+    folder = os.path.join(TRAINING_PATH, name)
+    output = os.path.join(TRAINING_PATH, f"{name}-training.gif")
+    generate_timelapse_gif(folder, output)
+    return serve_file(output, f"{name}-training.gif", "image/png", as_attachment=False)
 
 
 # Synthesis
@@ -278,13 +293,11 @@ def synthesis_setup_post():
     return redirect("/synthesis")
 
 
-@app.route("/data/results/<path:path>")
-def get_result_file(path):
+@app.route("/data/<path:path>")
+def get_file(path):
     filename = path.split("/")[-1]
     mimetype = "image/png" if filename.endswith("png") else "audio/wav"
-
-    with open(os.path.join(paths["results"], path), "rb") as f:
-        return send_file(io.BytesIO(f.read()), attachment_filename=filename, mimetype=mimetype, as_attachment=True)
+    return serve_file(os.path.join("data", path.replace("/", os.sep)), filename, mimetype)
 
 
 @app.route("/synthesis", methods=["GET", "POST"])

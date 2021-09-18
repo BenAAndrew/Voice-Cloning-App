@@ -126,3 +126,10 @@ progress {
     overflow: hidden;
     transition: max-height 0.2s ease-out;
 }
+
+.center {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 50%;
+}

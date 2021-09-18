@@ -1,10 +1,12 @@
 import logging
 import os
+import io
 from datetime import datetime
 import traceback
 import shutil
 import zipfile
 import librosa
+from flask import send_file
 import resampy  # noqa
 
 from main import socketio
@@ -27,6 +29,10 @@ class SocketIOHandler(logging.Handler):
             socketio.emit("progress", {"number": current, "total": total}, namespace="/voice")
         elif text.startswith("Status"):
             socketio.emit("status", {"text": text.replace("Status -", "")}, namespace="/voice")
+        elif text.startswith("Alignment"):
+            text = text.split("- ")[1]
+            iteration, image = text.split(", ")
+            socketio.emit("alignment", {"iteration": iteration, "image": image}, namespace="/voice")
         else:
             socketio.emit("logs", {"text": text}, namespace="/voice")
 
@@ -76,6 +82,27 @@ def start_progress_thread(func, **kwargs):
     global thread
     print("Starting Thread")
     thread = socketio.start_background_task(background_task, func=func, **kwargs)
+
+
+def serve_file(path, filename, mimetype, as_attachment=True):
+    """
+    Serves a file as a response
+
+    Parameters
+    ----------
+    path : str
+        Path to file
+    filename : str
+        Filename of generated attachment
+    mimetype : str
+        Mimetype of file
+    as_attachment : bool (optional)
+        Whether to respond as an attachment for download (default is True) 
+    """
+    with open(path, "rb") as f:
+        return send_file(
+            io.BytesIO(f.read()), attachment_filename=filename, mimetype=mimetype, as_attachment=as_attachment
+        )
 
 
 def get_next_url(urls, path):

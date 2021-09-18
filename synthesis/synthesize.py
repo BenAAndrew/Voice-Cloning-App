@@ -18,7 +18,7 @@ matplotlib.use("Agg")
 
 from training.tacotron2_model import Tacotron2
 from training.clean_text import clean_text
-from training.train import DEFAULT_ALPHABET
+from training import DEFAULT_ALPHABET
 from synthesis.vocoders import Hifigan
 
 
@@ -47,7 +47,7 @@ def load_model(model_path):
     return model
 
 
-def generate_graph(alignments, filepath):
+def generate_graph(alignments, filepath, heading=""):
     """
     Generates synthesis alignment graph image.
 
@@ -57,9 +57,13 @@ def generate_graph(alignments, filepath):
         Numpy alignment data
     filepath : str
         Path to save image to
+    heading : str (optional)
+        Graph heading
     """
     data = alignments.float().data.cpu().numpy()[0].T
     plt.imshow(data, aspect="auto", origin="lower", interpolation="none")
+    if heading:
+        plt.title(heading)
     plt.savefig(filepath)
 
 
