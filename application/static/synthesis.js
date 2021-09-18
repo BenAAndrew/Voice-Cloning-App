@@ -16,6 +16,28 @@ function addTextInput(value){
     section.appendChild(createTextInput(value));
 }
 
+// Text reccomendation
+// Based on the assumption WPM is 150 (one word every 0.4s)
+// and that good quality is 2-8 seconds (very rough guess)
+LOW_TEXT_THRESHOLD = 5;
+OK_TEXT_THRESHOLD = 20;
+
+function labelTextRecommendation(){
+    var text = document.getElementById("text").value;
+    var words = text.trim().split(" ").length;
+    var advice = "";
+
+    if(words < LOW_TEXT_THRESHOLD){
+        advice = "Text may be too short 🙁";
+    } else if(words < OK_TEXT_THRESHOLD){
+        advice = "Text is a good length 🙂";
+    } else{
+        advice = "Text may be too long 🙁";
+    }
+
+    document.getElementById("text_label").innerHTML = advice;
+}
+
 function changeTextMethod(){
     method = document.getElementById("text_method").value;
     section = document.getElementById("text_input");
@@ -24,6 +46,7 @@ function changeTextMethod(){
     if(method == "single" || method == "multi"){
         var element = createTextInput();
         if(method == "single"){
+            element.onkeyup = function() { labelTextRecommendation(); };
             section.appendChild(element);
         } else {
             var container = document.createElement("span");
@@ -44,6 +67,7 @@ function changeTextMethod(){
         element.name = "text";
         element.rows = "4";
         element.required = true;
+        element.onkeyup = function() { labelTextRecommendation(); };
         section.appendChild(element);
     }
 
