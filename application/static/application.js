@@ -30,6 +30,7 @@ $(document).ready(function(){
     socket.on('alignment', function(msg) {
         $('#alignment-heading').text("Latest sample - Iteration " + msg.iteration)
         $('#alignment-img').attr("src", msg.image);
+        $('#alignment').show();
     });
 
     socket.on('logs', function(msg) {
