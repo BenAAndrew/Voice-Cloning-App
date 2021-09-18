@@ -247,10 +247,12 @@ def train_post():
         iters_per_checkpoint=int(iters_per_checkpoint),
         iters_per_backup_checkpoint=int(iters_per_backup_checkpoint),
         train_size=train_size,
-        alignment_sentence=alignment_sentence
+        alignment_sentence=alignment_sentence,
     )
 
-    return render_template("progress.html", next_url=get_next_url(URLS, request.path), voice=Path(checkpoint_folder).stem)
+    return render_template(
+        "progress.html", next_url=get_next_url(URLS, request.path), voice=Path(checkpoint_folder).stem
+    )
 
 
 @app.route("/alignment-timelapse", methods=["GET"])

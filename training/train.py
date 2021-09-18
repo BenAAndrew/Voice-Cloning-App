@@ -88,6 +88,8 @@ def train(
         How often backup checkpoints are saved (number of iterations)
     train_size : float (optional)
         Percentage of samples to use for training (default is 80%/0.8)
+    alignment_sentence : str (optional)
+        Percentage of samples to use for training (default is 80%/0.8)
     logging : logging (optional)
         Logging object to write logs to
 
@@ -230,10 +232,12 @@ def train(
                         _, _, _, alignment = load_model(checkpoint_path).inference(alignment_sequence)
                         graph_path = os.path.join(alignment_folder, "checkpoint_{}.png".format(iteration))
                         generate_graph(alignment, graph_path, heading=f"Iteration {iteration}")
-                        graph = graph_path.replace('\\', '/')
+                        graph = graph_path.replace("\\", "/")
                         logging.info(f"Alignment - {iteration}, {graph}")
                     except Exception:
-                        logging.info("Failed to generate alignment sample, you may need to train for longer before this is possible")
+                        logging.info(
+                            "Failed to generate alignment sample, you may need to train for longer before this is possible"
+                        )
 
             iteration += 1
 

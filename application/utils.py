@@ -86,7 +86,9 @@ def start_progress_thread(func, **kwargs):
 
 def serve_file(path, filename, mimetype, as_attachment=True):
     with open(path, "rb") as f:
-        return send_file(io.BytesIO(f.read()), attachment_filename=filename, mimetype=mimetype, as_attachment=as_attachment)
+        return send_file(
+            io.BytesIO(f.read()), attachment_filename=filename, mimetype=mimetype, as_attachment=as_attachment
+        )
 
 
 def get_next_url(urls, path):

@@ -17,7 +17,7 @@ def load_paths():
         "hifigan": os.path.join("data", "hifigan"),
         "results": os.path.join("data", "results"),
         "languages": os.path.join("data", "languages"),
-        "training": os.path.join("data", "training")
+        "training": os.path.join("data", "training"),
     }
     for path in paths.values():
         os.makedirs(path, exist_ok=True)
@@ -43,7 +43,7 @@ def cleanup_mei():
 paths = load_paths()
 static = os.path.join("application", "static")
 app = Flask(__name__, template_folder=static, static_folder=static)
-app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
+app.config["SEND_FILE_MAX_AGE_DEFAULT"] = 0
 socketio = SocketIO(app, async_mode="threading", logger=True, engineio_logger=True, debug=True)
 from application.views import *  # noqa
 
