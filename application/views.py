@@ -258,7 +258,7 @@ def download_alignment_timelapse():
     folder = os.path.join(TRAINING_PATH, name)
     output = os.path.join(TRAINING_PATH, f"{name}-training.gif")
     generate_timelapse_gif(folder, output)
-    return serve_file(output, f"{name}-training.gif", "image/png")
+    return serve_file(output, f"{name}-training.gif", "image/png", as_attachment=False)
 
 
 # Synthesis

@@ -47,7 +47,7 @@ def load_model(model_path):
     return model
 
 
-def generate_graph(alignments, filepath):
+def generate_graph(alignments, filepath, heading=""):
     """
     Generates synthesis alignment graph image.
 
@@ -60,6 +60,8 @@ def generate_graph(alignments, filepath):
     """
     data = alignments.float().data.cpu().numpy()[0].T
     plt.imshow(data, aspect="auto", origin="lower", interpolation="none")
+    if heading:
+        plt.title(heading)
     plt.savefig(filepath)
 
 

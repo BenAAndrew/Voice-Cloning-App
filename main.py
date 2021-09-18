@@ -43,6 +43,7 @@ def cleanup_mei():
 paths = load_paths()
 static = os.path.join("application", "static")
 app = Flask(__name__, template_folder=static, static_folder=static)
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 socketio = SocketIO(app, async_mode="threading", logger=True, engineio_logger=True, debug=True)
 from application.views import *  # noqa
 

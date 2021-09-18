@@ -182,4 +182,4 @@ def calc_avgmax_attention(mel_lengths, text_lengths, alignment):
 def generate_timelapse_gif(folder, output_path):
     images = os.listdir(folder)
     frames = [Image.open(os.path.join(folder, image)) for image in images]
-    frames[0].save(output_path, format='GIF', append_images=frames[1:], save_all=True, duration=300, loop=0)
+    frames[0].save(output_path, format='GIF', append_images=frames[1:], save_all=True, duration=600, loop=0)
