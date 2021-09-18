@@ -4,6 +4,7 @@ import zipfile
 import traceback
 import torch
 from datetime import datetime
+from pathlib import Path
 
 from main import app, paths
 from application.utils import (
@@ -249,7 +250,7 @@ def train_post():
         alignment_sentence=alignment_sentence
     )
 
-    return render_template("progress.html", next_url=get_next_url(URLS, request.path))
+    return render_template("progress.html", next_url=get_next_url(URLS, request.path), voice=Path(checkpoint_folder).stem)
 
 
 @app.route("/alignment-timelapse", methods=["GET"])
