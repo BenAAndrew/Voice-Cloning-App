@@ -1,6 +1,7 @@
 import torch
 import random
-
+import os
+from PIL import Image
 
 from dataset.clip_generator import CHARACTER_ENCODING
 from training import BASE_SYMBOLS
@@ -176,3 +177,9 @@ def calc_avgmax_attention(mel_lengths, text_lengths, alignment):
     # [B, mel_T, txt_T]
     avg_prob = alignment.data.amax(dim=2).sum(1).div(mel_lengths.to(alignment)).mean().item()
     return avg_prob
+
+
+def generate_timelapse_gif(folder, output_path):
+    images = os.listdir(folder)
+    frames = [Image.open(os.path.join(folder, image)) for image in images]
+    frames[0].save(output_path, format='GIF', append_images=frames[1:], save_all=True, duration=300, loop=0)

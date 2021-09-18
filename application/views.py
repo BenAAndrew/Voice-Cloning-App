@@ -1,5 +1,4 @@
 import os
-import inflect
 import io
 import zipfile
 import traceback
@@ -9,6 +8,7 @@ from datetime import datetime
 from main import app, paths
 from application.utils import (
     start_progress_thread,
+    serve_file,
     get_next_url,
     get_suffix,
     delete_folder,
@@ -20,8 +20,8 @@ from dataset.extend_existing_dataset import extend_existing_dataset
 from dataset.analysis import get_total_audio_duration, validate_dataset
 from dataset.transcribe import create_transcription_model
 from training import DEFAULT_ALPHABET
-from training.train import train
-from training.utils import get_available_memory, get_batch_size, load_symbols
+from training.train import train, TRAINING_PATH
+from training.utils import get_available_memory, get_batch_size, load_symbols, generate_timelapse_gif
 from synthesis.synthesize import load_model, synthesize
 from synthesis.vocoders import Hifigan
 
@@ -252,6 +252,15 @@ def train_post():
     return render_template("progress.html", next_url=get_next_url(URLS, request.path))
 
 
+@app.route("/alignment-timelapse", methods=["GET"])
+def download_alignment_timelapse():
+    name = request.args.get("name")
+    folder = os.path.join(TRAINING_PATH, name)
+    output = os.path.join(TRAINING_PATH, f"{name}-training.gif")
+    generate_timelapse_gif(folder, output)
+    return serve_file(output, f"{name}-training.gif", "image/png")
+
+
 # Synthesis
 @app.route("/synthesis-setup", methods=["GET"])
 def get_synthesis_setup():
@@ -285,9 +294,7 @@ def synthesis_setup_post():
 def get_file(path):
     filename = path.split("/")[-1]
     mimetype = "image/png" if filename.endswith("png") else "audio/wav"
-
-    with open(os.path.join("data", path.replace("/", os.sep)), "rb") as f:
-        return send_file(io.BytesIO(f.read()), attachment_filename=filename, mimetype=mimetype, as_attachment=True)
+    return serve_file(os.path.join("data", path.replace("/", os.sep)), filename, mimetype)
 
 
 @app.route("/synthesis", methods=["GET", "POST"])

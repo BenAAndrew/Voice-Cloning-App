@@ -1,10 +1,12 @@
 import logging
 import os
+import io
 from datetime import datetime
 import traceback
 import shutil
 import zipfile
 import librosa
+from flask import send_file
 import resampy  # noqa
 
 from main import socketio
@@ -80,6 +82,11 @@ def start_progress_thread(func, **kwargs):
     global thread
     print("Starting Thread")
     thread = socketio.start_background_task(background_task, func=func, **kwargs)
+
+
+def serve_file(path, filename, mimetype):
+    with open(path, "rb") as f:
+        return send_file(io.BytesIO(f.read()), attachment_filename=filename, mimetype=mimetype, as_attachment=True)
 
 
 def get_next_url(urls, path):

@@ -28,7 +28,7 @@ $(document).ready(function(){
     });
 
     socket.on('alignment', function(msg) {
-        $('#alignment-heading').text("Latest sample - iteration " + msg.iteration)
+        $('#alignment-heading').text("Latest sample - Iteration " + msg.iteration)
         $('#alignment-img').attr("src", msg.image);
     });
 
