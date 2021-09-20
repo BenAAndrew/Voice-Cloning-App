@@ -86,8 +86,10 @@ function showCheckpoints(dataset){
             select.appendChild(option);
         }
         document.getElementById("checkpoint_field").style.display = "block";
+        document.getElementById("pretrained_model_field").style.display = "none";
     } else {
         document.getElementById("checkpoint_field").style.display = "none";
+        document.getElementById("pretrained_model_field").style.display = "block";
     }
 }
 

@@ -25,9 +25,13 @@
                 <span id="dataset_label"></span>
             </div>
         </div>
-        <div class="form-group" id="checkpoint_field">
+        <div class="form-group" id="checkpoint_field" style="display: none;">
             <label for="checkpoint">Checkpoint</label>
             <select class="form-control" id="checkpoint" name="checkpoint"></select>
+        </div>
+        <div class="form-group" id="pretrained_model_field">
+            <label for="pretrained_model"><a href="#" data-toggle="tooltip" data-placement="top" title="Using a pretrained model may reduce the number of required epochs and improve quality">Pretrained model</a> (recommended) <a href="https://drive.google.com/file/d/1c5ZTuT7J08wLUoVZ2KkUs_VdZuJ86ZqA/view">default</a></label>
+            <input type="file" id="pretrained_model" name="pretrained_model" required> 
         </div>
         <div class="form-group">
             <label for="language">Language <a href="/settings">Add more</a></label>
@@ -36,10 +40,6 @@
                     <option value="{{language}}">{{language}}</option>
                 {% endfor %}
             </select>
-        </div>
-        <div class="form-group">
-            <label for="pretrained_model"><a href="#" data-toggle="tooltip" data-placement="top" title="Using a pretrained model may reduce the number of required epochs and improve quality">Pretrained model</a> (recommended) <a href="https://drive.google.com/file/d/1c5ZTuT7J08wLUoVZ2KkUs_VdZuJ86ZqA/view">default</a></label>
-            <input type="file" id="pretrained_model" name="pretrained_model"> 
         </div>
         <div class="form-group">
             <input type="range" id="epochs" name="epochs" step="500" min="500" max="10000" value="3000" onchange="showEpochsLabel()">
