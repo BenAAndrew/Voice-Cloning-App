@@ -218,11 +218,9 @@ def train_post():
     metadata_path = os.path.join(paths["datasets"], dataset_name, METADATA_FILE)
     audio_folder = os.path.join(paths["datasets"], dataset_name, AUDIO_FOLDER)
     checkpoint_folder = os.path.join(paths["models"], dataset_name)
-    pretrained_folder = os.path.join(paths["pretrained"], dataset_name)
 
     if request.files.get("pretrained_model"):
-        os.makedirs(pretrained_folder, exist_ok=True)
-        transfer_learning_path = os.path.join(pretrained_folder, "pretrained.pt")
+        transfer_learning_path = os.path.join("data", "pretrained.pt")
         request.files["pretrained_model"].save(transfer_learning_path)
     else:
         transfer_learning_path = None

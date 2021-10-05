@@ -13,7 +13,6 @@ def load_paths():
     paths = {
         "datasets": os.path.join("data", "datasets"),
         "models": os.path.join("data", "models"),
-        "pretrained": os.path.join("data", "pretrained"),
         "hifigan": os.path.join("data", "hifigan"),
         "results": os.path.join("data", "results"),
         "languages": os.path.join("data", "languages"),
