@@ -11,6 +11,7 @@ test_samples/
 research/timelapse/
 data/
 ffmpeg/
+site/
 
 build/
 dist/
