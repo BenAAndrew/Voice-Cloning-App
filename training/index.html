@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  
+  
+  <link rel="shortcut icon" href="../img/favicon.ico">
+  <title>Training - Voice Cloning App</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700" />
+
+  <link rel="stylesheet" href="../css/theme.css" />
+  <link rel="stylesheet" href="../css/theme_extra.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css" />
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "Training";
+    var mkdocs_page_input_path = "training.md";
+    var mkdocs_page_url = null;
+  </script>
+  
+  <script src="../js/jquery-2.1.1.min.js" defer></script>
+  <script src="../js/modernizr-2.8.3.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+        <a href=".." class="icon icon-home"> Voice Cloning App</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+                <ul>
+                    <li class="toctree-l1"><a class="reference internal" href="..">Setup</a>
+                    </li>
+                </ul>
+                <ul>
+                    <li class="toctree-l1"><a class="reference internal" href="../dataset/">Dataset</a>
+                    </li>
+                </ul>
+                <ul class="current">
+                    <li class="toctree-l1 current"><a class="reference internal current" href="./">Training</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#local-training">Local training</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#select-your-dataset">Select your dataset</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#parameters">Parameters</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#cuda-out-of-memory-error">"CUDA Out of Memory error"</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#during-training">During training</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#continuing-training">Continuing training</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#remote-training">Remote training</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#exporting-the-dataset">Exporting the dataset</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#parameters_1">Parameters</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#checkpoints">Checkpoints</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#verifying-quality">Verifying quality</a>
+    </li>
+    </ul>
+                    </li>
+                </ul>
+                <ul>
+                    <li class="toctree-l1"><a class="reference internal" href="../synthesis/">Synthesis</a>
+                    </li>
+                </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="..">Voice Cloning App</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="..">Docs</a> &raquo;</li>
+    
+      
+    
+    <li>Training</li>
+    <li class="wy-breadcrumbs-aside">
+      
+    </li>
+  </ul>
+  
+  <hr/>
+</div>
+
+          <div role="main">
+            <div class="section">
+              
+                <h1 id="training">Training</h1>
+<p>Training can be done locally (if you have an NVIDIA GPU with more than 4GB of memory) or remotely (on <a href="https://colab.research.google.com/">Google colab</a>)</p>
+<h2 id="local-training">Local training</h2>
+<p>Before starting training you'll need to set various parameters</p>
+<h3 id="select-your-dataset">Select your dataset</h3>
+<p>You can select your dataset from the dropdown on the training form. </p>
+<p><img alt="Training" src="../images/train.PNG" title="Training" /></p>
+<p>When you select a dataset, a message will appear underneath the dropdown which tells you it's total size. This is important, because a dataset that is too small is unlikely to work.</p>
+<p><img alt="Dataset info" src="../images/dataset-info.PNG" title="Dataset info" /></p>
+<p>If your dataset is invalid or has been corrupted an error will show instead. In this case you will need to recreate or fix the dataset.</p>
+<p><img alt="Invalid dataset" src="../images/invalid-dataset.PNG" title="Invalid dataset" /></p>
+<h3 id="parameters">Parameters</h3>
+<p>In addition to selecting the dataset you'll need to set 3 required parameters:</p>
+<ul>
+<li>Pretrained model: This is a file that helps the model to generate high quality results. The recommended option is the use the default provded by NVIDIA. This can be downloaded from the "default" link</li>
+<li>Language: The language used in the dataset</li>
+<li>Epochs: This is the number of cycles over the dataset. Increasing this will increase quality (to a point) but also increases training time<ul>
+<li>Smaller datasets need less epochs to reach max quality than bigger ones</li>
+<li>The reccommended approach is to start with a small amount (say 500) and then revisit training to continue until you are happy with the results</li>
+<li>Once you reach the maximum quality of your voice, continuing to train will not improve results and may make this worse</li>
+</ul>
+</li>
+</ul>
+<p><img alt="Training" src="../images/training.PNG" title="Training" /></p>
+<h3 id="cuda-out-of-memory-error">"CUDA Out of Memory error"</h3>
+<p>A common error during training is "CUDA of of memory".
+What this means is that your GPU ran out of memory whilst training.</p>
+<p>To resolve this you need to decrease the batch size which can be found under Advanced Options. Do this a little at a time and retry until training works successfully.</p>
+<p><img alt="Training Advanced" src="../images/training-advanced.PNG" title="Training Advanced" /></p>
+<h3 id="during-training">During training</h3>
+<p>During training you'll see the standard progress bar which indicates the training progress. </p>
+<p>Under the progress bar you'll also see a message which includes some important stats:</p>
+<ul>
+<li>Train loss: The loss score indicates how well the model is learning the training data. A low score is best but remember this can be misleading as a low score is also possible for <a href="https://www.ibm.com/cloud/learn/overfitting">overfitting</a></li>
+<li>Attention score: A score which roughly represents how well text is linking to audio. Higher the better</li>
+</ul>
+<p><strong>Remember: If you want to stop and continue later this is not a problem as checkpoints are saved frequently.</strong></p>
+<p><img alt="Training Progress" src="../images/training-progress.PNG" title="Training Progress" /></p>
+<p>Additionally, if you set the "Alignment text" in Advanced Options to a test sentence you'll see an alignment graph each time a checkpoint is saved. This shows how well the text/aduio is aligning, with close to diagonal line being ideal</p>
+<p><img alt="Training Sample" src="../images/training-sample.PNG" title="Training Sample" /></p>
+<h3 id="continuing-training">Continuing training</h3>
+<p>Training can be stopped at any time and resumed later.</p>
+<p>When you revisit training you'll see a dropdown to select the checkpoint to resume training from. You should select the latest checkpoint when doing so.</p>
+<p>This will restore your training to the point it was at when the checkpoint was created. The frequency that checkpoints are saved can be set in the "advanced options" of training.</p>
+<p><img alt="Checkpoint" src="../images/checkpoint.PNG" title="Checkpoint" /></p>
+<h2 id="remote-training">Remote training</h2>
+<p>Remote training works the same as local training but executes in Google colab to use a remote GPU.</p>
+<h3 id="exporting-the-dataset">Exporting the dataset</h3>
+<p>You'll firstly need to export your dataset from the app to upload to the notebook. You can do so by selecting your dataset from the dropdown and clicking "Export".</p>
+<p>You can then click "Open notebook" to launch the notebook.</p>
+<p><img alt="Remote training" src="../images/remote-training.PNG" title="Remote training" /></p>
+<p>To add your dataset, you'll need to unzip and upload the folder to your google drive under the path <code>Voice-Cloning/datasets</code>.
+If you have already run the notebook as far as the step where you conenct to the google drive, you'll notice this folder already exists.</p>
+<p>You can then select the dataset by entering its name into the 3rd cell.</p>
+<p><img alt="Remote training dataset" src="../images/remote-training-dataset.PNG" title="Remote training dataset" /></p>
+<h3 id="parameters_1">Parameters</h3>
+<p>Parameters can be set by changing the values in the 4th cell. Note that you'll need to set these before you run the cell or they won't work.</p>
+<p>Unlike local training, you will not need to upload a pretrained model as this is done for you automatically.</p>
+<p><img alt="Remote training parameters" src="../images/remote-training-parameters.PNG" title="Remote training parameters" /></p>
+<h3 id="checkpoints">Checkpoints</h3>
+<p>Checkpoints are created just like in local training and are saved to <code>Voice-Cloning/checkpoints</code> in your google drive.</p>
+<p>When you want to try the checkpoint out, simply download it and import it into the app under "Import/Export" -&gt; "Upload model"</p>
+<p><img alt="Model import" src="../images/model-import.PNG" title="Model import" /></p>
+<h2 id="verifying-quality">Verifying quality</h2>
+<p>To identify whether you have produced a good voice model you can stop training at any time and test your model in <a href="/synthesis">synthesis</a></p>
+<p>However, you can also tell whether your model quality will be good by looking at a variety of other factors:</p>
+<ul>
+<li>Train loss: Did your train loss decrease to a consistent value (typically &lt; 0.5)?</li>
+<li>Attention score: Did your attention score increase to a consistent value (typically &gt; 0.3)?</li>
+<li>Alignment graph: If you enabled the alignment graph (by using an "Alignment sentence" in advanced settings) did this form a relatively clear line?</li>
+</ul>
+<p>If any of these things are not true, then your model may not be good quality. There are a number of possible reasons for this:</p>
+<ul>
+<li>Your dataset was not good enough quality (see <a href="/dataset/#verify-your-source">Verify your source</a> for possible reasons why)</li>
+<li>You did not train for long enough<ul>
+<li>Did you upload a transfer learning model?</li>
+<li>Did you train for 500+ epochs?</li>
+</ul>
+</li>
+</ul>
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../synthesis/" class="btn btn-neutral float-right" title="Synthesis">Next <span class="icon icon-circle-arrow-right"></span></a>
+      
+      
+        <a href="../dataset/" class="btn btn-neutral" title="Dataset"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+      
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../dataset/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../synthesis/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script>var base_url = '..';</script>
+    <script src="../js/theme_extra.js" defer></script>
+    <script src="../js/theme.js" defer></script>
+      <script src="../search/main.js" defer></script>
+    <script defer>
+        window.onload = function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        };
+    </script>
+
+</body>
+</html>

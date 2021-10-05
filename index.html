@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="None">
+  
+  
+  <link rel="shortcut icon" href="img/favicon.ico">
+  <title>Voice Cloning App</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700" />
+
+  <link rel="stylesheet" href="css/theme.css" />
+  <link rel="stylesheet" href="css/theme_extra.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css" />
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "Setup";
+    var mkdocs_page_input_path = "index.md";
+    var mkdocs_page_url = null;
+  </script>
+  
+  <script src="js/jquery-2.1.1.min.js" defer></script>
+  <script src="js/modernizr-2.8.3.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+        <a href="." class="icon icon-home"> Voice Cloning App</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="./search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+                <ul class="current">
+                    <li class="toctree-l1 current"><a class="reference internal current" href=".">Setup</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#getting-started">Getting started</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#windows">Windows</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#linux">Linux</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#manual-install-linux-windows">Manual Install (Linux/ Windows)</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#adding-languages">Adding languages</a>
+    </li>
+    </ul>
+                    </li>
+                </ul>
+                <ul>
+                    <li class="toctree-l1"><a class="reference internal" href="dataset/">Dataset</a>
+                    </li>
+                </ul>
+                <ul>
+                    <li class="toctree-l1"><a class="reference internal" href="training/">Training</a>
+                    </li>
+                </ul>
+                <ul>
+                    <li class="toctree-l1"><a class="reference internal" href="synthesis/">Synthesis</a>
+                    </li>
+                </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href=".">Voice Cloning App</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".">Docs</a> &raquo;</li>
+    
+      
+    
+    <li>Setup</li>
+    <li class="wy-breadcrumbs-aside">
+      
+    </li>
+  </ul>
+  
+  <hr/>
+</div>
+
+          <div role="main">
+            <div class="section">
+              
+                <h1 id="welcome-to-the-voice-cloning-app">Welcome to the Voice Cloning App</h1>
+<p>A Python/Pytorch app for easily synthesising human voices.</p>
+<h2 id="getting-started">Getting started</h2>
+<p>After installing &amp; running the app it should open in your browser at <a href="http://localhost:5000/">localhost:5000</a></p>
+<p><img alt="Preview" src="images/preview.png" title="Preview" /></p>
+<h3 id="windows">Windows</h3>
+<p>Download the latest release from <a href="https://github.com/BenAAndrew/Voice-Cloning-App/releases">releases</a></p>
+<ul>
+<li>If you have an NVIDIA GPU make sure to download the executable with GPU support</li>
+<li>Otherwise, download the 'cpuonly' version</li>
+</ul>
+<h3 id="linux">Linux</h3>
+<ol>
+<li>Clone this repository</li>
+<li>Run <code>./install.sh</code> from the root of the repository</li>
+<li>Run <code>python3.6 main.py</code></li>
+</ol>
+<h3 id="manual-install-linux-windows">Manual Install (Linux/ Windows)</h3>
+<p>Users familiar with Python may prefer building the app themselves:</p>
+<ol>
+<li>Clone this repository</li>
+<li>Install <a href="https://www.python.org/">Python</a> (version 3.6)</li>
+<li>Run <code>pip install -r requirements.txt</code> <ul>
+<li>(or <code>pip install -r requirements-cpu.txt</code> for the 'cpuonly' build)</li>
+</ul>
+</li>
+<li>Run <code>python main.py</code></li>
+</ol>
+<h2 id="adding-languages">Adding languages</h2>
+<p>If you are using a language other than English you can add it to the app.</p>
+<p>Firstly, you'll need to find a deepspeech model for your language by going to <a href="https://coqui.ai/models">coqui</a>.
+You'll then need to download the <code>model.pbmm</code> and <code>alphabet.txt</code> files for your language.</p>
+<p>To add this to the app go to "Settings" -&gt; "Add a language", enter your language name and upload your language files</p>
+<p><img alt="Language" src="images/language.PNG" title="Language" /></p>
+<p>Please note that language model quality may vary and so successful generation of voices in other languages is not guarenteed. </p>
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="dataset/" class="btn btn-neutral float-right" title="Dataset">Next <span class="icon icon-circle-arrow-right"></span></a>
+      
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+      
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+      <span><a href="dataset/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script>var base_url = '.';</script>
+    <script src="js/theme_extra.js" defer></script>
+    <script src="js/theme.js" defer></script>
+      <script src="search/main.js" defer></script>
+    <script defer>
+        window.onload = function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        };
+    </script>
+
+</body>
+</html>
+
+<!--
+MkDocs version : 1.2.2
+Build Date UTC : 2021-10-05 17:03:34.534303+00:00
+-->
