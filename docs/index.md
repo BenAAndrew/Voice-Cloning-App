@@ -6,7 +6,7 @@ A Python/Pytorch app for easily synthesising human voices.
 
 After installing & running the app it should open in your browser at [localhost:5000](http://localhost:5000/)
 
-![Preview](images/preview.png "Preview")
+![Preview](images/preview.PNG "Preview")
 
 ### Windows
 
