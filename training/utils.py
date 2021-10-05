@@ -190,5 +190,6 @@ def generate_timelapse_gif(folder, output_path):
     output_path : str
         Path to save resulting GIF to
     """
-    frames = [Image.open(os.path.join(folder, image)) for image in os.listdir(folder)]
+    images = sorted(os.listdir(folder), key=lambda filename: int(filename.split("_")[1].split(".")[0]))
+    frames = [Image.open(os.path.join(folder, image)) for image in images]
     frames[0].save(output_path, format="GIF", append_images=frames[1:], save_all=True, duration=200, loop=0)
