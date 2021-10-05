@@ -9,6 +9,8 @@ A Python/Pytorch app for easily synthesising human voices
 
 ![Preview](preview.png "Preview")
 
+## [Documentation](https://voice-cloning-app.readthedocs.io/en/latest/)
+
 ## [Discord Server](https://discord.gg/wQd7zKCWxT)
 
 ## [Video guide](https://www.youtube.com/playlist?list=PLk5I7EvFL13GjBIDorh5yE1SaPGRG-i2l)
