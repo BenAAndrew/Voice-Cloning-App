@@ -83,11 +83,6 @@ def get_create_dataset():
     return render_template("index.html", datasets=os.listdir(paths["datasets"]), languages=get_languages())
 
 
-@app.route("/datasource", methods=["GET"])
-def get_datasource():
-    return render_template("datasource.html")
-
-
 @app.route("/", methods=["POST"])
 def create_dataset_post():
     min_confidence = float(request.form["confidence"])
