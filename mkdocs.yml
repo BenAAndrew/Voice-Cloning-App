@@ -1,0 +1,8 @@
+site_name: Voice Cloning App
+theme:
+    name: readthedocs
+nav:
+    - Setup: 'index.md'
+    - Dataset: 'dataset.md'
+    - Training: 'training.md'
+    - Synthesis: 'synthesis.md'
