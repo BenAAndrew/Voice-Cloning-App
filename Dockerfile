@@ -1,16 +1,20 @@
-FROM pytorch/pytorch:1.7.0-cuda11.0-cudnn8-runtime
+FROM pytorch/pytorch:1.9.0-cuda11.1-cudnn8-runtime
+
+# Lib dependencies
+RUN apt-get update
+RUN apt-get install -y ffmpeg build-essential
 
 # Setup
-RUN apt-get update
 WORKDIR /app
-COPY . /app
-
-# FFMPEG
-RUN apt-get install -y ffmpeg
+COPY application/ /app/application
+COPY dataset/ /app/dataset
+COPY training/ /app/training
+COPY synthesis/ /app/synthesis
+COPY main.py /app
+COPY requirements.txt /app
 
 # Python dependencies
 RUN pip install -r requirements.txt
 
 # Start app
-ENTRYPOINT [ "python3" ]
-CMD [ "main.py" ]
+CMD [ "python3", "main.py" ]
