@@ -38,4 +38,4 @@ You can also modify the text at the bottom and press submit to generate more syn
 
 ![Synthesis results](images/synthesis-results.PNG "Synthesis results")
 
-If audio could not be produced or was poor this may be due to the given text (either being too short/long or containing difficult words for your voice) or [poor voice quality](Voice-Cloning-App/training/#verifying-quality)
+If audio could not be produced or was poor this may be due to the given text (either being too short/long or containing difficult words for your voice) or [poor voice quality](../training/#verifying-quality)

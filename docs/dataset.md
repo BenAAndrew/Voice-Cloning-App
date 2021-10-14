@@ -68,7 +68,7 @@ If your text does not accurately match your audio, the dataset cannot be built.
 
 To build a dataset in the app you can simply upload your source audio/text and enter a name for the dataset.
 
-If using another language you can select this here (to add a language see [Adding languages](Voice-Cloning-App/#adding-languages))
+If using another language you can select this here (to add a language see [Adding languages](../#adding-languages))
 
 ![Dataset](images/dataset.PNG "Dataset")
 
