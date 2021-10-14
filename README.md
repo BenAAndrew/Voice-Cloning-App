@@ -22,7 +22,7 @@ A Python/Pytorch app for easily synthesising human voices
 ## System Requirements
 - **Windows 10 or Ubuntu 20.04+ operating system**
 - **5GB+ Disk space**
-- NVIDIA GPU with at least 4GB of memory & driver version 450.36+ (optional)
+- NVIDIA GPU with at least 4GB of memory & driver version 456.38+ (optional)
 
 ## Key features
 - Automatic dataset generation (with support for subtitles and audiobooks)
