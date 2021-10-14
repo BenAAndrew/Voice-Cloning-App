@@ -14,6 +14,7 @@ from application.utils import (
     get_suffix,
     delete_folder,
     import_dataset,
+    stop_thread
 )
 from dataset.create_dataset import create_dataset
 from dataset.clip_generator import CHARACTER_ENCODING, add_suffix
@@ -75,6 +76,13 @@ def handle_bad_request(e):
 @app.context_processor
 def inject_data():
     return {"urls": URLS, "path": request.path}
+
+
+# Kill thread
+@app.route("/stop-thread", methods=["GET"])
+def get_stop_thread():
+    stop_thread()
+    return {}, 200
 
 
 # Dataset

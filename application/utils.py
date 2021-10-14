@@ -8,6 +8,8 @@ import zipfile
 import librosa
 from flask import send_file
 import resampy  # noqa
+import threading
+import ctypes
 
 from main import socketio
 from dataset.audio_processing import convert_audio
@@ -44,28 +46,48 @@ logger.addHandler(SocketIOHandler())
 thread = None
 
 
-def background_task(func, **kwargs):
-    """
-    Runs a background task.
-    If function errors out it will send an error log to the error logging server and page.
-    Sends 'done' message to frontend when complete.
+class BackgroundTask(threading.Thread):
+    def __init__(self, func, **kwargs):
+        threading.Thread.__init__(self)
+        self.run(func, **kwargs)
+             
+    def run(self, func, **kwargs):
+        """
+        Runs a background task.
+        If function errors out it will send an error log to the error logging server and page.
+        Sends 'done' message to frontend when complete.
 
-    Parameters
-    ----------
-    func : function
-        Function to run in background
-    kwargs : kwargs
-        Kwargs to pass to function
-    """
-    try:
-        socketio.sleep(5)
-        func(logging=logger, **kwargs)
-    except Exception as e:
-        error = {"type": e.__class__.__name__, "text": str(e), "stacktrace": traceback.format_exc()}
-        socketio.emit("error", error, namespace="/voice")
-        raise e
+        Parameters
+        ----------
+        func : function
+            Function to run in background
+        kwargs : kwargs
+            Kwargs to pass to function
+        """
+        try:
+            socketio.sleep(5)
+            func(logging=logger, **kwargs)
+        except Exception as e:
+            error = {"type": e.__class__.__name__, "text": str(e), "stacktrace": traceback.format_exc()}
+            socketio.emit("error", error, namespace="/voice")
+            raise e
 
-    socketio.emit("done", {"text": None}, namespace="/voice")
+        socketio.emit("done", {"text": None}, namespace="/voice")
+          
+    def get_id(self):
+        # returns id of the respective thread
+        if hasattr(self, '_thread_id'):
+            return self._thread_id
+        for id, thread in threading._active.items():
+            if thread is self:
+                return id
+  
+    def kill(self):
+        thread_id = self.get_id()
+        res = ctypes.pythonapi.PyThreadState_SetAsyncExc(thread_id, ctypes.py_object(SystemExit))
+        if res > 1:
+            ctypes.pythonapi.PyThreadState_SetAsyncExc(thread_id, 0)
+            print('Exception raise failure')
 
 
 def start_progress_thread(func, **kwargs):
@@ -81,7 +103,14 @@ def start_progress_thread(func, **kwargs):
     """
     global thread
     print("Starting Thread")
-    thread = socketio.start_background_task(background_task, func=func, **kwargs)
+    thread = BackgroundTask(func, **kwargs)
+    socketio.start_background_task(thread)
+
+
+def stop_thread():
+    global thread
+    print("Killing Thread")
+    thread.kill()
 
 
 def serve_file(path, filename, mimetype, as_attachment=True):
