@@ -169,8 +169,7 @@ def get_dataset_duration():
         os.path.join(paths["datasets"], dataset), metadata_file=METADATA_FILE, audio_folder=AUDIO_FOLDER
     )
     if not dataset_error:
-        duration, total_clips = get_total_audio_duration(os.path.join(paths["datasets"], dataset, INFO_FILE))
-        return {"duration": duration, "total_clips": total_clips}
+        return get_total_audio_duration(os.path.join(paths["datasets"], dataset, INFO_FILE))
     else:
         return {"error": dataset_error}
 
@@ -338,6 +337,15 @@ def synthesis_post():
             silence=silence,
             max_decoder_steps=max_decoder_steps,
         )
+
+
+# Manage datasets
+@app.route("/manage-datasets", methods=["GET"])
+def manage_datasets():
+    return render_template(
+        "manage-datasets.html",
+        datasets=os.listdir(paths["datasets"])
+    )
 
 
 # Import-export

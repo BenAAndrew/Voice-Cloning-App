@@ -68,8 +68,7 @@ def get_total_audio_duration(info_file):
         Total number of clips
     """
     with open(info_file) as f:
-        data = json.load(f)
-        return data["total_duration"], data["total_clips"]
+        return json.load(f)
 
 
 def save_dataset_info(metadata_file, folder, output_path, clip_lengths=None):
