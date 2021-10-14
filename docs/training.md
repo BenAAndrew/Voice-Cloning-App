@@ -106,7 +106,7 @@ When you want to try the checkpoint out, simply download it and import it into t
 
 ## Verifying quality
 
-To identify whether you have produced a good voice model you can stop training at any time and test your model in [synthesis](/synthesis)
+To identify whether you have produced a good voice model you can stop training at any time and test your model in [synthesis](Voice-Cloning-App/synthesis)
 
 However, you can also tell whether your model quality will be good by looking at a variety of other factors:
 
@@ -116,7 +116,7 @@ However, you can also tell whether your model quality will be good by looking at
 
 If any of these things are not true, then your model may not be good quality. There are a number of possible reasons for this:
 
-- Your dataset was not good enough quality (see [Verify your source](/dataset/#verify-your-source) for possible reasons why)
+- Your dataset was not good enough quality (see [Verify your source](Voice-Cloning-App/dataset/#verify-your-source) for possible reasons why)
 - You did not train for long enough
     - Did you upload a transfer learning model?
     - Did you train for 500+ epochs?
