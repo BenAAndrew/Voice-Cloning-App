@@ -13,28 +13,35 @@
 
 <hr>
 <span id="error"></span>
-<div id="dataset-info" style="display: none;">
-    <h1 id="dataset-name"></h1>
-    <p>
-        Size: <span id="size"></span><br>
-        Total clips: <span id="clips"></span><br>
-    </p>
-    
-    <h5>Clip durations</h5>
-    <p>
-        Shortest clip: <span id="shortest-clip"></span>s<br>
-        Mean clip duration: <span id="mean-duration"></span>s<br>
-        Longest clip: <span id="longest-clip"></span>s<br>
-    </p>
-    
-    <h5>Words</h5>
-    <p>
-        Words: <span id="words"></span><br>
-        Mean words per clip: <span id="mean-words"></span><br>
-        Distinct words: <span id="distinct-words"></span><br>
-    </p>
+<div class="container" id="dataset-info" style="display: none;">
+    <div class="row">
+      <div class="col-md">
+        <h2>Info</h2>
+        <p>
+            Size: <span id="size"></span><br>
+            Total clips: <span id="clips"></span><br>
+        </p>
+
+        <h5>Clip durations</h5>
+        <p>
+            Shortest clip: <span id="shortest-clip"></span>s<br>
+            Mean clip duration: <span id="mean-duration"></span>s<br>
+            Longest clip: <span id="longest-clip"></span>s<br>
+        </p>
+
+        <h5>Words</h5>
+        <p>
+            Words: <span id="words"></span><br>
+            Mean words per clip: <span id="mean-words"></span><br>
+            Distinct words: <span id="distinct-words"></span><br>
+        </p>
+      </div>
+      <div class="col-md">
+        <h2>Label clips</h2>
+        <p>Label clips that the dataset generator couldn't</p>
+        One of three columns
+      </div>
+    </div>
 </div>
-
-
 
 {% endblock %}

@@ -1,6 +1,5 @@
 function selectDataset(){
     dataset = document.getElementById("dataset").value;
-    document.getElementById("dataset-name").innerHTML = dataset;
 
     var xmlhttp = new XMLHttpRequest();
     xmlhttp.onreadystatechange = function() {
