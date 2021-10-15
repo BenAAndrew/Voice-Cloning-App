@@ -17,6 +17,7 @@ def create_dataset(
     transcription_model,
     forced_alignment_path,
     output_path,
+    unlabelled_path,
     label_path,
     info_path,
     logging=logging,
@@ -41,6 +42,8 @@ def create_dataset(
         Path to save alignment JSON to
     output_path : str
         Path to save audio clips to
+    unlabelled_path : str
+        Path to save unlabelled audio clips to
     label_path : str
         Path to save label file to
     info_path : str
@@ -63,6 +66,7 @@ def create_dataset(
         transcription_model,
         forced_alignment_path,
         output_path,
+        unlabelled_path,
         label_path,
         logging=logging,
         min_length=min_length,
@@ -83,6 +87,7 @@ if __name__ == "__main__":
         "-f", "--forced_alignment_path", help="Path to forced alignment JSON", type=str, default="align.json"
     )
     parser.add_argument("-o", "--output_path", help="Path to save snippets", type=str, default="wavs")
+    parser.add_argument("-u", "--unlabelled_path", help="Path to save unlabelled clips", type=str, default="unlabelled")
     parser.add_argument(
         "-l", "--label_path", help="Path to save snippet labelling text file", type=str, default="metadata.csv"
     )

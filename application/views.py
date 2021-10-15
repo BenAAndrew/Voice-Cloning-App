@@ -34,6 +34,7 @@ TEXT_FILE = "text.txt"
 SUBTITLE_FILE = "sub.srt"
 ALIGNMENT_FILE = "align.json"
 AUDIO_FOLDER = "wavs"
+UNLABELLED_FOLDER = "unlabelled"
 METADATA_FILE = "metadata.csv"
 INFO_FILE = "info.json"
 CHECKPOINT_FOLDER = "checkpoints"
@@ -107,6 +108,7 @@ def create_dataset_post():
         audio_path = os.path.join(output_folder, request.files["audio_file"].filename)
         forced_alignment_path = os.path.join(output_folder, ALIGNMENT_FILE)
         output_path = os.path.join(output_folder, AUDIO_FOLDER)
+        unlabelled_path = os.path.join(output_folder, UNLABELLED_FOLDER)
         label_path = os.path.join(output_folder, METADATA_FILE)
         info_path = os.path.join(output_folder, INFO_FILE)
 
@@ -121,6 +123,7 @@ def create_dataset_post():
             transcription_model=transcription_model,
             forced_alignment_path=forced_alignment_path,
             output_path=output_path,
+            unlabelled_path=unlabelled_path,
             label_path=label_path,
             info_path=info_path,
             min_length=min_length,
@@ -141,6 +144,7 @@ def create_dataset_post():
         request.files["audio_file"].save(audio_path)
 
         existing_output_path = os.path.join(output_folder, AUDIO_FOLDER)
+        unlabelled_path = os.path.join(output_folder, UNLABELLED_FOLDER)
         existing_label_path = os.path.join(output_folder, METADATA_FILE)
 
         start_progress_thread(
@@ -150,6 +154,7 @@ def create_dataset_post():
             transcription_model=transcription_model,
             forced_alignment_path=forced_alignment_path,
             output_path=existing_output_path,
+            unlabelled_path=unlabelled_path,
             label_path=existing_label_path,
             suffix=suffix,
             info_path=info_path,

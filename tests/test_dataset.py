@@ -42,6 +42,7 @@ def test_create_dataset():
     dataset_directory = "test-create-dataset"
     forced_alignment_path = os.path.join(dataset_directory, "align.json")
     output_directory = os.path.join(dataset_directory, "wavs")
+    unlabelled_path = os.path.join(dataset_directory, "unlabelled")
     label_path = os.path.join(dataset_directory, "metadata.csv")
     info_path = os.path.join(dataset_directory, "info.json")
     min_confidence = 0.85
@@ -52,6 +53,7 @@ def test_create_dataset():
         transcription_model=FakeTranscriptionModel(),
         forced_alignment_path=forced_alignment_path,
         output_path=output_directory,
+        unlabelled_path=unlabelled_path,
         label_path=label_path,
         info_path=info_path,
         combine_clips=False,
