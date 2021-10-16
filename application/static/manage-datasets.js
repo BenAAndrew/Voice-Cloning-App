@@ -45,6 +45,8 @@ function selectDataset(){
             j = JSON.parse(this.response);
             var clips = j.unlabelled;
             if(clips.length > 0) {
+                document.getElementById("label-clip-message").innerHTML = "Label clips that the dataset generator couldn't";
+                document.getElementById("label-clip").style.display = "block";
                 for(let i = 0; i < clips.length; i++){
                     option = document.createElement("option");
                     option.value = clips[i];
@@ -52,6 +54,9 @@ function selectDataset(){
                     select.appendChild(option);
                 }
                 selectUnlabelledClip();
+            } else {
+                document.getElementById("label-clip-message").innerHTML = "No clips to label";
+                document.getElementById("label-clip").style.display = "none";
             }
         }
     };

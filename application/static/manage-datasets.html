@@ -1,13 +1,12 @@
 {% extends "simplebase.html" %}
 {% block content %}
-<script src="{{ url_for('static', filename='manage-datasets.js') }}"></script>
 <h2>Manage datasets</h2>
 <br>
 <form method="POST" action="/label-clip">
     <div class="form-group">
         <select class="form-control" id="dataset" name="dataset" onchange="selectDataset()">
             {% for dataset in datasets %}
-                <option value="{{dataset}}">{{dataset}}</option>
+                <option value="{{dataset}}" {% if selected == dataset %}selected{% endif %}>{{dataset}}</option>
             {% endfor %}
         </select>
     </div>
@@ -39,23 +38,26 @@
         </div>
         <div class="col-md">
             <h2>Label clips</h2>
-            <p>Label clips that the dataset generator couldn't</p>
-            <div class="form-group">
-                <select class="form-control" id="unlabelled_clip" name="unlabelled_clip" onchange="selectUnlabelledClip()"></select>
+            <p id="label-clip-message"></p>
+            <div id="label-clip" style="display: none;">
+                <div class="form-group">
+                    <select class="form-control" id="unlabelled_clip" name="unlabelled_clip" onchange="selectUnlabelledClip()"></select>
+                </div>
+                <div class="form-group">
+                    <audio controls id="audio">
+                        <source id="audioSource" type="audio/wav">
+                    </audio>
+                </div>
+                <div class="form-group">
+                    <label for="sentence"><a href="#" data-toggle="tooltip" data-placement="top" title="What is said in the audio (make sure to use punctuation)">Text</a></label>
+                    <input type="text" id="sentence" name="sentence" class="form-control" required> 
+                </div>
+                <input type="submit" class="btn btn-primary">
             </div>
-            <div class="form-group">
-                <audio controls id="audio">
-                    <source id="audioSource" type="audio/wav">
-                </audio>
-            </div>
-            <div class="form-group">
-                <label for="sentence"><a href="#" data-toggle="tooltip" data-placement="top" title="What is said in the audio (make sure to use punctuation)">Text</a></label>
-                <input type="text" id="sentence" name="sentence" class="form-control" required> 
-            </div>
-            <input type="submit" class="btn btn-primary">
         </div>
         </div>
     </div>
 </form>
 
+<script src="{{ url_for('static', filename='manage-datasets.js') }}"></script>
 {% endblock %}

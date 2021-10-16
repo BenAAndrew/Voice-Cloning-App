@@ -350,6 +350,7 @@ def manage_datasets():
     return render_template(
         "manage-datasets.html",
         datasets=os.listdir(paths["datasets"]),
+        selected=request.values.get("dataset")
     )
 
 
@@ -377,7 +378,7 @@ def label_clip():
         os.path.join(paths["datasets"], dataset, AUDIO_FOLDER, clip),
     )
 
-    return redirect("/manage-datasets")
+    return redirect(f"/manage-datasets?dataset={dataset}")
 
 
 # Import-export
