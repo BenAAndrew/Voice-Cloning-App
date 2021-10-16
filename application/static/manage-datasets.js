@@ -1,8 +1,17 @@
+
+function selectUnlabelledClip(){
+    clip = document.getElementById("unlabelled_clip").value;
+    source = document.getElementById("audioSource");
+    source.src = 'data/datasets/unlabel/unlabelled/'+clip;
+    audio = document.getElementById("audio");
+    audio.load();
+}
+
 function selectDataset(){
     dataset = document.getElementById("dataset").value;
 
-    var xmlhttp = new XMLHttpRequest();
-    xmlhttp.onreadystatechange = function() {
+    var dataset_duration = new XMLHttpRequest();
+    dataset_duration.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
             j = JSON.parse(this.response);
             if(j.error){
@@ -24,11 +33,29 @@ function selectDataset(){
                 document.getElementById("error").innerHTML = "";
                 document.getElementById("dataset-info").style.display = "block";
             }
-            labelInfo();
-            showCheckpoints(dataset);
         }
     };
-    xmlhttp.open("GET", "/dataset-duration?dataset="+dataset, true);
-    xmlhttp.send();
+    dataset_duration.open("GET", "/dataset-duration?dataset="+dataset, true);
+    dataset_duration.send();
+
+    select = document.getElementById("unlabelled_clip");
+    var unlabelled_clips = new XMLHttpRequest();
+    unlabelled_clips.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            j = JSON.parse(this.response);
+            var clips = j.unlabelled;
+            if(clips.length > 0) {
+                for(let i = 0; i < clips.length; i++){
+                    option = document.createElement("option");
+                    option.value = clips[i];
+                    option.text = clips[i];
+                    select.appendChild(option);
+                }
+                selectUnlabelledClip();
+            }
+        }
+    };
+    unlabelled_clips.open("GET", "/unlabelled-clips?dataset="+dataset, true);
+    unlabelled_clips.send();
 }
 selectDataset();

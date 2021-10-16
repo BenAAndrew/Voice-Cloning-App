@@ -349,8 +349,32 @@ def synthesis_post():
 def manage_datasets():
     return render_template(
         "manage-datasets.html",
-        datasets=os.listdir(paths["datasets"])
+        datasets=os.listdir(paths["datasets"]),
     )
+
+
+@app.route("/unlabelled-clips", methods=["GET"])
+def unlabelled_clips():
+    dataset = request.values["dataset"]
+    unlabelled_folder = os.path.join(paths["datasets"], dataset, UNLABELLED_FOLDER)
+    unlabelled_clips = os.listdir(unlabelled_folder) if os.path.isdir(unlabelled_folder) else []
+    return {"unlabelled": unlabelled_clips}
+
+
+@app.route("/label-clip", methods=["POST"])
+def label_clip():
+    dataset = request.values["dataset"]
+    clip = request.values["unlabelled_clip"]
+    text = request.values["sentence"]
+
+    # Add to metadata
+    with open(os.path.join(paths["datasets"], dataset, METADATA_FILE), 'a') as f:
+        f.write(f"{clip}|{text}\n")
+    
+    # Move clip
+    os.rename(os.path.join(paths["datasets"], dataset, UNLABELLED_FOLDER, clip), os.path.join(paths["datasets"], dataset, AUDIO_FOLDER, clip))
+
+    return redirect("/manage-datasets")
 
 
 # Import-export
