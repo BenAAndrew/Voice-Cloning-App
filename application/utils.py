@@ -97,7 +97,7 @@ def serve_file(path, filename, mimetype, as_attachment=True):
     mimetype : str
         Mimetype of file
     as_attachment : bool (optional)
-        Whether to respond as an attachment for download (default is True) 
+        Whether to respond as an attachment for download (default is True)
     """
     with open(path, "rb") as f:
         return send_file(

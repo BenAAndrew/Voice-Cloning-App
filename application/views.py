@@ -368,11 +368,14 @@ def label_clip():
     text = request.values["sentence"]
 
     # Add to metadata
-    with open(os.path.join(paths["datasets"], dataset, METADATA_FILE), 'a') as f:
+    with open(os.path.join(paths["datasets"], dataset, METADATA_FILE), "a") as f:
         f.write(f"{clip}|{text}\n")
-    
+
     # Move clip
-    os.rename(os.path.join(paths["datasets"], dataset, UNLABELLED_FOLDER, clip), os.path.join(paths["datasets"], dataset, AUDIO_FOLDER, clip))
+    os.rename(
+        os.path.join(paths["datasets"], dataset, UNLABELLED_FOLDER, clip),
+        os.path.join(paths["datasets"], dataset, AUDIO_FOLDER, clip),
+    )
 
     return redirect("/manage-datasets")
 
