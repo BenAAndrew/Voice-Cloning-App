@@ -17,6 +17,7 @@ def extend_existing_dataset(
     transcription_model,
     forced_alignment_path,
     output_path,
+    unlabelled_path,
     label_path,
     suffix,
     info_path,
@@ -42,6 +43,8 @@ def extend_existing_dataset(
         Path to save alignment JSON to
     output_path : str
         Path to save audio clips to
+    unlabelled_path : str
+        Path to save unlabelled audio clips to
     label_path : str
         Path to save label file to
     suffix : str
@@ -68,6 +71,7 @@ def extend_existing_dataset(
         transcription_model,
         forced_alignment_path,
         output_path,
+        unlabelled_path,
         label_path,
         suffix,
         logging=logging,

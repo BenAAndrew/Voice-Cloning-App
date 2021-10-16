@@ -215,6 +215,7 @@ def test_clip_combiner():
 def test_extend_existing_dataset():
     dataset_directory = "test-extend-dataset"
     audio_folder = os.path.join(dataset_directory, "wavs")
+    unlabelled_path = os.path.join(dataset_directory, "unlabelled")
     metadata_file = os.path.join(dataset_directory, "metadata.csv")
     os.makedirs(dataset_directory)
     os.makedirs(audio_folder)
@@ -234,6 +235,7 @@ def test_extend_existing_dataset():
         transcription_model=FakeTranscriptionModel(),
         forced_alignment_path=forced_alignment_path,
         output_path=audio_folder,
+        unlabelled_path=unlabelled_path,
         label_path=label_path,
         suffix=suffix,
         info_path=info_path,
@@ -267,9 +269,9 @@ def test_similarity():
 # Analysis
 def test_get_total_audio_duration():
     info_path = os.path.join("test_samples", "info.json")
-    duration, total_clips = get_total_audio_duration(info_path)
-    assert duration == 10000
-    assert total_clips == 100
+    data = get_total_audio_duration(info_path)
+    assert data["total_duration"] == 10000
+    assert data["total_clips"] == 100
 
 
 def test_get_clip_lengths():
