@@ -50,4 +50,4 @@ if __name__ == "__main__":
     cleanup_mei()
     check_ffmpeg()
     webbrowser.open_new_tab("http://localhost:5000")
-    socketio.run(app, host='0.0.0.0')
+    socketio.run(app, host="0.0.0.0")

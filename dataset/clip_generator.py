@@ -263,6 +263,7 @@ def clip_generator(
     transcription_model,
     forced_alignment_path,
     output_path,
+    unlabelled_path,
     label_path,
     logging=logging,
     min_length=MIN_LENGTH,
@@ -287,6 +288,8 @@ def clip_generator(
         Path to save alignment JSON to
     output_path : str
         Path to save audio clips to
+    unlabelled_path : str
+        Path to save unlabelled audio clips to
     label_path : str
         Path to save label file to
     logging : logging (optional)
@@ -316,6 +319,7 @@ def clip_generator(
         output_path
     ), "Output directory already exists. Did you mean to use 'Extend existing dataset'?"
     os.makedirs(output_path, exist_ok=False)
+    os.makedirs(unlabelled_path, exist_ok=False)
     assert os.path.isfile(audio_path), "Audio file not found"
     assert os.path.isfile(script_path), "Script file not found"
     assert audio_path.endswith(".wav"), "Must be a WAV file"
@@ -352,11 +356,11 @@ def clip_generator(
     for clip in clips:
         add_silence(os.path.join(output_path, clip["name"]), silence)
 
-    # Delete unused clips
+    # Move unused clips
     clip_names = [clip["name"] for clip in clips]
     for filename in os.listdir(output_path):
         if filename not in clip_names:
-            os.remove(os.path.join(output_path, filename))
+            os.rename(os.path.join(output_path, filename), os.path.join(unlabelled_path, filename))
 
     assert clips, "No audio clips could be generated"
 
@@ -400,6 +404,7 @@ def extend_dataset(
     transcription_model,
     forced_alignment_path,
     output_path,
+    unlabelled_path,
     label_path,
     suffix=str(uuid.uuid4()),
     logging=logging,
@@ -424,6 +429,8 @@ def extend_dataset(
         Path to save alignment JSON to
     output_path : str
         Path to save audio clips to
+    unlabelled_path : str
+        Path to save unlabelled audio clips to
     label_path : str
         Path to save label file to
     suffix : str
@@ -450,6 +457,7 @@ def extend_dataset(
         transcription_model,
         forced_alignment_path,
         temp_wavs_folder,
+        unlabelled_path,
         temp_label_path,
         logging,
         min_length=min_length,
@@ -486,6 +494,7 @@ if __name__ == "__main__":
         "-f", "--forced_alignment_path", help="Path to forced alignment JSON", type=str, default="align.json"
     )
     parser.add_argument("-o", "--output_path", help="Path to save snippets", type=str, default="wavs")
+    parser.add_argument("-u", "--unlabelled_path", help="Path to save unlabelled clips", type=str, default="unlabelled")
     parser.add_argument(
         "-l", "--label_path", help="Path to save snippet labelling text file", type=str, default="metadata.csv"
     )

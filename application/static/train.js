@@ -110,7 +110,7 @@ function showDatasetInfo(){
                 document.getElementById("total_clips").value = 0;
                 document.getElementById("dataset_label").innerHTML = "WARNING: "+j.error;
             } else {
-                duration = j.duration;
+                duration = j.total_duration;
                 document.getElementById("duration").value = duration;
                 total_clips = j.total_clips;
                 document.getElementById("total_clips").value = total_clips;

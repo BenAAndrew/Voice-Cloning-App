@@ -17,8 +17,8 @@ TEXT = "the examination and testimony of the experts enabled the commission to c
 EXPECTED_CLIPS = {
     "000000000_000002730.wav": "the examination and testimony of the experts",
     "000002820_000005100.wav": "enabled the commission to conclude",
-    "000005130_000007560.wav": "that five shots may have been",
 }
+UNMATCHED_CLIPS = ["000005130_000007560.wav"]
 EXPECTED_SUBTITLE_CLIPS = {
     "000000000000_000002600000.wav": "The examination and testimony of the experts",
     "000002900000_000007400000.wav": "enabled the Commission to conclude that five shots may have been fired,",
@@ -42,6 +42,7 @@ def test_create_dataset():
     dataset_directory = "test-create-dataset"
     forced_alignment_path = os.path.join(dataset_directory, "align.json")
     output_directory = os.path.join(dataset_directory, "wavs")
+    unlabelled_path = os.path.join(dataset_directory, "unlabelled")
     label_path = os.path.join(dataset_directory, "metadata.csv")
     info_path = os.path.join(dataset_directory, "info.json")
     min_confidence = 0.85
@@ -52,12 +53,14 @@ def test_create_dataset():
         transcription_model=FakeTranscriptionModel(),
         forced_alignment_path=forced_alignment_path,
         output_path=output_directory,
+        unlabelled_path=unlabelled_path,
         label_path=label_path,
         info_path=info_path,
         combine_clips=False,
     )
 
     assert os.listdir(output_directory) == list(EXPECTED_CLIPS.keys()), "Unexpected audio clips"
+    assert os.listdir(unlabelled_path) == UNMATCHED_CLIPS, "Unexpected unmatched audio clips"
 
     with open(label_path) as f:
         lines = f.readlines()
@@ -74,8 +77,8 @@ def test_create_dataset():
 
     with open(info_path) as f:
         data = json.load(f)
-        assert int(data["total_duration"]) == 7
-        assert data["total_clips"] == 3
+        assert int(data["total_duration"]) == 5
+        assert data["total_clips"] == 2
 
     os.remove(converted_audio_path)
     shutil.rmtree(dataset_directory)
@@ -213,6 +216,7 @@ def test_clip_combiner():
 def test_extend_existing_dataset():
     dataset_directory = "test-extend-dataset"
     audio_folder = os.path.join(dataset_directory, "wavs")
+    unlabelled_path = os.path.join(dataset_directory, "unlabelled")
     metadata_file = os.path.join(dataset_directory, "metadata.csv")
     os.makedirs(dataset_directory)
     os.makedirs(audio_folder)
@@ -232,6 +236,7 @@ def test_extend_existing_dataset():
         transcription_model=FakeTranscriptionModel(),
         forced_alignment_path=forced_alignment_path,
         output_path=audio_folder,
+        unlabelled_path=unlabelled_path,
         label_path=label_path,
         suffix=suffix,
         info_path=info_path,
@@ -265,9 +270,9 @@ def test_similarity():
 # Analysis
 def test_get_total_audio_duration():
     info_path = os.path.join("test_samples", "info.json")
-    duration, total_clips = get_total_audio_duration(info_path)
-    assert duration == 10000
-    assert total_clips == 100
+    data = get_total_audio_duration(info_path)
+    assert data["total_duration"] == 10000
+    assert data["total_clips"] == 100
 
 
 def test_get_clip_lengths():
