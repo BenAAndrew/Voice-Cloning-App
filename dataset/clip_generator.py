@@ -159,6 +159,7 @@ def generate_clips_from_textfile(
     logging.info(f"Matched {len(matched_segments)} segments")
 
     result_fragments = []
+    unlabelled_fragments = []
     clip_lengths = []
     for fragment in matched_segments:
         if (
@@ -173,9 +174,11 @@ def generate_clips_from_textfile(
                 fragment["text"] = fragment_matched
                 clip_lengths.append(fragment["duration"])
                 result_fragments.append(fragment)
+        else:
+            unlabelled_fragments.append(fragment["name"])
 
     os.remove(converted_audio_path)
-    return result_fragments, clip_lengths
+    return result_fragments, unlabelled_fragments, clip_lengths
 
 
 def generate_clips_from_subtitles(
@@ -221,6 +224,7 @@ def generate_clips_from_subtitles(
     logging.info(f"{total} subtitle lines detected...")
 
     result_fragments = []
+    unlabelled_fragments = []
     clip_lengths = []
     for i, sub in enumerate(subs):
         duration = sub.duration.seconds + (sub.duration.milliseconds / 1000)
@@ -252,9 +256,11 @@ def generate_clips_from_subtitles(
                         }
                     )
                     clip_lengths.append(duration)
+            else:
+                unlabelled_fragments.append(filename)
         logging.info(f"Progress - {i+1}/{total}")
 
-    return result_fragments, clip_lengths
+    return result_fragments, unlabelled_fragments, clip_lengths
 
 
 def clip_generator(
@@ -325,7 +331,7 @@ def clip_generator(
     assert audio_path.endswith(".wav"), "Must be a WAV file"
 
     if script_path.endswith(".srt"):
-        clips, clip_lengths = generate_clips_from_subtitles(
+        clips, unlabelled_clips, clip_lengths = generate_clips_from_subtitles(
             audio_path,
             script_path,
             transcription_model,
@@ -336,7 +342,7 @@ def clip_generator(
             min_confidence,
         )
     else:
-        clips, clip_lengths = generate_clips_from_textfile(
+        clips, unlabelled_clips, clip_lengths = generate_clips_from_textfile(
             audio_path,
             script_path,
             transcription_model,
@@ -360,7 +366,10 @@ def clip_generator(
     clip_names = [clip["name"] for clip in clips]
     for filename in os.listdir(output_path):
         if filename not in clip_names:
-            os.rename(os.path.join(output_path, filename), os.path.join(unlabelled_path, filename))
+            if filename in unlabelled_clips:
+                os.rename(os.path.join(output_path, filename), os.path.join(unlabelled_path, filename))
+            else:
+                os.remove(os.path.join(output_path, filename))
 
     assert clips, "No audio clips could be generated"
 
