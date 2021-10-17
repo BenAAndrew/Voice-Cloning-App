@@ -106,3 +106,15 @@ This leaves the final format of the dataset folder to be something like this:
 You can then import the dataset into the app by zipping it and adding under the "Import/Export" menu -> "Upload dataset".
 
 ![Dataset import](images/dataset-import.PNG "Dataset import")
+
+## Manage datasets
+
+To manage your datasets click "Manage datasets" in the top left.
+
+This will provide a page where you can select your dataset and view it's details.
+
+You can also see any clips the dataset generator was not able to label and manually label them yourself.
+
+![Manage datasets](images/manage-datasets.PNG "Manage datasets")
+
+You can delete your datasets/models from "Settings".
