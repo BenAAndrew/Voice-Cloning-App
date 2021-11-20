@@ -313,7 +313,10 @@ def synthesis_post():
         split_text = method == "paragraph"
         parent_folder = os.path.join(paths["results"], datetime.now().strftime("%Y-%m"))
         os.makedirs(parent_folder, exist_ok=True)
-        results_folder = os.path.join(parent_folder, get_suffix() + "-" + text.replace(" ", "_")[:20])
+        first_line=text
+        if(type(first_line)==list):
+            first_line=first_line[0]
+        results_folder = os.path.join(parent_folder, get_suffix() + "-" + first_line.replace(" ", "_")[:20])
         os.makedirs(results_folder)
         graph_path = os.path.join(results_folder, GRAPH_FILE)
         audio_path = os.path.join(results_folder, RESULTS_FILE)
