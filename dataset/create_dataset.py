@@ -1,7 +1,9 @@
 import argparse
 import logging
 from os.path import dirname, abspath
+import shutil
 import sys
+import os
 
 sys.path.append(dirname(dirname(abspath(__file__))))
 
@@ -11,15 +13,18 @@ from dataset.analysis import save_dataset_info
 from dataset.transcribe import create_transcription_model
 
 
+AUDIO_FOLDER = "wavs"
+UNLABELLED_FOLDER = "unlabelled"
+METADATA_FILE = "metadata.csv"
+ALIGNMENT_FILE = "align.json"
+INFO_FILE = "info.json"
+
+
 def create_dataset(
     text_path,
     audio_path,
     transcription_model,
-    forced_alignment_path,
-    output_path,
-    unlabelled_path,
-    label_path,
-    info_path,
+    output_folder,
     logging=logging,
     min_length=MIN_LENGTH,
     max_length=MAX_LENGTH,
@@ -38,16 +43,8 @@ def create_dataset(
         Path to source audio
     transcription_model : TranscriptionModel
         Transcription model
-    forced_alignment_path : str
-        Path to save alignment JSON to
-    output_path : str
-        Path to save audio clips to
-    unlabelled_path : str
-        Path to save unlabelled audio clips to
-    label_path : str
-        Path to save label file to
-    info_path : str
-        Path to save info JSON to
+    output_folder : str
+        Path to save dataset to
     logging : logging (optional)
         Logging object to write logs to
     min_confidence : float (optional)
@@ -60,20 +57,31 @@ def create_dataset(
     """
     logging.info(f"Coverting {audio_path}...")
     converted_audio = convert_audio(audio_path)
-    clip_lengths = clip_generator(
-        converted_audio,
-        text_path,
-        transcription_model,
-        forced_alignment_path,
-        output_path,
-        unlabelled_path,
-        label_path,
-        logging=logging,
-        min_length=min_length,
-        max_length=max_length,
-        min_confidence=min_confidence,
-        combine_clips=combine_clips,
-    )
+    forced_alignment_path = os.path.join(output_folder, ALIGNMENT_FILE)
+    output_path = os.path.join(output_folder, AUDIO_FOLDER)
+    unlabelled_path = os.path.join(output_folder, UNLABELLED_FOLDER)
+    label_path = os.path.join(output_folder, METADATA_FILE)
+    info_path = os.path.join(output_folder, INFO_FILE)
+
+    try:
+        clip_lengths = clip_generator(
+            converted_audio,
+            text_path,
+            transcription_model,
+            forced_alignment_path,
+            output_path,
+            unlabelled_path,
+            label_path,
+            logging=logging,
+            min_length=min_length,
+            max_length=max_length,
+            min_confidence=min_confidence,
+            combine_clips=combine_clips,
+        )
+    except Exception as e:
+        shutil.rmtree(output_folder)
+        raise e
+
     logging.info("Getting dataset info...")
     save_dataset_info(label_path, output_path, info_path, clip_lengths)
 

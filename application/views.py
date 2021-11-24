@@ -16,7 +16,7 @@ from application.utils import (
     delete_folder,
     import_dataset,
 )
-from dataset.create_dataset import create_dataset
+from dataset.create_dataset import create_dataset, AUDIO_FOLDER, UNLABELLED_FOLDER, METADATA_FILE, ALIGNMENT_FILE, INFO_FILE
 from dataset.clip_generator import CHARACTER_ENCODING, add_suffix
 from dataset.extend_existing_dataset import extend_existing_dataset
 from dataset.analysis import get_total_audio_duration, validate_dataset
@@ -33,11 +33,6 @@ from flask import redirect, render_template, request, send_file
 URLS = {"/": "Build dataset", "/train": "Train", "/synthesis-setup": "Synthesis"}
 TEXT_FILE = "text.txt"
 SUBTITLE_FILE = "sub.srt"
-ALIGNMENT_FILE = "align.json"
-AUDIO_FOLDER = "wavs"
-UNLABELLED_FOLDER = "unlabelled"
-METADATA_FILE = "metadata.csv"
-INFO_FILE = "info.json"
 CHECKPOINT_FOLDER = "checkpoints"
 GRAPH_FILE = "graph.png"
 RESULTS_FILE = "out.wav"
@@ -107,11 +102,6 @@ def create_dataset_post():
         os.makedirs(output_folder, exist_ok=True)
         text_path = os.path.join(output_folder, text_file)
         audio_path = os.path.join(output_folder, request.files["audio_file"].filename)
-        forced_alignment_path = os.path.join(output_folder, ALIGNMENT_FILE)
-        output_path = os.path.join(output_folder, AUDIO_FOLDER)
-        unlabelled_path = os.path.join(output_folder, UNLABELLED_FOLDER)
-        label_path = os.path.join(output_folder, METADATA_FILE)
-        info_path = os.path.join(output_folder, INFO_FILE)
 
         with open(text_path, "w", encoding=CHARACTER_ENCODING) as f:
             f.write(request.files["text_file"].read().decode(CHARACTER_ENCODING, "ignore").replace("\r\n", "\n"))
@@ -122,11 +112,7 @@ def create_dataset_post():
             text_path=text_path,
             audio_path=audio_path,
             transcription_model=transcription_model,
-            forced_alignment_path=forced_alignment_path,
-            output_path=output_path,
-            unlabelled_path=unlabelled_path,
-            label_path=label_path,
-            info_path=info_path,
+            output_folder=output_folder,
             min_length=min_length,
             max_length=max_length,
             min_confidence=min_confidence,
