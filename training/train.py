@@ -174,7 +174,7 @@ def train(
     alignment_sequence = None
     alignment_folder = None
     if alignment_sentence:
-        alignment_sequence = text_to_sequence(clean_text(alignment_sentence.strip()), symbols)
+        alignment_sequence = text_to_sequence(clean_text(alignment_sentence.strip(), symbols), symbols)
         alignment_folder = os.path.join(TRAINING_PATH, Path(output_directory).stem)
         os.makedirs(alignment_folder, exist_ok=True)
 

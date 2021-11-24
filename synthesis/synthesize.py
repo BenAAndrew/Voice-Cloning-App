@@ -171,7 +171,7 @@ def synthesize(
         mels = []
         alignments = []
         for line in text:
-            text = clean_text(line)
+            text = clean_text(line, symbols)
             sequence = text_to_sequence(text, symbols)
             _, mel_outputs_postnet, _, alignment = model.inference(sequence, max_decoder_steps)
             mels.append(mel_outputs_postnet)
@@ -192,7 +192,7 @@ def synthesize(
             write(audio_path, sample_rate, audio)
     else:
         # Single sentence
-        text = clean_text(text.strip())
+        text = clean_text(text.strip(), symbols)
         sequence = text_to_sequence(text, symbols)
         _, mel_outputs_postnet, _, alignment = model.inference(sequence, max_decoder_steps)
 

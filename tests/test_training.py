@@ -149,6 +149,9 @@ def test_clean_text():
     text = clean_text("1st $500 Mr. 10.5 2,000 30 a\tb ~")
     assert text == "first five hundred dollars mister ten point five two thousand thirty a b "
 
+def test_clean_text_with_custom_symbols():
+    text = clean_text("¿cómo estás?~\n", ["c","ó","m","o","e","s","t","á","s","¿","?"," "])
+    assert text == "¿cómo estás?"
 
 # Dataset
 @mock.patch("training.voice_dataset.clean_text", side_effect=lambda text: text)

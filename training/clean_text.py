@@ -2,7 +2,7 @@ import argparse
 import re
 
 import inflect
-from unidecode import unidecode
+from training import DEFAULT_ALPHABET
 
 INFLECT_ENGINE = inflect.engine()
 COMMA_NUMBER_RE = re.compile(r"([0-9][0-9\,]+[0-9])")
@@ -36,7 +36,7 @@ ABBREVIATION_REPLACEMENT = {
 }
 
 
-def clean_text(text):
+def clean_text(text, symbols=DEFAULT_ALPHABET):
     """
     Cleans text. This includes:
     - Replacing monetary terms (i.e. $ -> dollars)
@@ -49,13 +49,14 @@ def clean_text(text):
     ----------
     text : str
         Text to clean
+    symbols : list
+        List of valid symbols in text (default is English alphabet & punctuation)
 
     Returns
     -------
     str
         Cleaned text
     """
-    text = unidecode(text)
     text = text.strip()
     text = text.lower()
     # Convert currency to words
@@ -82,7 +83,7 @@ def clean_text(text):
     # Collapse whitespace
     text = re.sub(WHITESPACE_RE, " ", text)
     # Remove banned characters
-    text = re.sub(ALLOWED_CHARACTERS_RE, "", text)
+    text = ''.join([c for c in text if c in symbols])
     return text
 
 
