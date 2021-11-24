@@ -53,11 +53,7 @@ def test_create_dataset():
         text_path=text_path,
         audio_path=audio_path,
         transcription_model=FakeTranscriptionModel(),
-        forced_alignment_path=forced_alignment_path,
-        output_path=output_directory,
-        unlabelled_path=unlabelled_path,
-        label_path=label_path,
-        info_path=info_path,
+        output_folder=dataset_directory,
         min_confidence=min_confidence,
         combine_clips=False,
     )

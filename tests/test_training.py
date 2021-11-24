@@ -154,7 +154,7 @@ def test_clean_text_with_custom_symbols():
     assert text == "¿cómo estás?"
 
 # Dataset
-@mock.patch("training.voice_dataset.clean_text", side_effect=lambda text: text)
+@mock.patch("training.voice_dataset.clean_text", side_effect=lambda text, symbols: text)
 def test_voice_dataset(clean_text):
     random.seed(1234)
 
