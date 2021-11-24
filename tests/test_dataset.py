@@ -14,10 +14,12 @@ from dataset.transcribe import create_transcription_model, TranscriptionModel, D
 
 
 TEXT = "the examination and testimony of the experts enabled the commission to conclude that five shots may have been fired"
-EXPECTED_CLIPS = {
+TRANSCRIPTION = {
     "000000000_000002730.wav": "the examination and testimony of the experts",
     "000002820_000005100.wav": "enabled the commission to conclude",
+    "000005130_000007560.wav": "that five shots may have been fired"
 }
+EXPECTED_CLIPS = ["000000000_000002730.wav", "000002820_000005100.wav"]
 UNMATCHED_CLIPS = ["000005130_000007560.wav"]
 EXPECTED_SUBTITLE_CLIPS = {
     "000000000000_000002600000.wav": "The examination and testimony of the experts",
@@ -31,7 +33,7 @@ class FakeTranscriptionModel(TranscriptionModel):
 
     def transcribe(self, path):
         filename = Path(path).name
-        return EXPECTED_CLIPS[filename]
+        return TRANSCRIPTION[filename]
 
 
 # Dataset creation
@@ -45,7 +47,7 @@ def test_create_dataset():
     unlabelled_path = os.path.join(dataset_directory, "unlabelled")
     label_path = os.path.join(dataset_directory, "metadata.csv")
     info_path = os.path.join(dataset_directory, "info.json")
-    min_confidence = 0.85
+    min_confidence = 1.0
 
     create_dataset(
         text_path=text_path,
@@ -56,15 +58,16 @@ def test_create_dataset():
         unlabelled_path=unlabelled_path,
         label_path=label_path,
         info_path=info_path,
+        min_confidence=min_confidence,
         combine_clips=False,
     )
 
-    assert os.listdir(output_directory) == list(EXPECTED_CLIPS.keys()), "Unexpected audio clips"
+    assert os.listdir(output_directory) == EXPECTED_CLIPS, "Unexpected audio clips"
     assert os.listdir(unlabelled_path) == UNMATCHED_CLIPS, "Unexpected unmatched audio clips"
 
     with open(label_path) as f:
         lines = f.readlines()
-        expected_text = [f"{name}|{text}\n" for name, text in EXPECTED_CLIPS.items()]
+        expected_text = [f"{name}|{text}\n" for name, text in TRANSCRIPTION.items() if name in EXPECTED_CLIPS]
         assert lines == expected_text, "Unexpected metadata contents"
 
     with open(forced_alignment_path, "r") as forced_alignment_file:
@@ -99,14 +102,14 @@ def test_generate_clips_from_subtitles():
     audio_path = os.path.join("test_samples", "audio.wav")
     subtitle_path = os.path.join("test_samples", "sub.srt")
 
-    result_fragments, clip_lengths = generate_clips_from_subtitles(
+    clips, unlabelled_clips, clip_lengths = generate_clips_from_subtitles(
         audio_path=audio_path,
         subtitle_path=subtitle_path,
         transcription_model=FakeSubtitleTranscriptionModel(),
         output_path=dataset_directory,
     )
 
-    assert result_fragments == [
+    assert clips == [
         {
             "name": "000000000000_000002600000.wav",
             "start": "00:00:00.000000",
@@ -126,6 +129,8 @@ def test_generate_clips_from_subtitles():
             "duration": 4.5,
         },
     ]
+    assert unlabelled_clips == []
+    assert clip_lengths == [2.6, 4.5]
 
     shutil.rmtree(dataset_directory)
 
@@ -230,6 +235,7 @@ def test_extend_existing_dataset():
     label_path = os.path.join(dataset_directory, "metadata.csv")
     info_path = os.path.join(dataset_directory, "info.json")
     suffix = "extend"
+    min_confidence = 1.0
     extend_existing_dataset(
         text_path=text_path,
         audio_path=audio_path,
@@ -240,16 +246,17 @@ def test_extend_existing_dataset():
         label_path=label_path,
         suffix=suffix,
         info_path=info_path,
+        min_confidence=min_confidence,
         combine_clips=False,
     )
 
     assert os.listdir(audio_folder) == [
-        name.split(".")[0] + "-" + suffix + ".wav" for name in EXPECTED_CLIPS.keys()
+        name.split(".")[0] + "-" + suffix + ".wav" for name in EXPECTED_CLIPS
     ], "Unexpected audio clips"
 
     with open(label_path) as f:
         lines = f.readlines()
-        expected_text = [f"{name.split('.')[0]}-{suffix}.wav|{text}\n" for name, text in EXPECTED_CLIPS.items()]
+        expected_text = [f"{name.split('.')[0]}-{suffix}.wav|{text}\n" for name, text in TRANSCRIPTION.items() if name in EXPECTED_CLIPS]
         assert lines == expected_text, "Unexpected metadata contents"
 
     os.remove(converted_audio_path)

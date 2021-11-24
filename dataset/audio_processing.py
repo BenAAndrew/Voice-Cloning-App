@@ -28,7 +28,9 @@ def convert_audio(input_path):
     str
         Path of the converted audio
     """
+    assert os.path.isfile(input_path), f"{input_path} does not exist"
     output_path = input_path.split(".")[0] + "-converted.wav"
+    assert not os.path.isfile(output_path), f"{output_path} already exists"
     check_output(
         [
             "ffmpeg",
@@ -122,8 +124,10 @@ def cut_audio(input_path, start, end, output_folder):
         """Removes non-numeric characters from timestamp"""
         return re.sub("[^0-9]", "", timestamp)
 
+    assert os.path.isfile(input_path), f"{input_path} does not exist"
     output_name = f"{_timestamp_to_filename(start)}_{_timestamp_to_filename(end)}.wav"
     output_path = os.path.join(output_folder, output_name)
+    assert not os.path.isfile(output_path), f"{output_path} already exists"
     call(
         ["ffmpeg", "-ss", start, "-to", end, "-i", input_path, output_path],
         stdout=DEVNULL,
