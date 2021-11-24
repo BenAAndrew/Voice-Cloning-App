@@ -30,6 +30,8 @@ from training.utils import (
     LEARNING_RATE_PER_64,
     BATCH_SIZE_PER_GB,
     BASE_SYMBOLS,
+    train_test_split,
+    validate_dataset,
 )
 
 
@@ -246,16 +248,58 @@ def test_load_metadata():
         "2820_5100.wav": "enabled the commission to conclude",
         "5130_7560.wav": "that five shots may have been",
     }
-    train_size = 0.67
-    train_files, test_files = load_metadata(metadata_path, train_size)
-    assert len(train_files) == 2
-    for name, text in train_files:
+    filepaths_and_text = load_metadata(metadata_path)
+    assert len(filepaths_and_text) == 3
+    for name, text in filepaths_and_text:
         assert data[name] == text
 
-    assert len(test_files) == 1
-    name, text = test_files[0]
-    assert data[name] == text
-    assert name not in [i[0] for i in train_files]
+
+def test_train_test_split():
+    filepaths_and_text = [
+        ("0_2730.wav", "the examination and testimony of the experts"),
+        ("2820_5100.wav", "enabled the commission to conclude"),
+        ("5130_7560.wav", "that five shots may have been")
+    ]
+    train_files, test_files = train_test_split(filepaths_and_text, 0.67)
+    assert train_files == filepaths_and_text[:2]
+    assert test_files == filepaths_and_text[2:]
+
+
+# Validate dataset
+@mock.patch("os.listdir", return_value=["1.wav", "3.wav"])
+def test_validate_dataset_missing_files(listdir):
+    filepaths_and_text = [
+        ("1.wav", "abc"),
+        ("2.wav", "abc"),
+        ("3.wav", "abc")
+    ]
+    symbols = ["a", "b", "c"]
+
+    exception = ""
+    try:
+        validate_dataset(filepaths_and_text, "", symbols)
+    except AssertionError as e:
+        exception = str(e)
+
+    assert exception == "Missing files: 2.wav"
+
+@mock.patch("os.listdir", return_value=["1.wav", "2.wav"])
+def test_validate_dataset_invalid_characters(listdir):
+    filepaths_and_text = [
+        ("1.wav", "abc"),
+        ("2.wav", "def"),
+    ]
+    symbols = ["a", "b", "c"]
+
+    exception = ""
+    try:
+        validate_dataset(filepaths_and_text, "", symbols)
+    except AssertionError as e:
+        exception = str(e)
+
+    failed_characters = exception.split(":")[1]
+    for character in ["d","e","f"]:
+        assert character in failed_characters
 
 
 # Memory

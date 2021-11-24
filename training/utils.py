@@ -4,6 +4,7 @@ import os
 from PIL import Image
 
 from dataset.clip_generator import CHARACTER_ENCODING
+from dataset import get_invalid_characters
 from training import BASE_SYMBOLS
 from training.tacotron2_model.utils import get_mask_from_lengths
 
@@ -73,7 +74,7 @@ def get_learning_rate(batch_size):
     )
 
 
-def load_metadata(metadata_path, train_size):
+def load_metadata(metadata_path):
     """
     Load metadata file and split entries into train and test.
 
@@ -81,6 +82,41 @@ def load_metadata(metadata_path, train_size):
     ----------
     metadata_path : str
         Path to metadata file
+
+    Returns
+    -------
+    list
+        List of samples
+    """
+    with open(metadata_path, encoding=CHARACTER_ENCODING) as f:
+        filepaths_and_text = [line.strip().split("|") for line in f]
+    random.shuffle(filepaths_and_text)
+    return filepaths_and_text
+
+
+def validate_dataset(filepaths_and_text, dataset_directory, symbols):
+    missing_files = set()
+    invalid_characters = set()
+    wavs = os.listdir(dataset_directory)
+    for filename, text in filepaths_and_text:
+        if filename not in wavs:
+            missing_files.add(filename)
+        invalid_characters_for_row = get_invalid_characters(text, symbols)
+        if invalid_characters_for_row:
+            invalid_characters.update(invalid_characters_for_row)
+
+    assert not missing_files, f"Missing files: {(',').join(missing_files)}"
+    assert not invalid_characters, f"Invalid characters (for alphabet): {(',').join(invalid_characters)}"
+
+
+def train_test_split(filepaths_and_text, train_size):
+    """
+    Split dataset into train & test data
+
+    Parameters
+    ----------
+    filepaths_and_text : list
+        List of samples
     train_size : float
         Percentage of entries to use for training (rest used for testing)
 
@@ -89,10 +125,6 @@ def load_metadata(metadata_path, train_size):
     (list, list)
         List of train and test samples
     """
-    with open(metadata_path, encoding=CHARACTER_ENCODING) as f:
-        filepaths_and_text = [line.strip().split("|") for line in f]
-
-    random.shuffle(filepaths_and_text)
     train_cutoff = int(len(filepaths_and_text) * train_size)
     train_files = filepaths_and_text[:train_cutoff]
     test_files = filepaths_and_text[train_cutoff:]

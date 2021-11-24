@@ -3,8 +3,10 @@ import shutil
 import json
 from pathlib import Path
 import json
+import pysrt
 
 from tests.test_synthesis import MIN_SYNTHESIS_SCORE
+from dataset import get_invalid_characters
 from dataset.analysis import get_total_audio_duration, get_clip_lengths, validate_dataset
 from dataset.clip_generator import generate_clips_from_subtitles, clip_combiner
 from dataset.create_dataset import create_dataset
@@ -34,6 +36,12 @@ class FakeTranscriptionModel(TranscriptionModel):
     def transcribe(self, path):
         filename = Path(path).name
         return TRANSCRIPTION[filename]
+
+
+# Invalid characters
+def test_get_invalid_characters():
+    invalid_chars = get_invalid_characters("aà1!", ["a"])
+    assert invalid_chars == set("à")
 
 
 # Dataset creation
@@ -97,10 +105,11 @@ def test_generate_clips_from_subtitles():
     os.makedirs(dataset_directory)
     audio_path = os.path.join("test_samples", "audio.wav")
     subtitle_path = os.path.join("test_samples", "sub.srt")
+    subs = pysrt.open(subtitle_path)
 
     clips, unlabelled_clips, clip_lengths = generate_clips_from_subtitles(
         audio_path=audio_path,
-        subtitle_path=subtitle_path,
+        subs=subs,
         transcription_model=FakeSubtitleTranscriptionModel(),
         output_path=dataset_directory,
     )

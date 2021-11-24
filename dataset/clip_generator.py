@@ -9,12 +9,13 @@ from pathlib import Path
 from pydub import AudioSegment
 from datetime import datetime
 
+from dataset import get_invalid_characters
 from dataset.utils import similarity
 import dataset.forced_alignment.align as align
 from dataset.forced_alignment.search import FuzzySearch
 from dataset.forced_alignment.audio import DEFAULT_RATE
 from dataset.audio_processing import change_sample_rate, cut_audio, add_silence
-from training import PUNCTUATION
+from training import DEFAULT_ALPHABET, PUNCTUATION
 
 
 MIN_LENGTH = 1.0
@@ -98,7 +99,7 @@ def clip_combiner(audio_path, output_path, clips, max_length):
 
 def generate_clips_from_textfile(
     audio_path,
-    script_path,
+    text,
     transcription_model,
     output_path,
     logging=logging,
@@ -113,8 +114,8 @@ def generate_clips_from_textfile(
     ----------
     audio_path : str
         Path to audio file (must have been converted using convert_audio)
-    script_path : str
-        Path to text file
+    text : str
+        Source text
     transcription_model : TranscriptionModel
         Transcription model
     output_path : str
@@ -133,12 +134,8 @@ def generate_clips_from_textfile(
     (list, list)
         List of clips and clip lengths in seconds
     """
-    logging.info(f"Loading script from {script_path}...")
-    with open(script_path, "r", encoding=CHARACTER_ENCODING) as script_file:
-        clean_text = script_file.read().lower().strip().replace("\n", " ").replace("  ", " ")
-
     logging.info("Searching text for matching fragments...")
-    search = FuzzySearch(clean_text)
+    search = FuzzySearch(text)
 
     logging.info("Changing sample rate...")
     converted_audio_path = change_sample_rate(audio_path, DEFAULT_RATE)
@@ -169,7 +166,7 @@ def generate_clips_from_textfile(
             and "match-end" in fragment
             and fragment["match-end"] - fragment["match-start"] > 0
         ):
-            fragment_matched = clean_text[fragment["match-start"] : fragment["match-end"]]
+            fragment_matched = text[fragment["match-start"] : fragment["match-end"]]
             if fragment_matched:
                 fragment["text"] = fragment_matched
                 clip_lengths.append(fragment["duration"])
@@ -183,7 +180,7 @@ def generate_clips_from_textfile(
 
 def generate_clips_from_subtitles(
     audio_path,
-    subtitle_path,
+    subs,
     transcription_model,
     output_path,
     logging=logging,
@@ -198,8 +195,8 @@ def generate_clips_from_subtitles(
     ----------
     audio_path : str
         Path to audio file (must have been converted using convert_audio)
-    subtitle_path : str
-        Path to subtitle file
+    subs : list
+        List of pysrt subtitle objects
     transcription_model : TranscriptionModel
         Transcription model
     output_path : str
@@ -219,7 +216,6 @@ def generate_clips_from_subtitles(
         List of clips and clip lengths in seconds
     """
     logging.info("Loading subtitles...")
-    subs = pysrt.open(subtitle_path)
     total = len(subs)
     logging.info(f"{total} subtitle lines detected...")
 
@@ -272,6 +268,7 @@ def clip_generator(
     unlabelled_path,
     label_path,
     logging=logging,
+    symbols=DEFAULT_ALPHABET,
     min_length=MIN_LENGTH,
     max_length=MAX_LENGTH,
     silence_padding=0.1,
@@ -300,6 +297,8 @@ def clip_generator(
         Path to save label file to
     logging : logging (optional)
         Logging object to write logs to
+    symbols : list (optional)
+        List of valid symbols
     min_length : float (optional)
         Minimum duration of a clip in seconds
     max_length : float (optional)
@@ -324,16 +323,33 @@ def clip_generator(
     assert not os.path.isdir(
         output_path
     ), "Output directory already exists. Did you mean to use 'Extend existing dataset'?"
-    os.makedirs(output_path, exist_ok=False)
-    os.makedirs(unlabelled_path, exist_ok=False)
     assert os.path.isfile(audio_path), "Audio file not found"
     assert os.path.isfile(script_path), "Script file not found"
     assert audio_path.endswith(".wav"), "Must be a WAV file"
 
-    if script_path.endswith(".srt"):
+    os.makedirs(output_path, exist_ok=False)
+    os.makedirs(unlabelled_path, exist_ok=False)
+
+    # Validate text
+    is_subtitle = script_path.endswith(".srt")
+    logging.info(f"Loading {script_path}...")
+
+    if is_subtitle:
+        subs = pysrt.open(script_path)
+        text = ' '.join([sub.text for sub in subs])
+    else:
+        with open(script_path, "r", encoding=CHARACTER_ENCODING) as script_file:
+            text = script_file.read()
+    
+    text = text.lower().strip().replace("\n", " ").replace("  ", " ")
+    invalid_chars = get_invalid_characters(text, symbols)
+    assert not invalid_chars, f"Invalid characters in text (missing from language): {','.join(invalid_chars)}"
+
+    # Generate clips
+    if is_subtitle:
         clips, unlabelled_clips, clip_lengths = generate_clips_from_subtitles(
             audio_path,
-            script_path,
+            subs,
             transcription_model,
             output_path,
             logging,
@@ -344,7 +360,7 @@ def clip_generator(
     else:
         clips, unlabelled_clips, clip_lengths = generate_clips_from_textfile(
             audio_path,
-            script_path,
+            text,
             transcription_model,
             output_path,
             logging,
@@ -352,6 +368,8 @@ def clip_generator(
             max_length,
             min_confidence,
         )
+
+    assert clips, "No audio clips could be generated"
 
     if combine_clips:
         logging.info("Combining clips")
@@ -370,8 +388,6 @@ def clip_generator(
                 os.rename(os.path.join(output_path, filename), os.path.join(unlabelled_path, filename))
             else:
                 os.remove(os.path.join(output_path, filename))
-
-    assert clips, "No audio clips could be generated"
 
     # Produce alignment file
     logging.info(f"Produced {len(clips)} final clips")

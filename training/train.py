@@ -28,6 +28,8 @@ from training.utils import (
     load_symbols,
     check_early_stopping,
     calc_avgmax_attention,
+    train_test_split,
+    validate_dataset,
 )
 from training.tacotron2_model import Tacotron2, TextMelCollate, Tacotron2Loss
 from training.tacotron2_model.utils import process_batch
@@ -134,8 +136,10 @@ def train(
 
     # Load data
     logging.info("Loading data...")
-    train_files, test_files = load_metadata(metadata_path, train_size)
+    filepaths_and_text = load_metadata(metadata_path)
     symbols = load_symbols(alphabet_path) if alphabet_path else DEFAULT_ALPHABET
+    validate_dataset(filepaths_and_text, dataset_directory, symbols)
+    train_files, test_files = train_test_split(filepaths_and_text, train_size)
     trainset = VoiceDataset(train_files, dataset_directory, symbols)
     valset = VoiceDataset(test_files, dataset_directory, symbols)
     collate_fn = TextMelCollate()
