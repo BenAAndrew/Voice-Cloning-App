@@ -148,7 +148,7 @@ def load_symbols(alphabet_file):
     """
     symbols = BASE_SYMBOLS.copy()
 
-    with open(alphabet_file) as f:
+    with open(alphabet_file, encoding=CHARACTER_ENCODING) as f:
         lines = [l.strip() for l in f.readlines() if l.strip() and not l.startswith("#")]
 
     for line in lines:
