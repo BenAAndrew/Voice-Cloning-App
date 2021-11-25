@@ -54,7 +54,8 @@ symbols = None
 
 
 def get_languages():
-    return [ENGLISH_LANGUAGE] + os.listdir(paths["languages"])
+    custom_models = {language: os.path.isfile(os.path.join(paths["languages"], language, TRANSCRIPTION_MODEL)) for language in os.listdir(paths["languages"])} 
+    return {**{ENGLISH_LANGUAGE: True}, **custom_models}
 
 
 def get_checkpoints():
@@ -475,7 +476,8 @@ def upload_language():
     language = request.values["name"]
     language_dir = os.path.join(paths["languages"], language)
     os.makedirs(language_dir, exist_ok=True)
-    request.files["model"].save(os.path.join(language_dir, TRANSCRIPTION_MODEL))
+    if(request.files["model"]):
+        request.files["model"].save(os.path.join(language_dir, TRANSCRIPTION_MODEL))
     request.files["alphabet"].save(os.path.join(language_dir, ALPHABET_FILE))
     return redirect("/settings")
 

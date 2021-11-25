@@ -45,8 +45,8 @@
     <div class="form-group">
         <label for="language">Language <a href="/settings">Add more</a></label>
         <select class="form-control" id="language" name="language" onchange="selectLanguage()" required>
-            {% for language in languages %}
-                <option value="{{language}}">{{language}}</option>
+            {% for language, enabled in languages.items() %}
+                <option value="{{language}}" {% if not enabled %}disabled{% endif %}>{{language}}</option>
             {% endfor %}
         </select>
     </div>
