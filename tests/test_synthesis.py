@@ -4,7 +4,7 @@ import librosa
 import torch
 
 from dataset.utils import similarity
-from dataset.transcribe import create_transcription_model
+from dataset.transcribe import Silero
 from synthesis.synthesize import load_model, synthesize
 from synthesis.vocoders import Hifigan
 from synthesis.vocoders.vocoder import Vocoder
@@ -109,7 +109,7 @@ def test_hifigan_synthesis():
     hifigan_model_path = os.path.join("test_samples", "hifigan.pt")
     hifigan_config_path = os.path.join("test_samples", "config.json")
     audio_path = "synthesized_audio.wav"
-    transcription_model = create_transcription_model()
+    transcription_model = Silero()
 
     hifigan = Hifigan(hifigan_model_path, hifigan_config_path)
     text = "the monkeys live"

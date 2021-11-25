@@ -14,6 +14,9 @@ import omegaconf  # noqa
 from dataset.silero_utils import init_jit_model
 
 
+SILERO_LANGUAGES = {"English": "en", "German": "de", "Spanish": "es"}
+
+
 class TranscriptionModel(ABC):
     @abstractmethod
     def load_audio(self, path):
@@ -82,7 +85,7 @@ class Silero(TranscriptionModel):
     Credit: https://github.com/snakers4/silero-models
     """
 
-    def __init__(self, language="en"):
+    def __init__(self, language="English"):
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         model = os.path.join(getattr(sys, "_MEIPASS", ""), "en_v5.jit")
         if os.path.isfile(model):
@@ -91,7 +94,7 @@ class Silero(TranscriptionModel):
             self.model, self.decoder, _ = torch.hub.load(
                 repo_or_dir="snakers4/silero-models",
                 model="silero_stt",
-                language=language,
+                language=SILERO_LANGUAGES[language],
                 device=self.device,
             )
 
@@ -114,20 +117,12 @@ class Silero(TranscriptionModel):
             return self.decoder(example.cpu())
 
 
-def create_transcription_model(model_path=None):
-    if model_path:
-        return DeepSpeech(model_path)
-    # If no model path, default to English Sliero
-    else:
-        return Silero()
-
-
 if __name__ == "__main__":
     """Transcribe a clip"""
     parser = argparse.ArgumentParser(description="Transcribe a clip")
     parser.add_argument("-i", "--input_path", help="Path to audio file", type=str, required=True)
     args = parser.parse_args()
 
-    model = create_transcription_model()
+    model = Silero()
     text = model.transcribe(args.input_path)
     print("Text: ", text)

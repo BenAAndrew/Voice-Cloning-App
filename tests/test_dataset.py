@@ -12,7 +12,7 @@ from dataset.clip_generator import generate_clips_from_subtitles, clip_combiner
 from dataset.create_dataset import create_dataset
 from dataset.extend_existing_dataset import extend_existing_dataset
 from dataset.utils import similarity, add_suffix
-from dataset.transcribe import create_transcription_model, TranscriptionModel, DeepSpeech, Silero
+from dataset.transcribe import TranscriptionModel, DeepSpeech, Silero
 
 
 TEXT = "the examination and testimony of the experts enabled the commission to conclude that five shots may have been fired"
@@ -328,18 +328,16 @@ def test_validate_dataset():
 # Transcription
 def test_deepspeech():
     model_path = os.path.join("test_samples", "english.pbmm")
-    deepspeech = create_transcription_model(model_path)
-    assert isinstance(deepspeech, DeepSpeech)
+    transcription_model = DeepSpeech(model_path)
 
     audio_path = os.path.join("test_samples", "audio.wav")
-    transcription = deepspeech.transcribe(audio_path)
+    transcription = transcription_model.transcribe(audio_path)
     assert similarity(TEXT, transcription) > MIN_SYNTHESIS_SCORE
 
 
 def test_silero():
-    silero = create_transcription_model()
-    assert isinstance(silero, Silero)
+    transcription_model = Silero()
 
     audio_path = os.path.join("test_samples", "audio.wav")
-    transcription = silero.transcribe(audio_path)
+    transcription = transcription_model.transcribe(audio_path)
     assert similarity(TEXT, transcription) > MIN_SYNTHESIS_SCORE

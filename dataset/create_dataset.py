@@ -10,7 +10,7 @@ sys.path.append(dirname(dirname(abspath(__file__))))
 from dataset.audio_processing import convert_audio
 from dataset.clip_generator import clip_generator, MIN_LENGTH, MAX_LENGTH
 from dataset.analysis import save_dataset_info
-from dataset.transcribe import create_transcription_model
+from dataset.transcribe import Silero
 
 
 AUDIO_FOLDER = "wavs"
@@ -102,4 +102,4 @@ if __name__ == "__main__":
     parser.add_argument("-i", "--info_path", help="Path to save info file", type=str, default="info.json")
     args = parser.parse_args()
 
-    create_dataset(**vars(args), transcription_model=create_transcription_model())
+    create_dataset(**vars(args), transcription_model=Silero())

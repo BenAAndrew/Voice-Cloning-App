@@ -27,8 +27,7 @@ from dataset.create_dataset import (
 from dataset.clip_generator import CHARACTER_ENCODING, add_suffix
 from dataset.extend_existing_dataset import extend_existing_dataset
 from dataset.analysis import get_total_audio_duration, validate_dataset
-from dataset.transcribe import create_transcription_model
-from training import DEFAULT_ALPHABET
+from dataset.transcribe import Silero, DeepSpeech, SILERO_LANGUAGES
 from training.train import train, TRAINING_PATH
 from training.utils import get_available_memory, get_batch_size, load_symbols, generate_timelapse_gif
 from synthesis.synthesize import load_model, synthesize
@@ -38,6 +37,7 @@ from flask import redirect, render_template, request, send_file
 
 
 URLS = {"/": "Build dataset", "/train": "Train", "/synthesis-setup": "Synthesis"}
+ALPHABET_FOLDER = "alphabets"
 TEXT_FILE = "text.txt"
 SUBTITLE_FILE = "sub.srt"
 CHECKPOINT_FOLDER = "checkpoints"
@@ -46,7 +46,6 @@ RESULTS_FILE = "out.wav"
 TEMP_DATASET_UPLOAD = "temp.zip"
 TRANSCRIPTION_MODEL = "model.pbmm"
 ALPHABET_FILE = "alphabet.txt"
-ENGLISH_LANGUAGE = "English"
 
 model = None
 vocoder = None
@@ -54,8 +53,12 @@ symbols = None
 
 
 def get_languages():
-    custom_models = {language: os.path.isfile(os.path.join(paths["languages"], language, TRANSCRIPTION_MODEL)) for language in os.listdir(paths["languages"])} 
-    return {**{ENGLISH_LANGUAGE: True}, **custom_models}
+    silero_languages = {language: True for language in SILERO_LANGUAGES}
+    custom_models = {
+        language: os.path.isfile(os.path.join(paths["languages"], language, TRANSCRIPTION_MODEL))
+        for language in os.listdir(paths["languages"])
+    }
+    return {**silero_languages, **custom_models}
 
 
 def get_checkpoints():
@@ -95,10 +98,11 @@ def create_dataset_post():
     combine_clips = request.form.get("combine_clips") is not None
     min_length = float(request.form["min_length"])
     max_length = float(request.form["max_length"])
-    transcription_model_path = (
-        os.path.join(paths["languages"], language, TRANSCRIPTION_MODEL) if language != ENGLISH_LANGUAGE else None
+    transcription_model = (
+        Silero(language)
+        if language in SILERO_LANGUAGES
+        else DeepSpeech(os.path.join(paths["languages"], language, TRANSCRIPTION_MODEL))
     )
-    transcription_model = create_transcription_model(transcription_model_path)
     text_file = SUBTITLE_FILE if request.files["text_file"].filename.endswith(".srt") else TEXT_FILE
 
     if request.form["name"]:
@@ -198,7 +202,11 @@ def get_train():
 @app.route("/train", methods=["POST"])
 def train_post():
     language = request.form["language"]
-    alphabet_path = os.path.join(paths["languages"], language, ALPHABET_FILE) if language != ENGLISH_LANGUAGE else None
+    alphabet_path = (
+        os.path.join(ALPHABET_FOLDER, f"{language}.txt")
+        if language in SILERO_LANGUAGES
+        else os.path.join(paths["languages"], language, ALPHABET_FILE)
+    )
     dataset_name = request.form["dataset"]
     epochs = request.form["epochs"]
     batch_size = request.form["batch_size"]
@@ -277,8 +285,12 @@ def synthesis_setup_post():
     vocoder = Hifigan(model_path, model_config_path)
     dataset_name = request.form["model"]
     language = request.form["language"]
-    alphabet_path = os.path.join(paths["languages"], language, ALPHABET_FILE)
-    symbols = load_symbols(alphabet_path) if language != ENGLISH_LANGUAGE else DEFAULT_ALPHABET
+    alphabet_path = (
+        os.path.join(ALPHABET_FOLDER, f"{language}.txt")
+        if language in SILERO_LANGUAGES
+        else os.path.join(paths["languages"], language, ALPHABET_FILE)
+    )
+    symbols = load_symbols(alphabet_path)
     checkpoint_folder = os.path.join(paths["models"], dataset_name)
     checkpoint = os.path.join(checkpoint_folder, request.form["checkpoint"])
     model = load_model(checkpoint)
@@ -476,7 +488,7 @@ def upload_language():
     language = request.values["name"]
     language_dir = os.path.join(paths["languages"], language)
     os.makedirs(language_dir, exist_ok=True)
-    if(request.files["model"]):
+    if request.files["model"]:
         request.files["model"].save(os.path.join(language_dir, TRANSCRIPTION_MODEL))
     request.files["alphabet"].save(os.path.join(language_dir, ALPHABET_FILE))
     return redirect("/settings")
