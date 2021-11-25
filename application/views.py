@@ -16,7 +16,14 @@ from application.utils import (
     delete_folder,
     import_dataset,
 )
-from dataset.create_dataset import create_dataset, AUDIO_FOLDER, UNLABELLED_FOLDER, METADATA_FILE, ALIGNMENT_FILE, INFO_FILE
+from dataset.create_dataset import (
+    create_dataset,
+    AUDIO_FOLDER,
+    UNLABELLED_FOLDER,
+    METADATA_FILE,
+    ALIGNMENT_FILE,
+    INFO_FILE,
+)
 from dataset.clip_generator import CHARACTER_ENCODING, add_suffix
 from dataset.extend_existing_dataset import extend_existing_dataset
 from dataset.analysis import get_total_audio_duration, validate_dataset
@@ -301,7 +308,9 @@ def synthesis_post():
         parent_folder = os.path.join(paths["results"], datetime.now().strftime("%Y-%m"))
         os.makedirs(parent_folder, exist_ok=True)
         first_line = text[0] if type(text) == list else text
-        results_folder = os.path.join(parent_folder, get_suffix() + "-" + re.sub("[^0-9a-zA-Z _]+", "", first_line.replace(" ", "_"))[:20])
+        results_folder = os.path.join(
+            parent_folder, get_suffix() + "-" + re.sub("[^0-9a-zA-Z _]+", "", first_line.replace(" ", "_"))[:20]
+        )
         os.makedirs(results_folder)
         graph_path = os.path.join(results_folder, GRAPH_FILE)
         audio_path = os.path.join(results_folder, RESULTS_FILE)
@@ -336,9 +345,7 @@ def synthesis_post():
 @app.route("/manage-datasets", methods=["GET"])
 def manage_datasets():
     return render_template(
-        "manage-datasets.html",
-        datasets=os.listdir(paths["datasets"]),
-        selected=request.values.get("dataset")
+        "manage-datasets.html", datasets=os.listdir(paths["datasets"]), selected=request.values.get("dataset")
     )
 
 

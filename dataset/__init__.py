@@ -1,5 +1,6 @@
 from string import punctuation, digits
 
+
 def get_invalid_characters(text, symbols):
     """
     Returns all invalid characters in text

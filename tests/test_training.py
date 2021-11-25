@@ -151,9 +151,11 @@ def test_clean_text():
     text = clean_text("1st $500 Mr. 10.5 2,000 30 a\tb ~")
     assert text == "first five hundred dollars mister ten point five two thousand thirty a b "
 
+
 def test_clean_text_with_custom_symbols():
-    text = clean_text("¿cómo estás?~\n", ["c","ó","m","o","e","s","t","á","s","¿","?"," "])
+    text = clean_text("¿cómo estás?~\n", ["c", "ó", "m", "o", "e", "s", "t", "á", "s", "¿", "?", " "])
     assert text == "¿cómo estás?"
+
 
 # Dataset
 @mock.patch("training.voice_dataset.clean_text", side_effect=lambda text, symbols: text)
@@ -258,7 +260,7 @@ def test_train_test_split():
     filepaths_and_text = [
         ("0_2730.wav", "the examination and testimony of the experts"),
         ("2820_5100.wav", "enabled the commission to conclude"),
-        ("5130_7560.wav", "that five shots may have been")
+        ("5130_7560.wav", "that five shots may have been"),
     ]
     train_files, test_files = train_test_split(filepaths_and_text, 0.67)
     assert train_files == filepaths_and_text[:2]
@@ -268,11 +270,7 @@ def test_train_test_split():
 # Validate dataset
 @mock.patch("os.listdir", return_value=["1.wav", "3.wav"])
 def test_validate_dataset_missing_files(listdir):
-    filepaths_and_text = [
-        ("1.wav", "abc"),
-        ("2.wav", "abc"),
-        ("3.wav", "abc")
-    ]
+    filepaths_and_text = [("1.wav", "abc"), ("2.wav", "abc"), ("3.wav", "abc")]
     symbols = ["a", "b", "c"]
 
     exception = ""
@@ -282,6 +280,7 @@ def test_validate_dataset_missing_files(listdir):
         exception = str(e)
 
     assert exception == "Missing files: 2.wav"
+
 
 @mock.patch("os.listdir", return_value=["1.wav", "2.wav"])
 def test_validate_dataset_invalid_characters(listdir):
@@ -298,7 +297,7 @@ def test_validate_dataset_invalid_characters(listdir):
         exception = str(e)
 
     failed_characters = exception.split(":")[1]
-    for character in ["d","e","f"]:
+    for character in ["d", "e", "f"]:
         assert character in failed_characters
 
 

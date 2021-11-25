@@ -336,11 +336,11 @@ def clip_generator(
 
     if is_subtitle:
         subs = pysrt.open(script_path)
-        text = ' '.join([sub.text for sub in subs])
+        text = " ".join([sub.text for sub in subs])
     else:
         with open(script_path, "r", encoding=CHARACTER_ENCODING) as script_file:
             text = script_file.read()
-    
+
     text = text.lower().strip().replace("\n", " ").replace("  ", " ")
     invalid_chars = get_invalid_characters(text, symbols)
     assert not invalid_chars, f"Invalid characters in text (missing from language): {','.join(invalid_chars)}"

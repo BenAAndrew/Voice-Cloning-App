@@ -19,7 +19,7 @@ TEXT = "the examination and testimony of the experts enabled the commission to c
 TRANSCRIPTION = {
     "000000000_000002730.wav": "the examination and testimony of the experts",
     "000002820_000005100.wav": "enabled the commission to conclude",
-    "000005130_000007560.wav": "that five shots may have been fired"
+    "000005130_000007560.wav": "that five shots may have been fired",
 }
 EXPECTED_CLIPS = ["000000000_000002730.wav", "000002820_000005100.wav"]
 UNMATCHED_CLIPS = ["000005130_000007560.wav"]
@@ -261,7 +261,11 @@ def test_extend_existing_dataset():
 
     with open(label_path) as f:
         lines = f.readlines()
-        expected_text = [f"{name.split('.')[0]}-{suffix}.wav|{text}\n" for name, text in TRANSCRIPTION.items() if name in EXPECTED_CLIPS]
+        expected_text = [
+            f"{name.split('.')[0]}-{suffix}.wav|{text}\n"
+            for name, text in TRANSCRIPTION.items()
+            if name in EXPECTED_CLIPS
+        ]
         assert lines == expected_text, "Unexpected metadata contents"
 
     os.remove(converted_audio_path)

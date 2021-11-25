@@ -83,7 +83,7 @@ def clean_text(text, symbols=DEFAULT_ALPHABET):
     # Collapse whitespace
     text = re.sub(WHITESPACE_RE, " ", text)
     # Remove banned characters
-    text = ''.join([c for c in text if c in symbols])
+    text = "".join([c for c in text if c in symbols])
     return text
 
 
