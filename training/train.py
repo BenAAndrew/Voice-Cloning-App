@@ -25,7 +25,6 @@ from training.utils import (
     get_batch_size,
     get_learning_rate,
     load_metadata,
-    load_symbols,
     check_early_stopping,
     calc_avgmax_attention,
     train_test_split,
@@ -46,7 +45,7 @@ def train(
     metadata_path,
     dataset_directory,
     output_directory,
-    alphabet_path=None,
+    symbols=DEFAULT_ALPHABET,
     checkpoint_path=None,
     transfer_learning_path=None,
     epochs=8000,
@@ -70,8 +69,8 @@ def train(
         Path to dataset clips
     output_directory : str
         Path to save checkpoints to
-    alphabet_path : str
-        Path to alphabet file (default is English)
+    symbols : list (optional)
+        Valid symbols (default is English)
     checkpoint_path : str (optional)
         Path to a checkpoint to load (default is None)
     transfer_learning_path : str (optional)
@@ -137,7 +136,6 @@ def train(
     # Load data
     logging.info("Loading data...")
     filepaths_and_text = load_metadata(metadata_path)
-    symbols = load_symbols(alphabet_path) if alphabet_path else DEFAULT_ALPHABET
     validate_dataset(filepaths_and_text, dataset_directory, symbols)
     train_files, test_files = train_test_split(filepaths_and_text, train_size)
     trainset = VoiceDataset(train_files, dataset_directory, symbols)

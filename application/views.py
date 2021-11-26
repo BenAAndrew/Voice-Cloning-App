@@ -28,7 +28,7 @@ from dataset.clip_generator import CHARACTER_ENCODING, add_suffix
 from dataset.extend_existing_dataset import extend_existing_dataset
 from dataset.analysis import get_total_audio_duration, validate_dataset
 from dataset.transcribe import Silero, DeepSpeech, SILERO_LANGUAGES
-from training.train import train, TRAINING_PATH
+from training.train import train, TRAINING_PATH, DEFAULT_ALPHABET
 from training.utils import get_available_memory, get_batch_size, load_symbols, generate_timelapse_gif
 from synthesis.synthesize import load_model, synthesize
 from synthesis.vocoders import Hifigan
@@ -45,6 +45,7 @@ GRAPH_FILE = "graph.png"
 RESULTS_FILE = "out.wav"
 TEMP_DATASET_UPLOAD = "temp.zip"
 TRANSCRIPTION_MODEL = "model.pbmm"
+ENGLISH_LANGUAGE = "English"
 ALPHABET_FILE = "alphabet.txt"
 
 model = None
@@ -72,6 +73,14 @@ def get_checkpoints():
         for model in os.listdir(paths["models"])
         if os.listdir(os.path.join(paths["models"], model))
     }
+
+def get_symbols(language):
+    if language == ENGLISH_LANGUAGE:
+        return DEFAULT_ALPHABET
+    elif language in SILERO_LANGUAGES:
+        return load_symbols(os.path.join(ALPHABET_FOLDER, f"{language}.txt"))
+    else:
+        return load_symbols(os.path.join(paths["languages"], language, ALPHABET_FILE))
 
 
 @app.errorhandler(Exception)
@@ -202,11 +211,7 @@ def get_train():
 @app.route("/train", methods=["POST"])
 def train_post():
     language = request.form["language"]
-    alphabet_path = (
-        os.path.join(ALPHABET_FOLDER, f"{language}.txt")
-        if language in SILERO_LANGUAGES
-        else os.path.join(paths["languages"], language, ALPHABET_FILE)
-    )
+    symbols = get_symbols(language)
     dataset_name = request.form["dataset"]
     epochs = request.form["epochs"]
     batch_size = request.form["batch_size"]
@@ -237,7 +242,7 @@ def train_post():
         metadata_path=metadata_path,
         dataset_directory=audio_folder,
         output_directory=checkpoint_folder,
-        alphabet_path=alphabet_path,
+        symbols=symbols,
         checkpoint_path=checkpoint_path,
         transfer_learning_path=transfer_learning_path,
         epochs=int(epochs),
@@ -285,12 +290,7 @@ def synthesis_setup_post():
     vocoder = Hifigan(model_path, model_config_path)
     dataset_name = request.form["model"]
     language = request.form["language"]
-    alphabet_path = (
-        os.path.join(ALPHABET_FOLDER, f"{language}.txt")
-        if language in SILERO_LANGUAGES
-        else os.path.join(paths["languages"], language, ALPHABET_FILE)
-    )
-    symbols = load_symbols(alphabet_path)
+    symbols = get_symbols(language)
     checkpoint_folder = os.path.join(paths["models"], dataset_name)
     checkpoint = os.path.join(checkpoint_folder, request.form["checkpoint"])
     model = load_model(checkpoint)
