@@ -8,6 +8,7 @@ import matplotlib
 from scipy.io.wavfile import write
 from os.path import dirname, abspath
 import sys
+from application import constants
 
 import nltk
 
@@ -18,7 +19,6 @@ matplotlib.use("Agg")
 
 from training.tacotron2_model import Tacotron2
 from training.clean_text import clean_text
-from training import DEFAULT_ALPHABET
 from synthesis.vocoders import Hifigan
 
 
@@ -114,7 +114,7 @@ def join_alignment_graphs(alignments):
 def synthesize(
     model,
     text,
-    symbols=DEFAULT_ALPHABET,
+    symbols=constants.DEFAULT_ALPHABET,
     graph_path=None,
     audio_path=None,
     vocoder=None,

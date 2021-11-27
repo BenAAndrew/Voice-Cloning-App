@@ -5,8 +5,8 @@ from string import ascii_lowercase
 from unittest import mock
 import torch
 import shutil
+from application import constants
 
-from dataset.clip_generator import CHARACTER_ENCODING
 from training.clean_text import clean_text
 from training.checkpoint import (
     load_checkpoint,
@@ -17,7 +17,6 @@ from training.checkpoint import (
 )
 from training.voice_dataset import VoiceDataset
 from training.tacotron2_model import Tacotron2
-from training import DEFAULT_ALPHABET
 from training.train import train, MINIMUM_MEMORY_GB, WEIGHT_DECAY
 from training.validate import validate
 from training.utils import (
@@ -164,10 +163,10 @@ def test_voice_dataset(clean_text):
 
     metadata_path = os.path.join("test_samples", "dataset", "metadata.csv")
     audio_directory = os.path.join("test_samples", "dataset", "wavs")
-    with open(metadata_path, encoding=CHARACTER_ENCODING) as f:
+    with open(metadata_path, encoding=constants.CHARACTER_ENCODING) as f:
         filepaths_and_text = [line.strip().split("|") for line in f]
 
-    dataset = VoiceDataset(filepaths_and_text, audio_directory, DEFAULT_ALPHABET)
+    dataset = VoiceDataset(filepaths_and_text, audio_directory, constants.DEFAULT_ALPHABET)
     assert len(dataset) == 3
     text, mel = dataset[0]
     assert len(text) == len("that five shots may have been")

@@ -4,24 +4,27 @@ import logging
 import json
 import uuid
 import shutil
+from application import constants
+from application.utils import get_symbols
 import pysrt
+import unicodedata
 from pathlib import Path
 from pydub import AudioSegment
 from datetime import datetime
 
+from main import paths
 from dataset import get_invalid_characters
 from dataset.utils import similarity
 import dataset.forced_alignment.align as align
 from dataset.forced_alignment.search import FuzzySearch
 from dataset.forced_alignment.audio import DEFAULT_RATE
 from dataset.audio_processing import change_sample_rate, cut_audio, add_silence
-from training import DEFAULT_ALPHABET, PUNCTUATION
 
 
 MIN_LENGTH = 1.0
 MAX_LENGTH = 10.0
 MIN_CONFIDENCE = 0.85
-CHARACTER_ENCODING = "utf-8"
+
 
 
 def clip_combiner(audio_path, output_path, clips, max_length):
@@ -53,7 +56,7 @@ def clip_combiner(audio_path, output_path, clips, max_length):
         """Joins list of lines with comma seperation"""
         return " ".join(
             [
-                line + "," if not line[-1] in PUNCTUATION and i != len(lines) - 1 else line
+                line + "," if not line[-1] in constants.PUNCTUATION and i != len(lines) - 1 else line
                 for i, line in enumerate(lines)
             ]
         )
@@ -268,7 +271,7 @@ def clip_generator(
     unlabelled_path,
     label_path,
     logging=logging,
-    symbols=DEFAULT_ALPHABET,
+    symbols=constants.DEFAULT_ALPHABET,
     min_length=MIN_LENGTH,
     max_length=MAX_LENGTH,
     silence_padding=0.1,
@@ -338,12 +341,16 @@ def clip_generator(
         subs = pysrt.open(script_path)
         text = " ".join([sub.text for sub in subs])
     else:
-        with open(script_path, "r", encoding=CHARACTER_ENCODING) as script_file:
+        with open(script_path, "r", encoding=constants.CHARACTER_ENCODING) as script_file:
             text = script_file.read()
 
     text = text.lower().strip().replace("\n", " ").replace("  ", " ")
+    symbols=get_symbols(transcription_model.language)
     invalid_chars = get_invalid_characters(text, symbols)
-    assert not invalid_chars, f"Invalid characters in text (missing from language): {','.join(invalid_chars)}"
+    detailed_info=""
+    for c in invalid_chars:
+        detailed_info+=f"{c} ({unicodedata.name(c)}),"
+    assert not invalid_chars, f"Invalid characters in text (missing from language): {detailed_info}"
 
     # Generate clips
     if is_subtitle:
@@ -391,11 +398,11 @@ def clip_generator(
 
     # Produce alignment file
     logging.info(f"Produced {len(clips)} final clips")
-    with open(forced_alignment_path, "w", encoding=CHARACTER_ENCODING) as result_file:
+    with open(forced_alignment_path, "w", encoding=constants.CHARACTER_ENCODING) as result_file:
         result_file.write(json.dumps(clips, ensure_ascii=False, indent=4))
 
     # Produce metadata file
-    with open(label_path, "w", encoding=CHARACTER_ENCODING) as f:
+    with open(label_path, "w", encoding=constants.CHARACTER_ENCODING) as f:
         for fragment in clips:
             f.write(f"{fragment['name']}|{fragment['text']}\n")
     logging.info("Generated clips")

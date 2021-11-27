@@ -5,6 +5,8 @@ import sys
 import librosa
 import wave
 import numpy as np
+from application import constants
+from main import paths
 import deepspeech
 import torch
 import torchaudio  # noqa
@@ -14,7 +16,7 @@ import omegaconf  # noqa
 from dataset.silero_utils import init_jit_model
 
 
-SILERO_LANGUAGES = {"English": "en", "German": "de", "Spanish": "es"}
+
 
 
 class TranscriptionModel(ABC):
@@ -59,8 +61,9 @@ class DeepSpeech(TranscriptionModel):
     Credit: https://github.com/mozilla/DeepSpeech
     """
 
-    def __init__(self, model_path):
-        self.model = deepspeech.Model(model_path)
+    def __init__(self, language):
+        self.language=language
+        self.model = deepspeech.Model(os.path.join(paths["languages"], language, constants.TRANSCRIPTION_MODEL))
 
     def load_audio(self, path):
         try:
@@ -86,6 +89,7 @@ class Silero(TranscriptionModel):
     """
 
     def __init__(self, language="English"):
+        self.language=language
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         model = os.path.join(getattr(sys, "_MEIPASS", ""), "en_v5.jit")
         if os.path.isfile(model):
@@ -94,7 +98,7 @@ class Silero(TranscriptionModel):
             self.model, self.decoder, _ = torch.hub.load(
                 repo_or_dir="snakers4/silero-models",
                 model="silero_stt",
-                language=SILERO_LANGUAGES[language],
+                language=constants.SILERO_LANGUAGES[language],
                 device=self.device,
             )
 

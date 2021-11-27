@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 import random
+from application import constants
 from synthesis.synthesize import load_model
 import time
 import argparse
@@ -15,7 +16,6 @@ import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
 
-from training import DEFAULT_ALPHABET
 from training.clean_text import clean_text
 from training.voice_dataset import VoiceDataset
 from training.checkpoint import load_checkpoint, save_checkpoint, warm_start_model
@@ -45,7 +45,7 @@ def train(
     metadata_path,
     dataset_directory,
     output_directory,
-    symbols=DEFAULT_ALPHABET,
+    symbols=constants.DEFAULT_ALPHABET,
     checkpoint_path=None,
     transfer_learning_path=None,
     epochs=8000,

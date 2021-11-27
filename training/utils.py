@@ -2,10 +2,10 @@ import torch
 import random
 import os
 from PIL import Image
+from application import constants
 
-from dataset.clip_generator import CHARACTER_ENCODING
+
 from dataset import get_invalid_characters
-from training import BASE_SYMBOLS
 from training.tacotron2_model.utils import get_mask_from_lengths
 
 
@@ -88,7 +88,7 @@ def load_metadata(metadata_path):
     list
         List of samples
     """
-    with open(metadata_path, encoding=CHARACTER_ENCODING) as f:
+    with open(metadata_path, encoding=constants.CHARACTER_ENCODING) as f:
         filepaths_and_text = [line.strip().split("|") for line in f]
     random.shuffle(filepaths_and_text)
     return filepaths_and_text
@@ -130,32 +130,6 @@ def train_test_split(filepaths_and_text, train_size):
     test_files = filepaths_and_text[train_cutoff:]
     print(f"{len(train_files)} train files, {len(test_files)} test files")
     return train_files, test_files
-
-
-def load_symbols(alphabet_file):
-    """
-    Get alphabet and punctuation for a given alphabet file.
-
-    Parameters
-    ----------
-    alphabet_file : str
-        Path to alphabnet file
-
-    Returns
-    -------
-    list
-        List of symbols (punctuation + alphabet)
-    """
-    symbols = BASE_SYMBOLS.copy()
-
-    with open(alphabet_file, encoding=CHARACTER_ENCODING) as f:
-        lines = [l.strip() for l in f.readlines() if l.strip() and not l.startswith("#")]
-
-    for line in lines:
-        if line not in symbols:
-            symbols.append(line)
-
-    return symbols
 
 
 def check_early_stopping(validation_losses):

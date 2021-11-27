@@ -7,12 +7,11 @@ import shutil
 import zipfile
 import librosa
 from flask import send_file
-import resampy  # noqa
-
-from main import socketio
+import resampy
+from application import constants  # noqa
+from main import socketio, paths
 from dataset.audio_processing import convert_audio
 from dataset.analysis import save_dataset_info
-from dataset.clip_generator import CHARACTER_ENCODING
 
 
 class SocketIOHandler(logging.Handler):
@@ -194,7 +193,7 @@ def import_dataset(dataset, dataset_directory, audio_folder, logging):
             wavs = [x for x in files_list if x.startswith("wavs/") and x.endswith(".wav")]
             assert wavs, "No wavs found in wavs folder"
 
-            metadata = z.read("metadata.csv").decode(CHARACTER_ENCODING, "ignore").replace("\r\n", "\n")
+            metadata = z.read("metadata.csv").decode(constants.CHARACTER_ENCODING, "ignore").replace("\r\n", "\n")
             num_metadata_rows = len([row for row in metadata.split("\n") if row])
             assert (
                 len(wavs) == num_metadata_rows
@@ -206,7 +205,7 @@ def import_dataset(dataset, dataset_directory, audio_folder, logging):
 
             # Save metadata
             logging.info("Saving files")
-            with open(os.path.join(dataset_directory, "metadata.csv"), "w", encoding=CHARACTER_ENCODING) as f:
+            with open(os.path.join(dataset_directory, "metadata.csv"), "w", encoding=constants.CHARACTER_ENCODING) as f:
                 f.write(metadata)
 
             # Save wavs
@@ -245,3 +244,36 @@ def import_dataset(dataset, dataset_directory, audio_folder, logging):
         raise e
 
     os.remove(dataset)
+
+def get_symbols(language):
+    if language == constants.ENGLISH_LANGUAGE:
+        return constants.DEFAULT_ALPHABET
+    elif language in constants.SILERO_LANGUAGES:
+        return load_symbols(os.path.join(constants.ALPHABET_FOLDER, f"{language}.txt"))
+    else:
+        return load_symbols(os.path.join(paths["languages"], language, constants.ALPHABET_FILE))
+
+def load_symbols(alphabet_file):
+    """
+    Get alphabet and punctuation for a given alphabet file.
+
+    Parameters
+    ----------
+    alphabet_file : str
+        Path to alphabnet file
+
+    Returns
+    -------
+    list
+        List of symbols (punctuation + alphabet)
+    """
+    symbols = constants.BASE_SYMBOLS.copy()
+
+    with open(alphabet_file, encoding=constants.CHARACTER_ENCODING) as f:
+        lines = [l.strip() for l in f.readlines() if l.strip() and not l.startswith("#")]
+
+    for line in lines:
+        if line not in symbols:
+            symbols.append(line)
+
+    return symbols
