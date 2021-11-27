@@ -1,6 +1,7 @@
 import torch
 import random
 import os
+import unicodedata
 from PIL import Image
 from application import constants
 
@@ -99,6 +100,7 @@ def validate_dataset(filepaths_and_text, dataset_directory, symbols):
     invalid_characters = set()
     wavs = os.listdir(dataset_directory)
     for filename, text in filepaths_and_text:
+        text=text.lower()
         if filename not in wavs:
             missing_files.add(filename)
         invalid_characters_for_row = get_invalid_characters(text, symbols)
@@ -106,7 +108,10 @@ def validate_dataset(filepaths_and_text, dataset_directory, symbols):
             invalid_characters.update(invalid_characters_for_row)
 
     assert not missing_files, f"Missing files: {(',').join(missing_files)}"
-    assert not invalid_characters, f"Invalid characters (for alphabet): {(',').join(invalid_characters)}"
+    detailed_info=""
+    for c in invalid_characters:
+        detailed_info+=f"{c} ({unicodedata.name(c)}),"
+    assert not invalid_characters, f"Invalid characters in text (missing from language): {detailed_info}"
 
 
 def train_test_split(filepaths_and_text, train_size):
