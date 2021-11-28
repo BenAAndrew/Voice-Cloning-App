@@ -2,11 +2,8 @@ import argparse
 import os
 import logging
 import json
-import uuid
 import unicodedata
-import shutil
 import pysrt
-from pathlib import Path
 from pydub import AudioSegment
 from datetime import datetime
 
@@ -403,113 +400,6 @@ def clip_generator(
             f.write(f"{fragment['name']}|{fragment['text']}\n")
     logging.info("Generated clips")
 
-    return clip_lengths
-
-
-def add_suffix(filename, suffix):
-    """
-    Adds a suffix to a filename.
-
-    Parameters
-    ----------
-    filename : str
-        Current filename
-    suffix : str
-        String to add to the filename
-
-    Returns
-    -------
-    str
-        New filename
-    """
-    name_without_filetype = filename.split(".")[0]
-    return filename.replace(name_without_filetype, name_without_filetype + "-" + suffix)
-
-
-def extend_dataset(
-    audio_path,
-    script_path,
-    transcription_model,
-    forced_alignment_path,
-    output_path,
-    unlabelled_path,
-    label_path,
-    suffix=str(uuid.uuid4()),
-    logging=logging,
-    min_length=MIN_LENGTH,
-    max_length=MAX_LENGTH,
-    min_confidence=MIN_CONFIDENCE,
-    combine_clips=True,
-):
-    """
-    Extends an existing dataset.
-    Uses temporary filenames and then combines files with the existing dataset.
-
-    Parameters
-    ----------
-    audio_path : str
-        Path to audio file (must have been converted using convert_audio)
-    script_path : str
-        Path to source text
-    transcription_model : TranscriptionModel
-        Transcription model
-    forced_alignment_path : str
-        Path to save alignment JSON to
-    output_path : str
-        Path to save audio clips to
-    unlabelled_path : str
-        Path to save unlabelled audio clips to
-    label_path : str
-        Path to save label file to
-    suffix : str
-        String suffix to add to filenames
-    logging : logging (optional)
-        Logging object to write logs to
-    min_confidence : float (optional)
-        Minimum confidence score to generate a clip for
-
-    Raises
-    -------
-    AssertionError
-        If given paths are invalid or clips could not be produced
-    """
-    assert os.path.isdir(output_path), "Existing wavs folder not found"
-    assert os.path.isfile(label_path), "Existing metadata file not found"
-
-    temp_label_path = label_path.replace(Path(label_path).name, "temp.csv")
-    temp_wavs_folder = output_path.replace(Path(output_path).name, "temp_wavs")
-
-    clip_lengths = clip_generator(
-        audio_path,
-        script_path,
-        transcription_model,
-        forced_alignment_path,
-        temp_wavs_folder,
-        unlabelled_path,
-        temp_label_path,
-        logging,
-        min_length=min_length,
-        max_length=max_length,
-        min_confidence=min_confidence,
-        combine_clips=combine_clips,
-    )
-
-    with open(temp_label_path) as f:
-        new_labels = f.readlines()
-
-    with open(label_path, "a+") as f:
-        for line in new_labels:
-            filename, text = line.split("|")
-            new_filename = add_suffix(filename, suffix)
-            f.write(f"{new_filename}|{text}")
-
-    for filename in os.listdir(temp_wavs_folder):
-        new_filename = add_suffix(filename, suffix)
-        shutil.copyfile(os.path.join(temp_wavs_folder, filename), os.path.join(output_path, new_filename))
-
-    os.remove(temp_label_path)
-    shutil.rmtree(temp_wavs_folder)
-    logging.info("Combined dataset")
     return clip_lengths
 
 

@@ -24,7 +24,8 @@ from dataset.create_dataset import (
     ALIGNMENT_FILE,
     INFO_FILE,
 )
-from dataset.clip_generator import CHARACTER_ENCODING, add_suffix
+from dataset.clip_generator import CHARACTER_ENCODING
+from dataset.utils import add_suffix
 from dataset.extend_existing_dataset import extend_existing_dataset
 from dataset.analysis import get_total_audio_duration, validate_dataset
 from dataset.transcribe import Silero, DeepSpeech, SILERO_LANGUAGES
@@ -113,6 +114,7 @@ def create_dataset_post():
         if language in SILERO_LANGUAGES
         else DeepSpeech(os.path.join(paths["languages"], language, TRANSCRIPTION_MODEL))
     )
+    symbols = get_symbols(language)
     text_file = SUBTITLE_FILE if request.files["text_file"].filename.endswith(".srt") else TEXT_FILE
 
     if request.form["name"]:
@@ -128,50 +130,40 @@ def create_dataset_post():
         with open(text_path, "w", encoding=CHARACTER_ENCODING) as f:
             f.write(request.files["text_file"].read().decode(CHARACTER_ENCODING, "ignore").replace("\r\n", "\n"))
         request.files["audio_file"].save(audio_path)
-        symbols = get_symbols(language)
         start_progress_thread(
             create_dataset,
             text_path=text_path,
             audio_path=audio_path,
             transcription_model=transcription_model,
             output_folder=output_folder,
-            symbols=symbols,
             min_length=min_length,
             max_length=max_length,
             min_confidence=min_confidence,
             combine_clips=combine_clips,
+            symbols=symbols
         )
     else:
         output_folder = os.path.join(paths["datasets"], request.form["dataset"])
         suffix = get_suffix()
         text_path = os.path.join(output_folder, add_suffix(text_file, suffix))
         audio_path = os.path.join(output_folder, add_suffix(request.files["audio_file"].filename, suffix))
-        forced_alignment_path = os.path.join(output_folder, add_suffix(ALIGNMENT_FILE, suffix))
-        info_path = os.path.join(output_folder, add_suffix(INFO_FILE, suffix))
 
         with open(text_path, "w", encoding=CHARACTER_ENCODING) as f:
             f.write(request.files["text_file"].read().decode(CHARACTER_ENCODING, "ignore").replace("\r\n", "\n"))
         request.files["audio_file"].save(audio_path)
-
-        existing_output_path = os.path.join(output_folder, AUDIO_FOLDER)
-        unlabelled_path = os.path.join(output_folder, UNLABELLED_FOLDER)
-        existing_label_path = os.path.join(output_folder, METADATA_FILE)
 
         start_progress_thread(
             extend_existing_dataset,
             text_path=text_path,
             audio_path=audio_path,
             transcription_model=transcription_model,
-            forced_alignment_path=forced_alignment_path,
-            output_path=existing_output_path,
-            unlabelled_path=unlabelled_path,
-            label_path=existing_label_path,
+            output_folder=output_folder,
             suffix=suffix,
-            info_path=info_path,
             min_length=min_length,
             max_length=max_length,
             min_confidence=min_confidence,
             combine_clips=combine_clips,
+            symbols=symbols
         )
 
     return render_template("progress.html", next_url=get_next_url(URLS, request.path))

@@ -49,8 +49,14 @@ def create_dataset(
         Path to save dataset to
     logging : logging (optional)
         Logging object to write logs to
+    min_length : float (optional)
+        Minimum duration of a clip in seconds
+    max_length : float (optional)
+        Maximum duration of a clip in seconds
     min_confidence : float (optional)
         Minimum confidence score to generate a clip for
+    combine_clips : bool (optional)
+        Whether to combine clips to make them longer
     symbols : list[str] (optional)
         list of valid symbols default to DEFAULT_ALPHABET
 
@@ -96,15 +102,15 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Generate dataset")
     parser.add_argument("-t", "--text_path", help="Path to text file", type=str, required=True)
     parser.add_argument("-a", "--audio_path", help="Path to audio file", type=str, required=True)
-    parser.add_argument("-o", "--output_path", help="Path to save snippets", type=str, default="wavs")
+    parser.add_argument("-o", "--output_folder", help="Path to save snippets", type=str, default="wavs")
     parser.add_argument("-l", "--language", help="The language to use", type=str, default="English")
     parser.add_argument("-s", "--symbol_path", help="Path to symbol/alphabet file", type=str, default=None)
     args = parser.parse_args()
-    symbols = load_symbols(args.symbol_path) if args.symbol_path else DEFAULT_ALPHABET
+
     create_dataset(
         text_path=args.text_path,
         audio_path=args.audio_path,
         transcription_model=Silero(args.language),
-        output_folder=args.output_path,
-        symbols=symbols,
+        output_folder=args.output_folder,
+        symbols=load_symbols(args.symbol_path) if args.symbol_path else DEFAULT_ALPHABET,
     )
