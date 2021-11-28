@@ -9,16 +9,11 @@ import os
 sys.path.append(dirname(dirname(abspath(__file__))))
 from training import DEFAULT_ALPHABET
 from training.utils import load_symbols
+from dataset import AUDIO_FOLDER, UNLABELLED_FOLDER, METADATA_FILE, ALIGNMENT_FILE, INFO_FILE, MIN_LENGTH, MAX_LENGTH
 from dataset.audio_processing import convert_audio
-from dataset.clip_generator import clip_generator, MIN_LENGTH, MAX_LENGTH
+from dataset.clip_generator import clip_generator
 from dataset.analysis import save_dataset_info
 from dataset.transcribe import Silero
-
-AUDIO_FOLDER = "wavs"
-UNLABELLED_FOLDER = "unlabelled"
-METADATA_FILE = "metadata.csv"
-ALIGNMENT_FILE = "align.json"
-INFO_FILE = "info.json"
 
 
 def create_dataset(

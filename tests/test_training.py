@@ -6,7 +6,7 @@ from unittest import mock
 import torch
 import shutil
 
-from dataset.clip_generator import CHARACTER_ENCODING
+from dataset import CHARACTER_ENCODING
 from training.clean_text import clean_text
 from training.checkpoint import (
     load_checkpoint,

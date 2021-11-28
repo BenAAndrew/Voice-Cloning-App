@@ -16,15 +16,8 @@ from application.utils import (
     delete_folder,
     import_dataset,
 )
-from dataset.create_dataset import (
-    create_dataset,
-    AUDIO_FOLDER,
-    UNLABELLED_FOLDER,
-    METADATA_FILE,
-    ALIGNMENT_FILE,
-    INFO_FILE,
-)
-from dataset.clip_generator import CHARACTER_ENCODING
+from dataset import AUDIO_FOLDER,UNLABELLED_FOLDER,METADATA_FILE,INFO_FILE,CHARACTER_ENCODING
+from dataset.create_dataset import create_dataset
 from dataset.utils import add_suffix
 from dataset.extend_existing_dataset import extend_existing_dataset
 from dataset.analysis import get_total_audio_duration, validate_dataset

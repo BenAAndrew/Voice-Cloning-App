@@ -4,7 +4,7 @@ import os
 import unicodedata
 from PIL import Image
 
-from dataset.clip_generator import CHARACTER_ENCODING
+from dataset import CHARACTER_ENCODING
 from dataset.utils import get_invalid_characters
 from training import BASE_SYMBOLS
 from training.tacotron2_model.utils import get_mask_from_lengths

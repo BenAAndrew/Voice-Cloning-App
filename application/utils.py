@@ -10,9 +10,9 @@ from flask import send_file
 import resampy  # noqa
 
 from main import socketio
+from dataset import CHARACTER_ENCODING
 from dataset.audio_processing import convert_audio
 from dataset.analysis import save_dataset_info
-from dataset.clip_generator import CHARACTER_ENCODING
 
 
 class SocketIOHandler(logging.Handler):

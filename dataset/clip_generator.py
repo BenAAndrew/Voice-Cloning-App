@@ -7,18 +7,13 @@ import pysrt
 from pydub import AudioSegment
 from datetime import datetime
 
+from dataset import MIN_LENGTH, MAX_LENGTH, MIN_CONFIDENCE, CHARACTER_ENCODING
 from dataset.utils import similarity, get_invalid_characters
 import dataset.forced_alignment.align as align
 from dataset.forced_alignment.search import FuzzySearch
 from dataset.forced_alignment.audio import DEFAULT_RATE
 from dataset.audio_processing import change_sample_rate, cut_audio, add_silence
 from training import DEFAULT_ALPHABET, PUNCTUATION
-
-
-MIN_LENGTH = 1.0
-MAX_LENGTH = 10.0
-MIN_CONFIDENCE = 0.85
-CHARACTER_ENCODING = "utf-8"
 
 
 def clip_combiner(audio_path, output_path, clips, max_length):

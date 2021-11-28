@@ -11,10 +11,10 @@ sys.path.append(dirname(dirname(abspath(__file__))))
 from training import DEFAULT_ALPHABET
 from training.utils import load_symbols
 from dataset.audio_processing import convert_audio
-from dataset.clip_generator import clip_generator, MIN_LENGTH, MAX_LENGTH
+from dataset.clip_generator import clip_generator
 from dataset.analysis import save_dataset_info
 from dataset.transcribe import Silero
-from dataset.create_dataset import AUDIO_FOLDER, UNLABELLED_FOLDER, METADATA_FILE, ALIGNMENT_FILE, INFO_FILE
+from dataset import AUDIO_FOLDER, UNLABELLED_FOLDER, METADATA_FILE, ALIGNMENT_FILE, INFO_FILE, MIN_LENGTH, MAX_LENGTH
 from dataset.utils import add_suffix
 
 
