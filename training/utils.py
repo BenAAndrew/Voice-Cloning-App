@@ -8,7 +8,7 @@ from dataset import CHARACTER_ENCODING
 from dataset.utils import get_invalid_characters
 from training import BASE_SYMBOLS
 from training.tacotron2_model.utils import get_mask_from_lengths
-
+from training.clean_text import clean_text
 
 CHECKPOINT_SIZE_MB = 333
 BATCH_SIZE_PER_GB = 2.5
@@ -100,6 +100,7 @@ def validate_dataset(filepaths_and_text, dataset_directory, symbols):
     invalid_characters = set()
     wavs = os.listdir(dataset_directory)
     for filename, text in filepaths_and_text:
+        text = clean_text(text, symbols)
         if filename not in wavs:
             missing_files.add(filename)
         invalid_characters_for_row = get_invalid_characters(text, symbols)
