@@ -46,6 +46,7 @@ A Python/Pytorch app for easily synthesising human voices
 - AMD GPU support
 
 ## Other resources
+- [Remote training notebook](https://colab.research.google.com/drive/1YbB_gA2_Rspmm1TDyEDueNXittmtWu1c?usp=sharing)
 - Try out existing voices at [uberduck.ai](https://uberduck.ai/) and [Vocodes](https://vo.codes/)
 - [Youtube data fetching](https://colab.research.google.com/drive/1_ulm1DKPOw8n0dHt8__2BR4d9WrWdWA4?usp=sharing) (created by Diskr33t#5880)
 - [Synthesize in Colab](https://colab.research.google.com/drive/18IJZZDW1NO7KOslg_WMOCrMeiqz9jOYF?usp=sharing) (created by mega b#6696)
