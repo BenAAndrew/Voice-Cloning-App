@@ -110,10 +110,7 @@ def validate_dataset(filepaths_and_text, dataset_directory, symbols):
             invalid_characters.update(invalid_characters_for_row)
 
     assert not missing_files, f"Missing files: {(',').join(missing_files)}"
-    detailed_info=""
-    for c in invalid_characters:
-        detailed_info+=f"{c} ({unicodedata.name(c)}),"
-    assert not invalid_characters, f"Invalid characters in text (missing from language): {detailed_info}"
+    assert not invalid_characters, f"Invalid characters in text (missing from language): {','.join([f'{c} ({unicodedata.name(c)})' for c in invalid_characters])}"
 
 
 def train_test_split(filepaths_and_text, train_size):

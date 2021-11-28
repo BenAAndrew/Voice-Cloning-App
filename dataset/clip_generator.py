@@ -351,10 +351,7 @@ def clip_generator(
     text = text.lower().strip().replace("\n", " ").replace("  ", " ")
     symbols=get_symbols(transcription_model.language)
     invalid_chars = get_invalid_characters(text, symbols)
-    detailed_info=""
-    for c in invalid_chars:
-        detailed_info+=f"{c} ({unicodedata.name(c)}),"
-    assert not invalid_chars, f"Invalid characters in text (missing from language): {detailed_info}"
+    assert not invalid_chars, f"Invalid characters in text (missing from language): {','.join([f'{c} ({unicodedata.name(c)})' for c in invalid_chars])}"
 
     # Generate clips
     if is_subtitle:
