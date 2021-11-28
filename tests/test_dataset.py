@@ -3,6 +3,7 @@ import shutil
 import json
 from pathlib import Path
 import json
+from application.constants import ENGLISH_LANGUAGE
 import pysrt
 
 from tests.test_synthesis import MIN_SYNTHESIS_SCORE
@@ -328,7 +329,7 @@ def test_validate_dataset():
 # Transcription
 def test_deepspeech():
     model_path = os.path.join("test_samples", "english.pbmm")
-    transcription_model = DeepSpeech(model_path)
+    transcription_model = DeepSpeech(model_path, ENGLISH_LANGUAGE)
 
     audio_path = os.path.join("test_samples", "audio.wav")
     transcription = transcription_model.transcribe(audio_path)
