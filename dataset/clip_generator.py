@@ -7,8 +7,7 @@ import pysrt
 from pydub import AudioSegment
 from datetime import datetime
 
-from dataset import get_invalid_characters
-from dataset.utils import similarity
+from dataset.utils import similarity, get_invalid_characters
 import dataset.forced_alignment.align as align
 from dataset.forced_alignment.search import FuzzySearch
 from dataset.forced_alignment.audio import DEFAULT_RATE

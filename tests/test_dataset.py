@@ -6,12 +6,11 @@ import json
 import pysrt
 
 from tests.test_synthesis import MIN_SYNTHESIS_SCORE
-from dataset import get_invalid_characters
 from dataset.analysis import get_total_audio_duration, get_clip_lengths, validate_dataset
 from dataset.clip_generator import generate_clips_from_subtitles, clip_combiner
 from dataset.create_dataset import create_dataset
 from dataset.extend_existing_dataset import extend_existing_dataset
-from dataset.utils import similarity, add_suffix
+from dataset.utils import similarity, add_suffix, get_invalid_characters
 from dataset.transcribe import TranscriptionModel, DeepSpeech, Silero
 
 
