@@ -63,7 +63,6 @@ def test_create_dataset():
         audio_path=audio_path,
         transcription_model=FakeTranscriptionModel(),
         output_folder=dataset_directory,
-        symbols=DEFAULT_ALPHABET,
         min_confidence=min_confidence,
         combine_clips=False,
     )
