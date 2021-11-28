@@ -211,6 +211,7 @@ def train(
 
             # Validate & save checkpoint
             if iteration % iters_per_checkpoint == 0:
+                logging.info("Validating model")
                 val_loss, avgmax_attention = validate(model, val_loader, criterion, iteration)
                 validation_losses.append(val_loss)
                 logging.info(

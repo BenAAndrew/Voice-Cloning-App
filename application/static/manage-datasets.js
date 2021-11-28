@@ -1,8 +1,9 @@
 
 function selectUnlabelledClip(){
+    dataset = document.getElementById("dataset").value;
     clip = document.getElementById("unlabelled_clip").value;
     source = document.getElementById("audioSource");
-    source.src = 'data/datasets/unlabel/unlabelled/'+clip;
+    source.src = 'data/datasets/'+dataset+'/unlabelled/'+clip;
     audio = document.getElementById("audio");
     audio.load();
 }
