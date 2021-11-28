@@ -97,13 +97,10 @@ if __name__ == "__main__":
     parser.add_argument("-t", "--text_path", help="Path to text file", type=str, required=True)
     parser.add_argument("-a", "--audio_path", help="Path to audio file", type=str, required=True)
     parser.add_argument("-o", "--output_path", help="Path to save snippets", type=str, default="wavs")
-    parser.add_argument("-lang", "--language", help="The language to use", type=str, default="English")
+    parser.add_argument("-l", "--language", help="The language to use", type=str, default="English")
     parser.add_argument("-s", "--symbol_path", help="Path to symbol/alphabet file", type=str, default=None)
     args = parser.parse_args()
-    if args.symbol_path:
-        symbols = load_symbols(args.symbol_path)
-    else:
-        symbols = DEFAULT_ALPHABET
+    symbols = load_symbols(args.symbol_path) if args.symbol_path else DEFAULT_ALPHABET
     create_dataset(
         text_path=args.text_path,
         audio_path=args.audio_path,
