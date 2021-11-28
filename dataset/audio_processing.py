@@ -1,6 +1,5 @@
 import argparse
 from subprocess import check_output, call, DEVNULL, STDOUT
-from pathlib import Path
 from pydub import AudioSegment
 import re
 import os

@@ -16,7 +16,7 @@ from application.utils import (
     delete_folder,
     import_dataset,
 )
-from dataset import AUDIO_FOLDER,UNLABELLED_FOLDER,METADATA_FILE,INFO_FILE,CHARACTER_ENCODING
+from dataset import AUDIO_FOLDER, UNLABELLED_FOLDER, METADATA_FILE, INFO_FILE, CHARACTER_ENCODING
 from dataset.create_dataset import create_dataset
 from dataset.utils import add_suffix
 from dataset.extend_existing_dataset import extend_existing_dataset
@@ -133,7 +133,7 @@ def create_dataset_post():
             max_length=max_length,
             min_confidence=min_confidence,
             combine_clips=combine_clips,
-            symbols=symbols
+            symbols=symbols,
         )
     else:
         output_folder = os.path.join(paths["datasets"], request.form["dataset"])
@@ -156,7 +156,7 @@ def create_dataset_post():
             max_length=max_length,
             min_confidence=min_confidence,
             combine_clips=combine_clips,
-            symbols=symbols
+            symbols=symbols,
         )
 
     return render_template("progress.html", next_url=get_next_url(URLS, request.path))

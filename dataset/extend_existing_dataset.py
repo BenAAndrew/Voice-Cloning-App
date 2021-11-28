@@ -138,5 +138,5 @@ if __name__ == "__main__":
         transcription_model=Silero(args.language),
         output_folder=args.output_folder,
         suffix=args.suffix,
-        symbols=load_symbols(args.symbol_path) if args.symbol_path else DEFAULT_ALPHABET
+        symbols=load_symbols(args.symbol_path) if args.symbol_path else DEFAULT_ALPHABET,
     )

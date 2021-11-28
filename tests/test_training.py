@@ -1,5 +1,4 @@
 import os
-import inflect
 import random
 from string import ascii_lowercase
 from unittest import mock
