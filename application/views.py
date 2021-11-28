@@ -74,6 +74,7 @@ def get_checkpoints():
         if os.listdir(os.path.join(paths["models"], model))
     }
 
+
 def get_symbols(language):
     if language == ENGLISH_LANGUAGE:
         return DEFAULT_ALPHABET

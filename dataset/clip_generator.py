@@ -3,6 +3,7 @@ import os
 import logging
 import json
 import uuid
+import unicodedata
 import shutil
 import pysrt
 from pathlib import Path
@@ -343,7 +344,9 @@ def clip_generator(
 
     text = text.lower().strip().replace("\n", " ").replace("  ", " ")
     invalid_chars = get_invalid_characters(text, symbols)
-    assert not invalid_chars, f"Invalid characters in text (missing from language): {','.join(invalid_chars)}"
+    assert (
+        not invalid_chars
+    ), f"Invalid characters in text (missing from language): {','.join([f'{c} ({unicodedata.name(c)})' for c in invalid_chars])}"
 
     # Generate clips
     if is_subtitle:
