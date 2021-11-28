@@ -4,7 +4,11 @@ import logging
 import json
 import uuid
 import shutil
-from application import constants
+from application.constants import(
+    CHARACTER_ENCODING,
+    DEFAULT_ALPHABET,
+    PUNCTUATION,
+)
 from application.utils import get_symbols
 import pysrt
 import unicodedata
@@ -56,7 +60,7 @@ def clip_combiner(audio_path, output_path, clips, max_length):
         """Joins list of lines with comma seperation"""
         return " ".join(
             [
-                line + "," if not line[-1] in constants.PUNCTUATION and i != len(lines) - 1 else line
+                line + "," if not line[-1] in PUNCTUATION and i != len(lines) - 1 else line
                 for i, line in enumerate(lines)
             ]
         )
@@ -271,7 +275,7 @@ def clip_generator(
     unlabelled_path,
     label_path,
     logging=logging,
-    symbols=constants.DEFAULT_ALPHABET,
+    symbols=DEFAULT_ALPHABET,
     min_length=MIN_LENGTH,
     max_length=MAX_LENGTH,
     silence_padding=0.1,
@@ -341,7 +345,7 @@ def clip_generator(
         subs = pysrt.open(script_path)
         text = " ".join([sub.text for sub in subs])
     else:
-        with open(script_path, "r", encoding=constants.CHARACTER_ENCODING) as script_file:
+        with open(script_path, "r", encoding=CHARACTER_ENCODING) as script_file:
             text = script_file.read()
 
     text = text.lower().strip().replace("\n", " ").replace("  ", " ")
@@ -398,11 +402,11 @@ def clip_generator(
 
     # Produce alignment file
     logging.info(f"Produced {len(clips)} final clips")
-    with open(forced_alignment_path, "w", encoding=constants.CHARACTER_ENCODING) as result_file:
+    with open(forced_alignment_path, "w", encoding=CHARACTER_ENCODING) as result_file:
         result_file.write(json.dumps(clips, ensure_ascii=False, indent=4))
 
     # Produce metadata file
-    with open(label_path, "w", encoding=constants.CHARACTER_ENCODING) as f:
+    with open(label_path, "w", encoding=CHARACTER_ENCODING) as f:
         for fragment in clips:
             f.write(f"{fragment['name']}|{fragment['text']}\n")
     logging.info("Generated clips")

@@ -8,7 +8,9 @@ import matplotlib
 from scipy.io.wavfile import write
 from os.path import dirname, abspath
 import sys
-from application import constants
+from application.constants import(
+    DEFAULT_ALPHABET
+)
 
 import nltk
 
@@ -114,7 +116,7 @@ def join_alignment_graphs(alignments):
 def synthesize(
     model,
     text,
-    symbols=constants.DEFAULT_ALPHABET,
+    symbols=DEFAULT_ALPHABET,
     graph_path=None,
     audio_path=None,
     vocoder=None,

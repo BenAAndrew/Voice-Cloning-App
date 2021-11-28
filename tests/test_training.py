@@ -5,7 +5,10 @@ from string import ascii_lowercase
 from unittest import mock
 import torch
 import shutil
-from application import constants
+from application.constants import(
+    CHARACTER_ENCODING,
+    DEFAULT_ALPHABET
+)
 
 from training.clean_text import clean_text
 from training.checkpoint import (
@@ -163,10 +166,10 @@ def test_voice_dataset(clean_text):
 
     metadata_path = os.path.join("test_samples", "dataset", "metadata.csv")
     audio_directory = os.path.join("test_samples", "dataset", "wavs")
-    with open(metadata_path, encoding=constants.CHARACTER_ENCODING) as f:
+    with open(metadata_path, encoding=CHARACTER_ENCODING) as f:
         filepaths_and_text = [line.strip().split("|") for line in f]
 
-    dataset = VoiceDataset(filepaths_and_text, audio_directory, constants.DEFAULT_ALPHABET)
+    dataset = VoiceDataset(filepaths_and_text, audio_directory, DEFAULT_ALPHABET)
     assert len(dataset) == 3
     text, mel = dataset[0]
     assert len(text) == len("that five shots may have been")

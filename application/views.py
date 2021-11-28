@@ -8,7 +8,19 @@ from pathlib import Path
 import re
 
 from main import app, paths
-from application import constants
+from application.constants import (
+    ALPHABET_FILE,
+    CHARACTER_ENCODING,
+    GRAPH_FILE,
+    RESULTS_FILE,
+    SILERO_LANGUAGES,
+    SILERO_LANGUAGES,
+    SUBTITLE_FILE,
+    TEMP_DATASET_UPLOAD,
+    TEXT_FILE,
+    TRANSCRIPTION_MODEL,
+    URLS,
+)
 from application.utils import (
     get_symbols,
     start_progress_thread,
@@ -46,9 +58,9 @@ symbols = None
 
 
 def get_languages():
-    silero_languages = {language: True for language in constants.SILERO_LANGUAGES}
+    silero_languages = {language: True for language in SILERO_LANGUAGES}
     custom_models = {
-        language: os.path.isfile(os.path.join(paths["languages"], language, constants.TRANSCRIPTION_MODEL))
+        language: os.path.isfile(os.path.join(paths["languages"], language, TRANSCRIPTION_MODEL))
         for language in os.listdir(paths["languages"])
     }
     return {**silero_languages, **custom_models}
@@ -76,7 +88,7 @@ def handle_bad_request(e):
 
 @app.context_processor
 def inject_data():
-    return {"urls": constants.URLS, "path": request.path}
+    return {"urls": URLS, "path": request.path}
 
 
 # Dataset
@@ -94,10 +106,10 @@ def create_dataset_post():
     max_length = float(request.form["max_length"])
     transcription_model = (
         Silero(language)
-        if language in constants.SILERO_LANGUAGES
+        if language in SILERO_LANGUAGES
         else DeepSpeech(language)
     )
-    text_file = constants.SUBTITLE_FILE if request.files["text_file"].filename.endswith(".srt") else constants.TEXT_FILE
+    text_file = SUBTITLE_FILE if request.files["text_file"].filename.endswith(".srt") else TEXT_FILE
 
     if request.form["name"]:
         output_folder = os.path.join(paths["datasets"], request.form["name"])
@@ -109,8 +121,8 @@ def create_dataset_post():
         text_path = os.path.join(output_folder, text_file)
         audio_path = os.path.join(output_folder, request.files["audio_file"].filename)
 
-        with open(text_path, "w", encoding=constants.CHARACTER_ENCODING) as f:
-            f.write(request.files["text_file"].read().decode(constants.CHARACTER_ENCODING, "ignore").replace("\r\n", "\n"))
+        with open(text_path, "w", encoding=CHARACTER_ENCODING) as f:
+            f.write(request.files["text_file"].read().decode(CHARACTER_ENCODING, "ignore").replace("\r\n", "\n"))
         request.files["audio_file"].save(audio_path)
 
         start_progress_thread(
@@ -132,8 +144,8 @@ def create_dataset_post():
         forced_alignment_path = os.path.join(output_folder, add_suffix(ALIGNMENT_FILE, suffix))
         info_path = os.path.join(output_folder, add_suffix(INFO_FILE, suffix))
 
-        with open(text_path, "w", encoding=constants.CHARACTER_ENCODING) as f:
-            f.write(request.files["text_file"].read().decode(constants.CHARACTER_ENCODING, "ignore").replace("\r\n", "\n"))
+        with open(text_path, "w", encoding=CHARACTER_ENCODING) as f:
+            f.write(request.files["text_file"].read().decode(CHARACTER_ENCODING, "ignore").replace("\r\n", "\n"))
         request.files["audio_file"].save(audio_path)
 
         existing_output_path = os.path.join(output_folder, AUDIO_FOLDER)
@@ -157,7 +169,7 @@ def create_dataset_post():
             combine_clips=combine_clips,
         )
 
-    return render_template("progress.html", next_url=get_next_url(constants.URLS, request.path))
+    return render_template("progress.html", next_url=get_next_url(URLS, request.path))
 
 
 @app.route("/dataset-duration", methods=["GET"])
@@ -241,7 +253,7 @@ def train_post():
     )
 
     return render_template(
-        "progress.html", next_url=get_next_url(constants.URLS, request.path), voice=Path(checkpoint_folder).stem
+        "progress.html", next_url=get_next_url(URLS, request.path), voice=Path(checkpoint_folder).stem
     )
 
 
@@ -310,8 +322,8 @@ def synthesis_post():
             parent_folder, get_suffix() + "-" + re.sub("[^0-9a-zA-Z _]+", "", first_line.replace(" ", "_"))[:20]
         )
         os.makedirs(results_folder)
-        graph_path = os.path.join(results_folder, constants.GRAPH_FILE)
-        audio_path = os.path.join(results_folder, constants.RESULTS_FILE)
+        graph_path = os.path.join(results_folder, GRAPH_FILE)
+        audio_path = os.path.join(results_folder, RESULTS_FILE)
         graph_web_path = graph_path.replace("\\", "/")
         audio_web_path = audio_path.replace("\\", "/")
         silence = float(request.form["silence"])
@@ -388,14 +400,14 @@ def import_export():
 @app.route("/upload-dataset", methods=["POST"])
 def upload_dataset():
     dataset = request.files["dataset"]
-    dataset.save(constants.TEMP_DATASET_UPLOAD)
+    dataset.save(TEMP_DATASET_UPLOAD)
     dataset_name = request.values["name"]
     dataset_directory = os.path.join(paths["datasets"], dataset_name)
     audio_folder = os.path.join(dataset_directory, AUDIO_FOLDER)
     assert not os.path.isdir(dataset_directory), "Output folder already exists"
 
     start_progress_thread(
-        import_dataset, dataset=constants.TEMP_DATASET_UPLOAD, dataset_directory=dataset_directory, audio_folder=audio_folder
+        import_dataset, dataset=TEMP_DATASET_UPLOAD, dataset_directory=dataset_directory, audio_folder=audio_folder
     )
 
     return render_template("progress.html", next_url="/import-export")
@@ -474,8 +486,8 @@ def upload_language():
     language_dir = os.path.join(paths["languages"], language)
     os.makedirs(language_dir, exist_ok=True)
     if request.files["model"]:
-        request.files["model"].save(os.path.join(language_dir, constants.TRANSCRIPTION_MODEL))
-    request.files["alphabet"].save(os.path.join(language_dir, constants.ALPHABET_FILE))
+        request.files["model"].save(os.path.join(language_dir, TRANSCRIPTION_MODEL))
+    request.files["alphabet"].save(os.path.join(language_dir, ALPHABET_FILE))
     return redirect("/settings")
 
 

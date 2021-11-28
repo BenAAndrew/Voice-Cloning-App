@@ -3,7 +3,9 @@ import re
 
 import inflect
 
-from application import constants
+from application.constants import(
+    DEFAULT_ALPHABET
+)
 
 INFLECT_ENGINE = inflect.engine()
 COMMA_NUMBER_RE = re.compile(r"([0-9][0-9\,]+[0-9])")
@@ -37,7 +39,7 @@ ABBREVIATION_REPLACEMENT = {
 }
 
 
-def clean_text(text, symbols=constants.DEFAULT_ALPHABET):
+def clean_text(text, symbols=DEFAULT_ALPHABET):
     """
     Cleans text. This includes:
     - Replacing monetary terms (i.e. $ -> dollars)

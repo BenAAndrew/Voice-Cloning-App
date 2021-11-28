@@ -3,7 +3,9 @@ import random
 import os
 import unicodedata
 from PIL import Image
-from application import constants
+from application.constants import(
+    CHARACTER_ENCODING
+)
 
 
 from dataset import get_invalid_characters
@@ -89,7 +91,7 @@ def load_metadata(metadata_path):
     list
         List of samples
     """
-    with open(metadata_path, encoding=constants.CHARACTER_ENCODING) as f:
+    with open(metadata_path, encoding=CHARACTER_ENCODING) as f:
         filepaths_and_text = [line.strip().split("|") for line in f]
     random.shuffle(filepaths_and_text)
     return filepaths_and_text

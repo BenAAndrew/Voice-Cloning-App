@@ -5,7 +5,10 @@ import sys
 import librosa
 import wave
 import numpy as np
-from application import constants
+from application.constants import(
+    SILERO_LANGUAGES,
+    TRANSCRIPTION_MODEL
+)
 from main import paths
 import deepspeech
 import torch
@@ -63,7 +66,7 @@ class DeepSpeech(TranscriptionModel):
 
     def __init__(self, language):
         self.language=language
-        self.model = deepspeech.Model(os.path.join(paths["languages"], language, constants.TRANSCRIPTION_MODEL))
+        self.model = deepspeech.Model(os.path.join(paths["languages"], language, TRANSCRIPTION_MODEL))
 
     def load_audio(self, path):
         try:
@@ -98,7 +101,7 @@ class Silero(TranscriptionModel):
             self.model, self.decoder, _ = torch.hub.load(
                 repo_or_dir="snakers4/silero-models",
                 model="silero_stt",
-                language=constants.SILERO_LANGUAGES[language],
+                language=SILERO_LANGUAGES[language],
                 device=self.device,
             )
 

@@ -1,7 +1,9 @@
 import os
 from pathlib import Path
 import random
-from application import constants
+from application.constants import(
+    DEFAULT_ALPHABET
+)
 from synthesis.synthesize import load_model
 import time
 import argparse
@@ -45,7 +47,7 @@ def train(
     metadata_path,
     dataset_directory,
     output_directory,
-    symbols=constants.DEFAULT_ALPHABET,
+    symbols=DEFAULT_ALPHABET,
     checkpoint_path=None,
     transfer_learning_path=None,
     epochs=8000,
