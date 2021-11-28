@@ -225,31 +225,26 @@ def test_clip_combiner():
 def test_extend_existing_dataset():
     dataset_directory = "test-extend-dataset"
     audio_folder = os.path.join(dataset_directory, "wavs")
-    unlabelled_path = os.path.join(dataset_directory, "unlabelled")
+    unlabelled_folder = os.path.join(dataset_directory, "unlabelled")
     metadata_file = os.path.join(dataset_directory, "metadata.csv")
     os.makedirs(dataset_directory)
     os.makedirs(audio_folder)
+    os.makedirs(unlabelled_folder)
     with open(metadata_file, "w") as f:
         pass
 
     audio_path = os.path.join("test_samples", "audio.wav")
     converted_audio_path = os.path.join("test_samples", "audio-converted.wav")
     text_path = os.path.join("test_samples", "text.txt")
-    forced_alignment_path = os.path.join(dataset_directory, "align.json")
     label_path = os.path.join(dataset_directory, "metadata.csv")
-    info_path = os.path.join(dataset_directory, "info.json")
     suffix = "extend"
     min_confidence = 1.0
     extend_existing_dataset(
         text_path=text_path,
         audio_path=audio_path,
         transcription_model=FakeTranscriptionModel(),
-        forced_alignment_path=forced_alignment_path,
-        output_path=audio_folder,
-        unlabelled_path=unlabelled_path,
-        label_path=label_path,
+        output_folder=dataset_directory,
         suffix=suffix,
-        info_path=info_path,
         min_confidence=min_confidence,
         combine_clips=False,
     )
@@ -257,6 +252,10 @@ def test_extend_existing_dataset():
     assert os.listdir(audio_folder) == [
         name.split(".")[0] + "-" + suffix + ".wav" for name in EXPECTED_CLIPS
     ], "Unexpected audio clips"
+
+    assert os.listdir(unlabelled_folder) == [
+        name.split(".")[0] + "-" + suffix + ".wav" for name in UNMATCHED_CLIPS
+    ], "Unexpected unlabelled audio clips"
 
     with open(label_path) as f:
         lines = f.readlines()

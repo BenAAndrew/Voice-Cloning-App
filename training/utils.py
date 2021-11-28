@@ -100,7 +100,7 @@ def validate_dataset(filepaths_and_text, dataset_directory, symbols):
     invalid_characters = set()
     wavs = os.listdir(dataset_directory)
     for filename, text in filepaths_and_text:
-        text = clean_text(text, symbols)
+        text = clean_text(text, remove_invalid_characters=False)
         if filename not in wavs:
             missing_files.add(filename)
         invalid_characters_for_row = get_invalid_characters(text, symbols)

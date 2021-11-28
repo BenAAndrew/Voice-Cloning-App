@@ -36,7 +36,7 @@ ABBREVIATION_REPLACEMENT = {
 }
 
 
-def clean_text(text, symbols=DEFAULT_ALPHABET):
+def clean_text(text, symbols=DEFAULT_ALPHABET, remove_invalid_characters=True):
     """
     Cleans text. This includes:
     - Replacing monetary terms (i.e. $ -> dollars)
@@ -49,8 +49,10 @@ def clean_text(text, symbols=DEFAULT_ALPHABET):
     ----------
     text : str
         Text to clean
-    symbols : list
+    symbols : list (optional)
         List of valid symbols in text (default is English alphabet & punctuation)
+    remove_invalid_characters : bool (optional)
+        Whether to remove characters not in symbols list (default is True)
 
     Returns
     -------
@@ -83,7 +85,8 @@ def clean_text(text, symbols=DEFAULT_ALPHABET):
     # Collapse whitespace
     text = re.sub(WHITESPACE_RE, " ", text)
     # Remove banned characters
-    text = "".join([c for c in text if c in symbols])
+    if remove_invalid_characters:
+        text = "".join([c for c in text if c in symbols])
     return text
 
 
