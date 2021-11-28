@@ -1,6 +1,7 @@
 import torch
 import random
 import os
+import unicodedata
 from PIL import Image
 
 from dataset.clip_generator import CHARACTER_ENCODING
@@ -106,7 +107,9 @@ def validate_dataset(filepaths_and_text, dataset_directory, symbols):
             invalid_characters.update(invalid_characters_for_row)
 
     assert not missing_files, f"Missing files: {(',').join(missing_files)}"
-    assert not invalid_characters, f"Invalid characters (for alphabet): {(',').join(invalid_characters)}"
+    assert (
+        not invalid_characters
+    ), f"Invalid characters in text (for alphabet): {','.join([f'{c} ({unicodedata.name(c)})' for c in invalid_characters])}"
 
 
 def train_test_split(filepaths_and_text, train_size):
