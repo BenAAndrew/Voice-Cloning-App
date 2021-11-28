@@ -128,13 +128,14 @@ def create_dataset_post():
         with open(text_path, "w", encoding=CHARACTER_ENCODING) as f:
             f.write(request.files["text_file"].read().decode(CHARACTER_ENCODING, "ignore").replace("\r\n", "\n"))
         request.files["audio_file"].save(audio_path)
-
+        symbols = get_symbols(language)
         start_progress_thread(
             create_dataset,
             text_path=text_path,
             audio_path=audio_path,
             transcription_model=transcription_model,
             output_folder=output_folder,
+            symbols=symbols,
             min_length=min_length,
             max_length=max_length,
             min_confidence=min_confidence,

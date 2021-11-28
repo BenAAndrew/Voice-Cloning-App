@@ -32,5 +32,6 @@ z
 ä
 ö
 ü
+ß
 '
 # The last (non-comment) line needs to end with a newline.

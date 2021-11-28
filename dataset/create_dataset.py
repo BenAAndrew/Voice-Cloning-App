@@ -5,13 +5,14 @@ import shutil
 import sys
 import os
 
-sys.path.append(dirname(dirname(abspath(__file__))))
 
+sys.path.append(dirname(dirname(abspath(__file__))))
+from training import DEFAULT_ALPHABET
+from training.utils import load_symbols
 from dataset.audio_processing import convert_audio
 from dataset.clip_generator import clip_generator, MIN_LENGTH, MAX_LENGTH
 from dataset.analysis import save_dataset_info
 from dataset.transcribe import Silero
-
 
 AUDIO_FOLDER = "wavs"
 UNLABELLED_FOLDER = "unlabelled"
@@ -30,6 +31,7 @@ def create_dataset(
     max_length=MAX_LENGTH,
     min_confidence=0.85,
     combine_clips=True,
+    symbols=DEFAULT_ALPHABET,
 ):
     """
     Generates a dataset.
@@ -49,6 +51,8 @@ def create_dataset(
         Logging object to write logs to
     min_confidence : float (optional)
         Minimum confidence score to generate a clip for
+    symbols : list[str] (optional)
+        list of valid symbols default to DEFAULT_ALPHABET
 
     Raises
     -------
@@ -73,6 +77,7 @@ def create_dataset(
             unlabelled_path,
             label_path,
             logging=logging,
+            symbols=symbols,
             min_length=min_length,
             max_length=max_length,
             min_confidence=min_confidence,
@@ -91,15 +96,15 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Generate dataset")
     parser.add_argument("-t", "--text_path", help="Path to text file", type=str, required=True)
     parser.add_argument("-a", "--audio_path", help="Path to audio file", type=str, required=True)
-    parser.add_argument(
-        "-f", "--forced_alignment_path", help="Path to forced alignment JSON", type=str, default="align.json"
-    )
     parser.add_argument("-o", "--output_path", help="Path to save snippets", type=str, default="wavs")
-    parser.add_argument("-u", "--unlabelled_path", help="Path to save unlabelled clips", type=str, default="unlabelled")
-    parser.add_argument(
-        "-l", "--label_path", help="Path to save snippet labelling text file", type=str, default="metadata.csv"
-    )
-    parser.add_argument("-i", "--info_path", help="Path to save info file", type=str, default="info.json")
+    parser.add_argument("-l", "--language", help="The language to use", type=str, default="English")
+    parser.add_argument("-s", "--symbol_path", help="Path to symbol/alphabet file", type=str, default=None)
     args = parser.parse_args()
-
-    create_dataset(**vars(args), transcription_model=Silero())
+    symbols = load_symbols(args.symbol_path) if args.symbol_path else DEFAULT_ALPHABET
+    create_dataset(
+        text_path=args.text_path,
+        audio_path=args.audio_path,
+        transcription_model=Silero(args.language),
+        output_folder=args.output_path,
+        symbols=symbols,
+    )
