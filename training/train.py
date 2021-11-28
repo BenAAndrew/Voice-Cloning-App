@@ -183,7 +183,6 @@ def train(
     model.train()
     validation_losses = []
     for epoch in range(epoch_offset, epochs):
-        print("Epoch: {}".format(epoch))
         logging.info(f"Progress - {epoch}/{epochs}")
         for _, batch in enumerate(train_loader):
             start = time.perf_counter()
