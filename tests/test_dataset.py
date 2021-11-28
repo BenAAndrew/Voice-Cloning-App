@@ -13,6 +13,7 @@ from dataset.create_dataset import create_dataset
 from dataset.extend_existing_dataset import extend_existing_dataset
 from dataset.utils import similarity, add_suffix
 from dataset.transcribe import TranscriptionModel, DeepSpeech, Silero
+from training import DEFAULT_ALPHABET
 
 
 TEXT = "the examination and testimony of the experts enabled the commission to conclude that five shots may have been fired"
@@ -62,6 +63,7 @@ def test_create_dataset():
         audio_path=audio_path,
         transcription_model=FakeTranscriptionModel(),
         output_folder=dataset_directory,
+        symbols=DEFAULT_ALPHABET,
         min_confidence=min_confidence,
         combine_clips=False,
     )

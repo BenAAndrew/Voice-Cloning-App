@@ -4,6 +4,7 @@ from os.path import dirname, abspath
 import shutil
 import sys
 import os
+from training import DEFAULT_ALPHABET
 
 sys.path.append(dirname(dirname(abspath(__file__))))
 
@@ -30,6 +31,7 @@ def create_dataset(
     max_length=MAX_LENGTH,
     min_confidence=0.85,
     combine_clips=True,
+    symbols=DEFAULT_ALPHABET,
 ):
     """
     Generates a dataset.
@@ -49,6 +51,8 @@ def create_dataset(
         Logging object to write logs to
     min_confidence : float (optional)
         Minimum confidence score to generate a clip for
+    symbols : list[str] (optional)
+        list of valid symbols default to DEFAULT_ALPHABET
 
     Raises
     -------
@@ -73,6 +77,7 @@ def create_dataset(
             unlabelled_path,
             label_path,
             logging=logging,
+            symbols=symbols,
             min_length=min_length,
             max_length=max_length,
             min_confidence=min_confidence,
