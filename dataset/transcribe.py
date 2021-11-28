@@ -15,7 +15,6 @@ import torch
 import torchaudio  # noqa
 import soundfile  # noqa
 import omegaconf  # noqa
-
 from dataset.silero_utils import init_jit_model
 
 
@@ -64,9 +63,9 @@ class DeepSpeech(TranscriptionModel):
     Credit: https://github.com/mozilla/DeepSpeech
     """
 
-    def __init__(self, language):
+    def __init__(self,model_path, language):
         self.language=language
-        self.model = deepspeech.Model(os.path.join(paths["languages"], language, TRANSCRIPTION_MODEL))
+        self.model = deepspeech.Model(model_path)
 
     def load_audio(self, path):
         try:

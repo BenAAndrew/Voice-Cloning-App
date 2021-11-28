@@ -107,7 +107,7 @@ def create_dataset_post():
     transcription_model = (
         Silero(language)
         if language in SILERO_LANGUAGES
-        else DeepSpeech(language)
+        else DeepSpeech(os.path.join(paths["languages"], language, TRANSCRIPTION_MODEL),language)
     )
     text_file = SUBTITLE_FILE if request.files["text_file"].filename.endswith(".srt") else TEXT_FILE
 
