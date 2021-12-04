@@ -1,8 +1,11 @@
 import torch
 from torch.utils.data import DataLoader
 import torch.nn.functional as F
-import json
+import argparse
 import itertools
+import logging
+import json
+import time
 import os
 
 from meldataset import MelDataset, mel_spectrogram
@@ -14,33 +17,51 @@ from models import (
     generator_loss,
     discriminator_loss,
 )
-from utils import AttrDict, save_checkpoint, load_checkpoint
+from utils import AttrDict, save_checkpoints, load_checkpoint
+
+from training.utils import get_gpu_memory
+
+logging.getLogger().setLevel(logging.INFO)
 
 SEED = 1234
 CONFIG_FILE = "config.json"
-TRAIN_SIZE = 0.66
+BATCH_SIZE_PER_GB = 0.85
+LEARNING_RATE_PER_64 = 8e-4
 
 
-def train_hifigan(
+def train(
     audio_folder,
     output_directory,
     checkpoint_g=None,
     checkpoint_do=None,
-    epochs=2,
-    batch_size=1,
-    iters_per_checkpoint=10,
+    epochs=1000,
+    batch_size=None,
+    iters_per_checkpoint=1000,
+    iters_per_backup_checkpoint=10000,
+    train_size=0.8,
+    logging=logging,
 ):
     assert torch.cuda.is_available(), "You do not have Torch with CUDA installed. Please check CUDA & Pytorch install"
     os.makedirs(output_directory, exist_ok=True)
 
     torch.manual_seed(SEED)
     torch.cuda.manual_seed(SEED)
-
     device = torch.device("cuda")
+
     audio = [os.path.join(audio_folder, name) for name in os.listdir(audio_folder)]
-    train_cutoff = int(len(audio) * TRAIN_SIZE)
+    train_cutoff = int(len(audio) * train_size)
     train_files = audio[:train_cutoff]
     test_files = audio[train_cutoff:]
+    print(f"{len(train_files)} train files, {len(test_files)} test files")
+
+    if not batch_size:
+        available_memory = get_gpu_memory(0)
+        batch_size = int(available_memory * BATCH_SIZE_PER_GB)
+
+    learning_rate = (batch_size / 64) ** 0.5 * LEARNING_RATE_PER_64  # Adam Learning Rate is proportional to sqrt(batch_size)
+    logging.info(
+        f"Setting batch size to {batch_size}, learning rate to {learning_rate}. ({available_memory}GB GPU memory free)"
+    )
 
     with open(CONFIG_FILE) as f:
         params = AttrDict(json.loads(f.read()))
@@ -57,15 +78,15 @@ def train_hifigan(
         msd.load_state_dict(state_dict_do["msd"])
         iterations = state_dict_do["steps"] + 1
         last_epoch = state_dict_do["epoch"]
-        print("last epoch", last_epoch)
     else:
         state_dict_do = None
-        last_epoch = 0
+        iterations = 0
+        last_epoch = -1
 
-    optim_g = torch.optim.AdamW(generator.parameters(), params.learning_rate, betas=[params.adam_b1, params.adam_b2])
+    optim_g = torch.optim.AdamW(generator.parameters(), learning_rate, betas=[params.adam_b1, params.adam_b2])
     optim_d = torch.optim.AdamW(
         itertools.chain(msd.parameters(), mpd.parameters()),
-        params.learning_rate,
+        learning_rate,
         betas=[params.adam_b1, params.adam_b2],
     )
 
@@ -86,14 +107,15 @@ def train_hifigan(
         params.sampling_rate,
         params.fmin,
         params.fmax,
-        n_cache_reuse=0,
+        split=True,
         shuffle=True,
+        n_cache_reuse=0,
         fmax_loss=params.fmax_for_loss,
         device=device,
     )
     train_loader = DataLoader(
         trainset,
-        num_workers=params.num_workers,
+        num_workers=0,
         shuffle=False,
         sampler=None,
         batch_size=batch_size,
@@ -111,25 +133,24 @@ def train_hifigan(
         params.sampling_rate,
         params.fmin,
         params.fmax,
-        False,
-        False,
+        split=True,
+        shuffle=True,
         n_cache_reuse=0,
         fmax_loss=params.fmax_for_loss,
         device=device,
     )
     validation_loader = DataLoader(
-        validset, num_workers=1, shuffle=False, sampler=None, batch_size=batch_size, pin_memory=True, drop_last=True
+        validset, num_workers=0, shuffle=False, sampler=None, batch_size=batch_size, pin_memory=True, drop_last=True
     )
 
     generator.train()
     mpd.train()
     msd.train()
-    iterations = 0
-    for epoch in range(last_epoch, epochs):
+    for epoch in range(min(last_epoch, 0), epochs):
         print("Epoch: {}".format(epoch + 1))
 
         for _, batch in enumerate(train_loader):
-            print(len(batch))
+            start = time.perf_counter()
             x, y, _, y_mel = batch
             x = torch.autograd.Variable(x.to(device, non_blocking=True))
             y = torch.autograd.Variable(y.to(device, non_blocking=True))
@@ -183,28 +204,15 @@ def train_hifigan(
             with torch.no_grad():
                 mel_error = F.l1_loss(y_mel, y_g_hat_mel).item()
 
-            print(
-                "Steps : {:d}, Gen Loss Total : {:4.3f}, Mel-Spec. Error : {:4.3f}".format(
-                    iterations, loss_gen_all, mel_error
+            duration = time.perf_counter() - start
+            logging.info(
+                "Status - [Epoch {}: Iteration {}] Loss {:4.3f} Mel-Spec. Error {:.5f} {:.2f}s/it".format(
+                    epoch, iterations, loss_gen_all, mel_error, mel_error, duration
                 )
             )
 
-            if iterations % iters_per_checkpoint == 0:
-                # save checkpoint
-                checkpoint_path = "{}/g_{:08d}".format(output_directory, iterations)
-                save_checkpoint(checkpoint_path, {"generator": (generator).state_dict()})
-                checkpoint_path = "{}/do_{:08d}".format(output_directory, iterations)
-                save_checkpoint(
-                    checkpoint_path,
-                    {
-                        "mpd": mpd.state_dict(),
-                        "msd": msd.state_dict(),
-                        "optim_g": optim_g.state_dict(),
-                        "optim_d": optim_d.state_dict(),
-                        "steps": iterations,
-                        "epoch": epoch,
-                    },
-                )
+            if iterations % iters_per_checkpoint == 0 and iterations != 0:
+                save_checkpoints(generator, mpd, msd, optim_g, optim_d, iterations, epochs, output_directory, iters_per_checkpoint, iters_per_backup_checkpoint, logging)
 
                 # validate
                 generator.eval()
@@ -237,21 +245,27 @@ def train_hifigan(
         scheduler_g.step()
         scheduler_d.step()
 
-    checkpoint_path = "{}/g_{:08d}".format(output_directory, iterations)
-    save_checkpoint(checkpoint_path, {"generator": (generator).state_dict()})
-    checkpoint_path = "{}/do_{:08d}".format(output_directory, iterations)
-    save_checkpoint(
-        checkpoint_path,
-        {
-            "mpd": mpd.state_dict(),
-            "msd": msd.state_dict(),
-            "optim_g": optim_g.state_dict(),
-            "optim_d": optim_d.state_dict(),
-            "steps": iterations,
-            "epoch": epoch,
-        },
-    )
+    save_checkpoints(generator, mpd, msd, optim_g, optim_d, iterations, epochs, output_directory, iters_per_checkpoint, iters_per_backup_checkpoint, logging)
 
 
 if __name__ == "__main__":
-    train_hifigan("wavs", "checkpoints", "checkpoints\\g_00000000", "checkpoints\\do_00000000")
+    """Train a tacotron2 model"""
+    parser = argparse.ArgumentParser(description="Train a tacotron2 model")
+    parser.add_argument("-d", "--dataset_directory", required=True, type=str, help="directory to dataset")
+    parser.add_argument("-o", "--output_directory", required=True, type=str, help="directory to save checkpoints")
+    parser.add_argument("--generator_checkpoint_path", required=False, type=str, help="generator checkpoint path")
+    parser.add_argument("--discriminator_checkpoint_path", required=False, type=str, help="discriminator checkpoint path")
+    parser.add_argument("-e", "--epochs", default=1000, type=int, help="num epochs")
+    parser.add_argument("-b", "--batch_size", required=False, type=int, help="batch size")
+    parser.add_argument("-i", "--iters_per_checkpoint", default=1000, type=int, help="iters per checkpoint")
+    args = parser.parse_args()
+
+    train(
+        audio_folder=args.dataset_directory,
+        output_directory=args.output_directory,
+        checkpoint_g=args.generator_checkpoint_path,
+        checkpoint_do=args.discriminator_checkpoint_path,
+        epochs=args.epochs,
+        batch_size=args.batch_size,
+        iters_per_checkpoint=args.iters_per_checkpoint
+    )
