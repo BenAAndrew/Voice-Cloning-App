@@ -24,7 +24,7 @@ def load_checkpoint(filepath, device):
 
 
 def get_checkpoint_options(checkpoint_directory):
-    return set(sorted([int(filename.split("_")[1]) for filename in os.listdir(checkpoint_directory)], reverse=True))
+    return list(set(sorted([int(filename.split("_")[1]) for filename in os.listdir(checkpoint_directory)], reverse=True)))
 
 
 def save_checkpoints(generator, mpd, msd, optim_g, optim_d, iterations, epochs, output_directory, checkpoint_frequency, checkpoint_backup_frequency, logging):

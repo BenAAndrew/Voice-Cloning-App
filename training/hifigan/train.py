@@ -7,9 +7,14 @@ import logging
 import json
 import time
 import os
+from os.path import dirname, abspath
+import sys
 
-from meldataset import MelDataset, mel_spectrogram
-from models import (
+sys.path.append(dirname(dirname(dirname(abspath(__file__)))))
+logging.getLogger().setLevel(logging.INFO)
+
+from training.hifigan.meldataset import MelDataset, mel_spectrogram
+from training.hifigan.models import (
     Generator,
     MultiPeriodDiscriminator,
     MultiScaleDiscriminator,
@@ -17,15 +22,15 @@ from models import (
     generator_loss,
     discriminator_loss,
 )
-from utils import AttrDict, save_checkpoints, load_checkpoint
+from training.hifigan.utils import AttrDict, save_checkpoints, load_checkpoint
 
 from training.utils import get_gpu_memory
 
-logging.getLogger().setLevel(logging.INFO)
 
 SEED = 1234
-CONFIG_FILE = "config.json"
-BATCH_SIZE_PER_GB = 0.85
+CONFIG_FILE = os.path.join(dirname(abspath(__file__)), "config.json")
+print(CONFIG_FILE)
+BATCH_SIZE_PER_GB = 0.8
 LEARNING_RATE_PER_64 = 8e-4
 
 
@@ -54,10 +59,9 @@ def train(
     test_files = audio[train_cutoff:]
     print(f"{len(train_files)} train files, {len(test_files)} test files")
 
+    available_memory = get_gpu_memory(0)
     if not batch_size:
-        available_memory = get_gpu_memory(0)
         batch_size = int(available_memory * BATCH_SIZE_PER_GB)
-
     learning_rate = (batch_size / 64) ** 0.5 * LEARNING_RATE_PER_64  # Adam Learning Rate is proportional to sqrt(batch_size)
     logging.info(
         f"Setting batch size to {batch_size}, learning rate to {learning_rate}. ({available_memory}GB GPU memory free)"
@@ -71,6 +75,9 @@ def train(
     msd = MultiScaleDiscriminator().to(device)
 
     if checkpoint_g and checkpoint_do:
+        logging.info(
+            f"Loading {checkpoint_g} and {checkpoint_do} checkpoints"
+        )
         state_dict_g = load_checkpoint(checkpoint_g, device)
         state_dict_do = load_checkpoint(checkpoint_do, device)
         generator.load_state_dict(state_dict_g["generator"])
@@ -146,7 +153,8 @@ def train(
     generator.train()
     mpd.train()
     msd.train()
-    for epoch in range(min(last_epoch, 0), epochs):
+    last_epoch = min(last_epoch, 0)
+    for epoch in range(last_epoch, epochs):
         print("Epoch: {}".format(epoch + 1))
 
         for _, batch in enumerate(train_loader):
@@ -236,7 +244,7 @@ def train(
                         val_err_tot += F.l1_loss(y_mel, y_g_hat_mel).item()
 
                     val_err = val_err_tot / (j + 1)
-                    print("validation error", val_err)
+                    logging.info(f"Validation error: {val_err}")
 
                 generator.train()
 
