@@ -8,16 +8,6 @@ class AttrDict(dict):
         self.__dict__ = self
 
 
-def init_weights(m, mean=0.0, std=0.01):
-    classname = m.__class__.__name__
-    if classname.find("Conv") != -1:
-        m.weight.data.normal_(mean, std)
-
-
-def get_padding(kernel_size, dilation=1):
-    return int((kernel_size * dilation - dilation) / 2)
-
-
 def load_checkpoint(filepath, device):
     assert os.path.isfile(filepath)
     return torch.load(filepath, map_location=device)
