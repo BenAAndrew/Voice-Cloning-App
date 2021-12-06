@@ -5,6 +5,8 @@ omit =
     extra-hooks/*
     dataset/silero_utils.py
     training/tacotron2_model/*
+    training/hifigan/meldataset.py
+    training/hifigan/models.py
     synthesis/vocoders/hifigan_model.py
     synthesis/vocoders/vocoder.py
     glow.py

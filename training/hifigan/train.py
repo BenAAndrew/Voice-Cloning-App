@@ -46,6 +46,39 @@ def train(
     train_size=0.8,
     logging=logging,
 ):
+    """
+    Trains the Hifigan model.
+
+    Parameters
+    ----------
+    audio_folder : str
+        Path to audio folder
+    output_directory : str
+        Path to save checkpoints to
+    checkpoint_g : str (optional)
+        Path to g checkpoint
+    checkpoint_do : str (optional)
+        Path to do checkpoint
+    epochs : int (optional)
+        Number of epochs to run training for
+    batch_size : int (optional)
+        Training batch size (calculated automatically if None)
+    iters_per_checkpoint : int (optional)
+        How often temporary checkpoints are saved (number of iterations)
+    iters_per_backup_checkpoint : int (optional)
+        How often backup checkpoints are saved (number of iterations)
+    train_size : float (optional)
+        Percentage of samples to use for training
+    logging : logging (optional)
+        Logging object to write logs to
+
+    Raises
+    -------
+    AssertionError
+        If CUDA is not available
+    RuntimeError
+        If the batch size is too high (causing CUDA out of memory)
+    """
     assert torch.cuda.is_available(), "You do not have Torch with CUDA installed. Please check CUDA & Pytorch install"
     os.makedirs(output_directory, exist_ok=True)
 
@@ -215,7 +248,7 @@ def train(
             duration = time.perf_counter() - start
             logging.info(
                 "Status - [Epoch {}: Iteration {}] Loss {:4.3f} Mel-Spec. Error {:.5f} {:.2f}s/it".format(
-                    epoch, iterations, loss_gen_all, mel_error, mel_error, duration
+                    epoch, iterations, loss_gen_all, mel_error, duration
                 )
             )
 
