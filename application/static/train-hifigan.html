@@ -1,6 +1,7 @@
 {% extends "simplebase.html" %}
 {% block content %}
     {% if cuda_enabled %}
+    <p>Training a custom vocoder <i>may</i> improve the synthesis quality for a given voice.</p><br>
     <form method="POST" action="/train-hifigan" enctype="multipart/form-data">
         <div class="form-group">
             <label for="dataset">Dataset path</label>

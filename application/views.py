@@ -24,7 +24,7 @@ from dataset.analysis import get_total_audio_duration, validate_dataset
 from dataset.transcribe import Silero, DeepSpeech, SILERO_LANGUAGES
 from training.train import train, TRAINING_PATH, DEFAULT_ALPHABET
 from training.utils import get_available_memory, get_gpu_memory, get_batch_size, load_symbols, generate_timelapse_gif
-from training.hifigan.train import BATCH_SIZE_PER_GB
+from training.hifigan.train import BATCH_SIZE_PER_GB, CONFIG_FILE
 from training.hifigan.train import train as train_hifigan
 from training.hifigan.utils import get_checkpoint_options
 from synthesis.synthesize import load_model, synthesize
@@ -273,6 +273,7 @@ def get_synthesis_setup():
     return render_template(
         "synthesis-setup.html",
         hifigan_models=os.listdir(paths["hifigan"]),
+        hifigan_custom_models=get_hifigan_checkpoints(),
         models=os.listdir(paths["models"]),
         checkpoints=get_checkpoints(),
         languages=get_languages(),
@@ -282,16 +283,23 @@ def get_synthesis_setup():
 @app.route("/synthesis-setup", methods=["POST"])
 def synthesis_setup_post():
     global model, vocoder, symbols
-    hifigan_folder = os.path.join(paths["hifigan"], request.form["vocoder"])
-    model_path = os.path.join(hifigan_folder, "model.pt")
-    model_config_path = os.path.join(hifigan_folder, "config.json")
-    vocoder = Hifigan(model_path, model_config_path)
     dataset_name = request.form["model"]
     language = request.form["language"]
     symbols = get_symbols(language)
     checkpoint_folder = os.path.join(paths["models"], dataset_name)
     checkpoint = os.path.join(checkpoint_folder, request.form["checkpoint"])
     model = load_model(checkpoint)
+
+    if request.form["vocoder"].startswith("custom-"):
+        checkpoint_iteration = request.form["vocoder"].split("-")[1]
+        model_path = os.path.join(paths["hifigan_training"], dataset_name, f"g_{checkpoint_iteration}")
+        model_config_path = CONFIG_FILE
+    else:
+        hifigan_folder = os.path.join(paths["hifigan"], request.form["vocoder"])
+        model_path = os.path.join(hifigan_folder, "model.pt")
+        model_config_path = os.path.join(hifigan_folder, "config.json")
+    
+    vocoder = Hifigan(model_path, model_config_path)
     return redirect("/synthesis")
 
 
