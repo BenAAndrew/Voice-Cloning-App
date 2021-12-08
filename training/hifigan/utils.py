@@ -82,7 +82,7 @@ def save_checkpoints(generator, mpd, msd, optim_g, optim_d, iterations, epochs, 
     """
     checkpoint_g_path = os.path.join(output_directory, f"g_{iterations}")
     checkpoint_do_path = os.path.join(output_directory, f"do_{iterations}")
-    torch.save({"generator": (generator).state_dict()}, checkpoint_g_path)
+    torch.save({"generator": generator.state_dict()}, checkpoint_g_path)
     torch.save({
         "mpd": mpd.state_dict(),
         "msd": msd.state_dict(),

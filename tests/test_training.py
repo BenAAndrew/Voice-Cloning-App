@@ -179,6 +179,82 @@ def test_voice_dataset(clean_text):
 
 
 # Hifigan training
+class MockedHifigan:
+    class Sample:
+        def squeeze(self, index):
+            return None
+
+        def detach(self):
+            return None
+
+    def to(self, device):
+        return self
+
+    def parameters(self):
+        return {}
+
+    def train(self):
+        pass
+
+    def eval(self):
+        pass
+
+    def state_dict(self):
+        return {}
+
+    def __call__(self, x):
+        return self.Sample()
+
+
+class MockedDiscriminator:
+    def to(self, device):
+        return self
+
+    def parameters(self):
+        return {}
+
+    def state_dict(self):
+        return {}
+
+    def train(self):
+        pass
+
+    def __call__(self, *args):
+        return [None, None, None, None]
+
+
+class MockedAdamW:
+    def zero_grad(self):
+        pass
+
+    def step(self):
+        pass
+
+    def state_dict(self):
+        return {}
+
+
+class MockedExponentialLR:
+    def step(self):
+        pass
+
+
+class MockedData:
+    def to(self, device, non_blocking=False):
+        return None
+    
+    def unsqueeze(self, index):
+        return None
+
+
+class MockedL1Loss:
+    def item(self):
+        return 0
+
+    def __mul__(self, x):
+        return 0
+
+
 class MockedHifiganLoss:
     def __add__(self, other):
         return self
@@ -191,9 +267,21 @@ class MockedHifiganLoss:
 
 
 @mock.patch("torch.cuda.is_available", return_value=True)
+@mock.patch("torch.device", return_value="cpu")
+@mock.patch("training.hifigan.train.get_gpu_memory", return_value=0)
+@mock.patch("training.hifigan.train.Generator", return_value=MockedHifigan())
+@mock.patch("training.hifigan.train.MultiPeriodDiscriminator", return_value=MockedDiscriminator())
+@mock.patch("training.hifigan.train.MultiScaleDiscriminator", return_value=MockedDiscriminator())
+@mock.patch("torch.optim.AdamW", return_value=MockedAdamW())
+@mock.patch("torch.optim.lr_scheduler.ExponentialLR", return_value=MockedExponentialLR())
+@mock.patch("training.hifigan.train.MelDataset", return_value=None)
+@mock.patch("training.hifigan.train.DataLoader", return_value=[(MockedData(), MockedData(), MockedData(), MockedData())])
+@mock.patch("training.hifigan.train.mel_spectrogram", return_value=None)
 @mock.patch("training.hifigan.train.discriminator_loss", return_value=(MockedHifiganLoss(),0,0))
+@mock.patch("torch.nn.functional.l1_loss", return_value=MockedL1Loss())
+@mock.patch("training.hifigan.train.feature_loss", return_value=0)
 @mock.patch("training.hifigan.train.generator_loss", return_value=(MockedHifiganLoss(),0))
-def test_hifigan_train(generator_loss, discriminator_loss, is_available):
+def test_hifigan_train(*args):
     dataset_directory = os.path.join("test_samples", "dataset", "wavs")
     output_directory = "hifigan_checkpoints"
 
@@ -206,7 +294,7 @@ def test_hifigan_train(generator_loss, discriminator_loss, is_available):
         train_size=0.67
     )
 
-    assert os.listdir(output_directory) == ['do_4', 'g_4']
+    assert os.listdir(output_directory) == ['do_2', 'g_2']
     shutil.rmtree(output_directory)
 
 
