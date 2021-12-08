@@ -15,6 +15,8 @@ if __name__ == "__main__":
             "--clean",
             "--icon=application\static\\favicon\\app-icon.ico",
             "--add-data=application/static;application/static",
+            "--add-data=alphabets;alphabets",
+            "--add-data=training/hifigan;training/hifigan",
             "--additional-hooks=extra-hooks",
             "--hidden-import=sklearn.utils._weight_vector",
             "--hidden-import=sklearn.utils._cython_blas",
