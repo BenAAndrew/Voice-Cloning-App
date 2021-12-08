@@ -9,16 +9,20 @@ from flask import Flask
 from application.check_ffmpeg import check_ffmpeg
 
 
+FOLDERS = ["datasets", "models", "hifigan", "results", "languages", "training", "hifigan_training"]
+
+
+def get_app_path():
+    if getattr(sys, "frozen", False):
+        return os.path.dirname(sys.executable)
+    return os.path.dirname(__file__)
+
+
 def load_paths():
-    paths = {
-        "datasets": os.path.join("data", "datasets"),
-        "models": os.path.join("data", "models"),
-        "hifigan": os.path.join("data", "hifigan"),
-        "results": os.path.join("data", "results"),
-        "languages": os.path.join("data", "languages"),
-        "training": os.path.join("data", "training"),
-        "hifigan_training": os.path.join("data", "hifigan_training"),
-    }
+    base_dir = get_app_path()
+    data_folder = os.path.join(base_dir, "data")
+    print("Loading data from", data_folder)
+    paths = {folder: os.path.join(data_folder, folder) for folder in FOLDERS}
     for path in paths.values():
         os.makedirs(path, exist_ok=True)
     return paths
