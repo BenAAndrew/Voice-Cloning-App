@@ -294,7 +294,7 @@ def test_hifigan_train(*args):
         train_size=0.67
     )
 
-    assert os.listdir(output_directory) == ['do_2', 'g_2']
+    assert set(os.listdir(output_directory)) == {'do_2', 'g_2'}
     shutil.rmtree(output_directory)
 
 
