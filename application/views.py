@@ -305,9 +305,12 @@ def synthesis_setup_post():
 
 @app.route("/data/<path:path>")
 def get_file(path):
+    subfolder = path.split("/")[0]
+    subpath = path.split("/")[1:-1]
     filename = path.split("/")[-1]
     mimetype = "image/png" if filename.endswith("png") else "audio/wav"
-    return serve_file(os.path.join("data", path.replace("/", os.sep)), filename, mimetype)
+    filepath = os.path.join(paths[subfolder], *subpath, filename)
+    return serve_file(filepath, filename, mimetype)
 
 
 @app.route("/synthesis", methods=["GET", "POST"])
@@ -333,8 +336,8 @@ def synthesis_post():
         os.makedirs(results_folder)
         graph_path = os.path.join(results_folder, GRAPH_FILE)
         audio_path = os.path.join(results_folder, RESULTS_FILE)
-        graph_web_path = graph_path.replace("\\", "/")
-        audio_web_path = audio_path.replace("\\", "/")
+        graph_web_path = os.path.relpath(graph_path).replace("\\", "/")
+        audio_web_path = os.path.relpath(audio_path).replace("\\", "/")
         silence = float(request.form["silence"])
         max_decoder_steps = int(request.form["max_decoder_steps"])
 

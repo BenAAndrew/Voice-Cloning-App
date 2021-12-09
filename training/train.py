@@ -234,7 +234,7 @@ def train(
                         _, _, _, alignment = load_model(checkpoint_path).inference(alignment_sequence)
                         graph_path = os.path.join(alignment_folder, "checkpoint_{}.png".format(iteration))
                         generate_graph(alignment, graph_path, heading=f"Iteration {iteration}")
-                        graph = graph_path.replace("\\", "/")
+                        graph = os.path.relpath(graph_path).replace("\\", "/")
                         logging.info(f"Alignment - {iteration}, {graph}")
                     except Exception:
                         logging.info(
