@@ -22,7 +22,7 @@
         </select>
     </div>
     <div class="form-group">
-        <label for="vocoder_type">Vocoder <a href="/settings">Add more</a></label>
+        <label for="vocoder_type">Vocoder <a href="/settings">Add more</a> or <a href="/train-hifigan">Train a custom one</a></label>
         <select class="form-control" id="vocoder" name="vocoder" required>
             {% for option in hifigan_models %}
                 <option value="{{ option }}">{{ option }}</option>
@@ -33,6 +33,7 @@
 </form>
 <script>
 let checkpoints = {{ checkpoints|safe }};
+let hifigan_custom_models = {{ hifigan_custom_models|safe }};
 </script>
 <script src="{{ url_for('static', filename='synthesis-setup.js') }}"></script>
 {% endblock %}

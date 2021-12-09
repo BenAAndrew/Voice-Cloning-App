@@ -23,7 +23,10 @@ from dataset.extend_existing_dataset import extend_existing_dataset
 from dataset.analysis import get_total_audio_duration, validate_dataset
 from dataset.transcribe import Silero, DeepSpeech, SILERO_LANGUAGES
 from training.train import train, TRAINING_PATH, DEFAULT_ALPHABET
-from training.utils import get_available_memory, get_batch_size, load_symbols, generate_timelapse_gif
+from training.utils import get_available_memory, get_gpu_memory, get_batch_size, load_symbols, generate_timelapse_gif
+from training.hifigan.train import BATCH_SIZE_PER_GB, CONFIG_FILE
+from training.hifigan.train import train as train_hifigan
+from training.hifigan.utils import get_checkpoint_options
 from synthesis.synthesize import load_model, synthesize
 from synthesis.vocoders import Hifigan
 
@@ -66,6 +69,14 @@ def get_checkpoints():
         )
         for model in os.listdir(paths["models"])
         if os.listdir(os.path.join(paths["models"], model))
+    }
+
+
+def get_hifigan_checkpoints():
+    return {
+        model: get_checkpoint_options(os.path.join(paths["hifigan_training"], model))
+        for model in os.listdir(paths["hifigan_training"])
+        if os.listdir(os.path.join(paths["hifigan_training"], model))
     }
 
 
@@ -262,6 +273,7 @@ def get_synthesis_setup():
     return render_template(
         "synthesis-setup.html",
         hifigan_models=os.listdir(paths["hifigan"]),
+        hifigan_custom_models=get_hifigan_checkpoints(),
         models=os.listdir(paths["models"]),
         checkpoints=get_checkpoints(),
         languages=get_languages(),
@@ -271,16 +283,23 @@ def get_synthesis_setup():
 @app.route("/synthesis-setup", methods=["POST"])
 def synthesis_setup_post():
     global model, vocoder, symbols
-    hifigan_folder = os.path.join(paths["hifigan"], request.form["vocoder"])
-    model_path = os.path.join(hifigan_folder, "model.pt")
-    model_config_path = os.path.join(hifigan_folder, "config.json")
-    vocoder = Hifigan(model_path, model_config_path)
     dataset_name = request.form["model"]
     language = request.form["language"]
     symbols = get_symbols(language)
     checkpoint_folder = os.path.join(paths["models"], dataset_name)
     checkpoint = os.path.join(checkpoint_folder, request.form["checkpoint"])
     model = load_model(checkpoint)
+
+    if request.form["vocoder"].startswith("custom-"):
+        checkpoint_iteration = request.form["vocoder"].split("-")[1]
+        model_path = os.path.join(paths["hifigan_training"], dataset_name, f"g_{checkpoint_iteration}")
+        model_config_path = CONFIG_FILE
+    else:
+        hifigan_folder = os.path.join(paths["hifigan"], request.form["vocoder"])
+        model_path = os.path.join(hifigan_folder, "model.pt")
+        model_config_path = os.path.join(hifigan_folder, "config.json")
+    
+    vocoder = Hifigan(model_path, model_config_path)
     return redirect("/synthesis")
 
 
@@ -339,6 +358,69 @@ def synthesis_post():
             silence=silence,
             max_decoder_steps=max_decoder_steps,
         )
+
+
+# Train hifigan
+@app.route("/train-hifigan", methods=["GET"])
+def get_train_hifigan():
+    cuda_enabled = torch.cuda.is_available()
+
+    if cuda_enabled:
+        available_memory = get_gpu_memory(0)
+        batch_size = int(available_memory * BATCH_SIZE_PER_GB)
+    else:
+        batch_size = None
+
+    return render_template(
+        "train-hifigan.html",
+        cuda_enabled=cuda_enabled,
+        batch_size=batch_size,
+        datasets=os.listdir(paths["datasets"]),
+        checkpoints=get_hifigan_checkpoints()
+    )
+
+
+# Train hifigan
+@app.route("/train-hifigan", methods=["POST"])
+def train_hifigan_post():
+    dataset_name = request.form["dataset"]
+    epochs = request.form["epochs"]
+    batch_size = request.form["batch_size"]
+    iters_per_checkpoint = request.form["checkpoint_frequency"]
+    iters_per_backup_checkpoint = request.form["backup_checkpoint_frequency"]
+    train_size = 1 - float(request.form["validation_size"])
+
+    audio_folder = os.path.join(paths["datasets"], dataset_name, AUDIO_FOLDER)
+    output_directory = os.path.join(paths["hifigan_training"], dataset_name)
+
+    if request.form.get("checkpoint_iteration"):
+        checkpoint_g = os.path.join(paths["hifigan_training"], dataset_name, f"g_{request.form['checkpoint_iteration']}")
+        checkpoint_do = os.path.join(paths["hifigan_training"], dataset_name, f"do_{request.form['checkpoint_iteration']}")
+    elif request.files.get("pretrained_model_g"):
+        checkpoint_g = os.path.join("data", "pretrained_model_g.pt")
+        checkpoint_do = os.path.join("data", "pretrained_model_do.pt")
+        request.files["pretrained_model_g"].save(checkpoint_g)
+        request.files["pretrained_model_do"].save(checkpoint_do)
+    else:
+        checkpoint_g = None
+        checkpoint_do = None
+
+    start_progress_thread(
+        train_hifigan,
+        audio_folder=audio_folder,
+        output_directory=output_directory,
+        checkpoint_g=checkpoint_g,
+        checkpoint_do=checkpoint_do,
+        epochs=int(epochs),
+        batch_size=int(batch_size),
+        iters_per_checkpoint=int(iters_per_checkpoint),
+        iters_per_backup_checkpoint=int(iters_per_backup_checkpoint),
+        train_size=train_size,
+    )
+
+    return render_template(
+        "progress.html", next_url="/synthesis"
+    )
 
 
 # Manage datasets

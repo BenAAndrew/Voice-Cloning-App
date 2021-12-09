@@ -18,6 +18,26 @@ EARLY_STOPPING_WINDOW = 10
 EARLY_STOPPING_MIN_DIFFERENCE = 0.0005
 
 
+def get_gpu_memory(gpu_index):
+    """
+    Get available memory of a GPU.
+
+    Parameters
+    ----------
+    gpu_index : int
+        Index of GPU
+
+    Returns
+    -------
+    int
+        Available GPU memory in GB
+    """
+    gpu_memory = torch.cuda.get_device_properties(gpu_index).total_memory
+    memory_in_use = torch.cuda.memory_allocated(gpu_index)
+    available_memory = gpu_memory - memory_in_use
+    return available_memory // 1024 // 1024 // 1024
+
+
 def get_available_memory():
     """
     Get available GPU memory in GB.
@@ -30,10 +50,7 @@ def get_available_memory():
     available_memory_gb = 0
 
     for i in range(torch.cuda.device_count()):
-        gpu_memory = torch.cuda.get_device_properties(i).total_memory
-        memory_in_use = torch.cuda.memory_allocated(i)
-        available_memory = gpu_memory - memory_in_use
-        available_memory_gb += available_memory // 1024 // 1024 // 1024
+        available_memory_gb += get_gpu_memory(i)
 
     return available_memory_gb
 

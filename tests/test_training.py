@@ -4,6 +4,7 @@ from string import ascii_lowercase
 from unittest import mock
 import torch
 import shutil
+import logging
 
 from dataset import CHARACTER_ENCODING
 from training.clean_text import clean_text
@@ -22,6 +23,7 @@ from training.validate import validate
 from training.utils import (
     load_metadata,
     load_symbols,
+    get_gpu_memory,
     get_available_memory,
     get_learning_rate,
     get_batch_size,
@@ -32,6 +34,9 @@ from training.utils import (
     train_test_split,
     validate_dataset,
 )
+from training.hifigan.train import train as train_hifigan
+from training.hifigan.utils import get_checkpoint_options, save_checkpoints
+from training.hifigan.utils import checkpoint_cleanup as hifigan_checkpoint_cleanup
 
 
 # Training
@@ -173,6 +178,184 @@ def test_voice_dataset(clean_text):
     assert mel.shape[0] == 80
 
 
+# Hifigan training
+class MockedHifigan:
+    class Sample:
+        def squeeze(self, index):
+            return None
+
+        def detach(self):
+            return None
+
+    def to(self, device):
+        return self
+
+    def parameters(self):
+        return {}
+
+    def train(self):
+        pass
+
+    def eval(self):
+        pass
+
+    def state_dict(self):
+        return {}
+
+    def __call__(self, x):
+        return self.Sample()
+
+
+class MockedDiscriminator:
+    def to(self, device):
+        return self
+
+    def parameters(self):
+        return {}
+
+    def state_dict(self):
+        return {}
+
+    def train(self):
+        pass
+
+    def __call__(self, *args):
+        return [None, None, None, None]
+
+
+class MockedAdamW:
+    def zero_grad(self):
+        pass
+
+    def step(self):
+        pass
+
+    def state_dict(self):
+        return {}
+
+
+class MockedExponentialLR:
+    def step(self):
+        pass
+
+
+class MockedData:
+    def to(self, device, non_blocking=False):
+        return None
+    
+    def unsqueeze(self, index):
+        return None
+
+
+class MockedL1Loss:
+    def item(self):
+        return 0
+
+    def __mul__(self, x):
+        return 0
+
+
+class MockedHifiganLoss:
+    def __add__(self, other):
+        return self
+
+    def backward(self):
+        return 0
+    
+    def __format__(self, format_spec):
+        return ""
+
+
+@mock.patch("torch.cuda.is_available", return_value=True)
+@mock.patch("torch.device", return_value="cpu")
+@mock.patch("training.hifigan.train.get_gpu_memory", return_value=0)
+@mock.patch("training.hifigan.train.Generator", return_value=MockedHifigan())
+@mock.patch("training.hifigan.train.MultiPeriodDiscriminator", return_value=MockedDiscriminator())
+@mock.patch("training.hifigan.train.MultiScaleDiscriminator", return_value=MockedDiscriminator())
+@mock.patch("torch.optim.AdamW", return_value=MockedAdamW())
+@mock.patch("torch.optim.lr_scheduler.ExponentialLR", return_value=MockedExponentialLR())
+@mock.patch("training.hifigan.train.MelDataset", return_value=None)
+@mock.patch("training.hifigan.train.DataLoader", return_value=[(MockedData(), MockedData(), MockedData(), MockedData())])
+@mock.patch("training.hifigan.train.mel_spectrogram", return_value=None)
+@mock.patch("training.hifigan.train.discriminator_loss", return_value=(MockedHifiganLoss(),0,0))
+@mock.patch("torch.nn.functional.l1_loss", return_value=MockedL1Loss())
+@mock.patch("training.hifigan.train.feature_loss", return_value=0)
+@mock.patch("training.hifigan.train.generator_loss", return_value=(MockedHifiganLoss(),0))
+def test_hifigan_train(*args):
+    dataset_directory = os.path.join("test_samples", "dataset", "wavs")
+    output_directory = "hifigan_checkpoints"
+
+    train_hifigan(
+        dataset_directory,
+        output_directory,
+        epochs=1,
+        batch_size=1,
+        iters_per_checkpoint=1,
+        train_size=0.67
+    )
+
+    assert set(os.listdir(output_directory)) == {'do_2', 'g_2'}
+    shutil.rmtree(output_directory)
+
+
+# Hifigan utils
+@mock.patch("os.listdir", return_value=["do_1", "g_1", "do_3", "g_3", "do_2", "g_2"])
+def test_get_checkpoint_options(listdir):
+    assert get_checkpoint_options("") == [3,2,1]
+
+
+@mock.patch("torch.save")
+@mock.patch("training.hifigan.utils.checkpoint_cleanup")
+def test_save_checkpoints(checkpoint_cleanup, save):
+    class DataObject:
+        def __init__(self, value):
+            self.value = value
+
+        def state_dict(self):
+            return self.value
+
+    output_directory = "out"
+    generator = DataObject({"generator": None})
+    mpd = DataObject({"mpd": None})
+    msd = DataObject({"msd": None})
+    optim_g = DataObject({"optim_g": None})
+    optim_d = DataObject({"optim_d": None})
+    iterations = 1
+    epochs = 1
+    generator_payload = {"generator": generator.state_dict()}
+    discriminator_payload = {
+        "mpd": mpd.state_dict(),
+        "msd": msd.state_dict(),
+        "optim_g": optim_g.state_dict(),
+        "optim_d": optim_d.state_dict(),
+        "steps": iterations,
+        "epoch": epochs,
+    }
+
+    save_checkpoints(
+        generator, mpd, msd, optim_g, optim_d, iterations, epochs, output_directory, 10, 100, logging
+    )
+
+    assert save.call_count == 2
+    assert list(save.call_args_list[0][0]) == [generator_payload, os.path.join(output_directory, 'g_1')]
+    assert list(save.call_args_list[1][0]) == [discriminator_payload, os.path.join(output_directory, 'do_1')]
+
+
+@mock.patch("os.remove")
+def test_hifigan_checkpoint_cleanup_should_remove(remove):
+    output_directory = "hifigan_checkpoints"
+    hifigan_checkpoint_cleanup(output_directory, 20, 10, 100)
+
+    assert remove.call_args_list[0][0][0] == os.path.join(output_directory, "g_10")
+    assert remove.call_args_list[1][0][0] == os.path.join(output_directory, "do_10")
+
+
+@mock.patch("os.remove")
+def test_hifigan_checkpoint_cleanup_should_not_remove(remove):
+    hifigan_checkpoint_cleanup("", 110, 10, 100)
+    assert not remove.called
+
+
 # Checkpoints
 def test_load_and_save_checkpoint():
     model_path = os.path.join("test_samples", "model.pt")
@@ -305,6 +488,13 @@ class FakeDeviceProperties:
     total_memory = 8 * 1024 * 1024 * 1024
 
 
+@mock.patch("torch.cuda.get_device_properties", return_value=FakeDeviceProperties)
+@mock.patch("torch.cuda.memory_allocated", return_value=1 * 1024 * 1024 * 1024)
+def test_get_available_memory(memory_allocated, get_device_properties, device_count):
+    # 8GB Device memory - 1GB Usage
+    assert get_gpu_memory(0) == 7
+
+
 @mock.patch("torch.cuda.device_count", return_value=2)
 @mock.patch("torch.cuda.get_device_properties", return_value=FakeDeviceProperties)
 @mock.patch("torch.cuda.memory_allocated", return_value=1 * 1024 * 1024 * 1024)
@@ -333,7 +523,7 @@ def test_early_stopping():
     assert check_early_stopping([0.5, 0.4999, 0.5, 0.4999, 0.5, 0.4998, 0.4999, 0.4996, 0.4997, 0.5]) is True
 
 
-# Test parameters
+# Parameters
 def test_get_learning_rate():
     batch_size = 40
     lr = get_learning_rate(batch_size)

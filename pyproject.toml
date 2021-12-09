@@ -13,6 +13,8 @@ exclude = [
     "dataset/transcribe.py",
     "dataset/forced_alignment/search.py",
     "training/tacotron2_model",
+    "training/hifigan/meldataset.py",
+    "training/hifigan/models.py",
     "synthesis/vocoders/hifigan_model.py",
     "synthesis/vocoders/hifigan.py",
 ]
