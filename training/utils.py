@@ -113,6 +113,23 @@ def load_metadata(metadata_path):
 
 
 def validate_dataset(filepaths_and_text, dataset_directory, symbols):
+    """
+    Validates dataset has required files and a valid character set
+
+    Parameters
+    ----------
+    filepaths_and_text : list
+        List of samples
+    dataset_directory : str
+        Path to dataset audio directory
+    symbols : list
+        List of supported symbols
+
+    Raises
+    -------
+    AssertionError
+        If files are missing or invalid characters are found
+    """
     missing_files = set()
     invalid_characters = set()
     wavs = os.listdir(dataset_directory)
