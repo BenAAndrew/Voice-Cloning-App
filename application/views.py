@@ -298,7 +298,7 @@ def synthesis_setup_post():
         hifigan_folder = os.path.join(paths["hifigan"], request.form["vocoder"])
         model_path = os.path.join(hifigan_folder, "model.pt")
         model_config_path = os.path.join(hifigan_folder, "config.json")
-    
+
     vocoder = Hifigan(model_path, model_config_path)
     return redirect("/synthesis")
 
@@ -379,7 +379,7 @@ def get_train_hifigan():
         cuda_enabled=cuda_enabled,
         batch_size=batch_size,
         datasets=os.listdir(paths["datasets"]),
-        checkpoints=get_hifigan_checkpoints()
+        checkpoints=get_hifigan_checkpoints(),
     )
 
 
@@ -397,8 +397,12 @@ def train_hifigan_post():
     output_directory = os.path.join(paths["hifigan_training"], dataset_name)
 
     if request.form.get("checkpoint_iteration"):
-        checkpoint_g = os.path.join(paths["hifigan_training"], dataset_name, f"g_{request.form['checkpoint_iteration']}")
-        checkpoint_do = os.path.join(paths["hifigan_training"], dataset_name, f"do_{request.form['checkpoint_iteration']}")
+        checkpoint_g = os.path.join(
+            paths["hifigan_training"], dataset_name, f"g_{request.form['checkpoint_iteration']}"
+        )
+        checkpoint_do = os.path.join(
+            paths["hifigan_training"], dataset_name, f"do_{request.form['checkpoint_iteration']}"
+        )
     elif request.files.get("pretrained_model_g"):
         checkpoint_g = os.path.join("data", "pretrained_model_g.pt")
         checkpoint_do = os.path.join("data", "pretrained_model_do.pt")
@@ -421,9 +425,7 @@ def train_hifigan_post():
         train_size=train_size,
     )
 
-    return render_template(
-        "progress.html", next_url="/synthesis"
-    )
+    return render_template("progress.html", next_url="/synthesis")
 
 
 # Manage datasets

@@ -3,6 +3,10 @@ import torch
 
 
 class AttrDict(dict):
+    """
+    Credit: https://github.com/jik876/hifi-gan
+    """
+
     def __init__(self, *args, **kwargs):
         super(AttrDict, self).__init__(*args, **kwargs)
         self.__dict__ = self
@@ -47,10 +51,24 @@ def get_checkpoint_options(checkpoint_directory):
     list
         List of checkpoint iterations sorted from high to low
     """
-    return sorted(list(set([int(filename.split("_")[1]) for filename in os.listdir(checkpoint_directory)])), reverse=True)
+    return sorted(
+        list(set([int(filename.split("_")[1]) for filename in os.listdir(checkpoint_directory)])), reverse=True
+    )
 
 
-def save_checkpoints(generator, mpd, msd, optim_g, optim_d, iterations, epochs, output_directory, checkpoint_frequency, checkpoint_backup_frequency, logging):
+def save_checkpoints(
+    generator,
+    mpd,
+    msd,
+    optim_g,
+    optim_d,
+    iterations,
+    epochs,
+    output_directory,
+    checkpoint_frequency,
+    checkpoint_backup_frequency,
+    logging,
+):
     """
     Save g_xxxx and do_xxxx checkpoints.
     Deletes old checkpoints that aren't backups
@@ -83,14 +101,17 @@ def save_checkpoints(generator, mpd, msd, optim_g, optim_d, iterations, epochs, 
     checkpoint_g_path = os.path.join(output_directory, f"g_{iterations}")
     checkpoint_do_path = os.path.join(output_directory, f"do_{iterations}")
     torch.save({"generator": generator.state_dict()}, checkpoint_g_path)
-    torch.save({
-        "mpd": mpd.state_dict(),
-        "msd": msd.state_dict(),
-        "optim_g": optim_g.state_dict(),
-        "optim_d": optim_d.state_dict(),
-        "steps": iterations,
-        "epoch": epochs,
-    }, checkpoint_do_path)
+    torch.save(
+        {
+            "mpd": mpd.state_dict(),
+            "msd": msd.state_dict(),
+            "optim_g": optim_g.state_dict(),
+            "optim_d": optim_d.state_dict(),
+            "steps": iterations,
+            "epoch": epochs,
+        },
+        checkpoint_do_path,
+    )
     logging.info(f"Saved checkpoints to {checkpoint_g_path} and {checkpoint_do_path}")
 
     # Remove last checkpoint if not a backup

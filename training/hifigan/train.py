@@ -29,7 +29,6 @@ from training.utils import get_gpu_memory
 
 SEED = 1234
 CONFIG_FILE = os.path.join(dirname(abspath(__file__)), "config.json")
-print(CONFIG_FILE)
 BATCH_SIZE_PER_GB = 0.8
 LEARNING_RATE_PER_64 = 8e-4
 
@@ -47,6 +46,8 @@ def train(
     logging=logging,
 ):
     """
+    Credit: https://github.com/jik876/hifi-gan
+
     Trains the Hifigan model.
 
     Parameters
@@ -95,7 +96,9 @@ def train(
     available_memory = get_gpu_memory(0)
     if not batch_size:
         batch_size = int(available_memory * BATCH_SIZE_PER_GB)
-    learning_rate = (batch_size / 64) ** 0.5 * LEARNING_RATE_PER_64  # Adam Learning Rate is proportional to sqrt(batch_size)
+    learning_rate = (
+        batch_size / 64
+    ) ** 0.5 * LEARNING_RATE_PER_64  # Adam Learning Rate is proportional to sqrt(batch_size)
     logging.info(
         f"Setting batch size to {batch_size}, learning rate to {learning_rate}. ({available_memory}GB GPU memory free)"
     )
@@ -108,9 +111,7 @@ def train(
     msd = MultiScaleDiscriminator().to(device)
 
     if checkpoint_g and checkpoint_do:
-        logging.info(
-            f"Loading {checkpoint_g} and {checkpoint_do} checkpoints"
-        )
+        logging.info(f"Loading {checkpoint_g} and {checkpoint_do} checkpoints")
         state_dict_g = load_checkpoint(checkpoint_g, device)
         state_dict_do = load_checkpoint(checkpoint_do, device)
         generator.load_state_dict(state_dict_g["generator"])
@@ -253,7 +254,19 @@ def train(
             )
 
             if iterations % iters_per_checkpoint == 0 and iterations != 0:
-                save_checkpoints(generator, mpd, msd, optim_g, optim_d, iterations, epochs, output_directory, iters_per_checkpoint, iters_per_backup_checkpoint, logging)
+                save_checkpoints(
+                    generator,
+                    mpd,
+                    msd,
+                    optim_g,
+                    optim_d,
+                    iterations,
+                    epochs,
+                    output_directory,
+                    iters_per_checkpoint,
+                    iters_per_backup_checkpoint,
+                    logging,
+                )
 
                 # validate
                 generator.eval()
@@ -286,7 +299,19 @@ def train(
         scheduler_g.step()
         scheduler_d.step()
 
-    save_checkpoints(generator, mpd, msd, optim_g, optim_d, iterations, epochs, output_directory, iters_per_checkpoint, iters_per_backup_checkpoint, logging)
+    save_checkpoints(
+        generator,
+        mpd,
+        msd,
+        optim_g,
+        optim_d,
+        iterations,
+        epochs,
+        output_directory,
+        iters_per_checkpoint,
+        iters_per_backup_checkpoint,
+        logging,
+    )
 
 
 if __name__ == "__main__":
@@ -295,7 +320,9 @@ if __name__ == "__main__":
     parser.add_argument("-d", "--dataset_directory", required=True, type=str, help="directory to dataset")
     parser.add_argument("-o", "--output_directory", required=True, type=str, help="directory to save checkpoints")
     parser.add_argument("--generator_checkpoint_path", required=False, type=str, help="generator checkpoint path")
-    parser.add_argument("--discriminator_checkpoint_path", required=False, type=str, help="discriminator checkpoint path")
+    parser.add_argument(
+        "--discriminator_checkpoint_path", required=False, type=str, help="discriminator checkpoint path"
+    )
     parser.add_argument("-e", "--epochs", default=1000, type=int, help="num epochs")
     parser.add_argument("-b", "--batch_size", required=False, type=int, help="batch size")
     parser.add_argument("-i", "--iters_per_checkpoint", default=1000, type=int, help="iters per checkpoint")
@@ -308,5 +335,5 @@ if __name__ == "__main__":
         checkpoint_do=args.discriminator_checkpoint_path,
         epochs=args.epochs,
         batch_size=args.batch_size,
-        iters_per_checkpoint=args.iters_per_checkpoint
+        iters_per_checkpoint=args.iters_per_checkpoint,
     )

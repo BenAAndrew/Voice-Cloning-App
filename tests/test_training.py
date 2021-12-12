@@ -242,7 +242,7 @@ class MockedExponentialLR:
 class MockedData:
     def to(self, device, non_blocking=False):
         return None
-    
+
     def unsqueeze(self, index):
         return None
 
@@ -261,7 +261,7 @@ class MockedHifiganLoss:
 
     def backward(self):
         return 0
-    
+
     def __format__(self, format_spec):
         return ""
 
@@ -275,33 +275,28 @@ class MockedHifiganLoss:
 @mock.patch("torch.optim.AdamW", return_value=MockedAdamW())
 @mock.patch("torch.optim.lr_scheduler.ExponentialLR", return_value=MockedExponentialLR())
 @mock.patch("training.hifigan.train.MelDataset", return_value=None)
-@mock.patch("training.hifigan.train.DataLoader", return_value=[(MockedData(), MockedData(), MockedData(), MockedData())])
+@mock.patch(
+    "training.hifigan.train.DataLoader", return_value=[(MockedData(), MockedData(), MockedData(), MockedData())]
+)
 @mock.patch("training.hifigan.train.mel_spectrogram", return_value=None)
-@mock.patch("training.hifigan.train.discriminator_loss", return_value=(MockedHifiganLoss(),0,0))
+@mock.patch("training.hifigan.train.discriminator_loss", return_value=(MockedHifiganLoss(), 0, 0))
 @mock.patch("torch.nn.functional.l1_loss", return_value=MockedL1Loss())
 @mock.patch("training.hifigan.train.feature_loss", return_value=0)
-@mock.patch("training.hifigan.train.generator_loss", return_value=(MockedHifiganLoss(),0))
+@mock.patch("training.hifigan.train.generator_loss", return_value=(MockedHifiganLoss(), 0))
 def test_hifigan_train(*args):
     dataset_directory = os.path.join("test_samples", "dataset", "wavs")
     output_directory = "hifigan_checkpoints"
 
-    train_hifigan(
-        dataset_directory,
-        output_directory,
-        epochs=1,
-        batch_size=1,
-        iters_per_checkpoint=1,
-        train_size=0.67
-    )
+    train_hifigan(dataset_directory, output_directory, epochs=1, batch_size=1, iters_per_checkpoint=1, train_size=0.67)
 
-    assert set(os.listdir(output_directory)) == {'do_2', 'g_2'}
+    assert set(os.listdir(output_directory)) == {"do_2", "g_2"}
     shutil.rmtree(output_directory)
 
 
 # Hifigan utils
 @mock.patch("os.listdir", return_value=["do_1", "g_1", "do_3", "g_3", "do_2", "g_2"])
 def test_get_checkpoint_options(listdir):
-    assert get_checkpoint_options("") == [3,2,1]
+    assert get_checkpoint_options("") == [3, 2, 1]
 
 
 @mock.patch("torch.save")
@@ -332,13 +327,11 @@ def test_save_checkpoints(checkpoint_cleanup, save):
         "epoch": epochs,
     }
 
-    save_checkpoints(
-        generator, mpd, msd, optim_g, optim_d, iterations, epochs, output_directory, 10, 100, logging
-    )
+    save_checkpoints(generator, mpd, msd, optim_g, optim_d, iterations, epochs, output_directory, 10, 100, logging)
 
     assert save.call_count == 2
-    assert list(save.call_args_list[0][0]) == [generator_payload, os.path.join(output_directory, 'g_1')]
-    assert list(save.call_args_list[1][0]) == [discriminator_payload, os.path.join(output_directory, 'do_1')]
+    assert list(save.call_args_list[0][0]) == [generator_payload, os.path.join(output_directory, "g_1")]
+    assert list(save.call_args_list[1][0]) == [discriminator_payload, os.path.join(output_directory, "do_1")]
 
 
 @mock.patch("os.remove")
