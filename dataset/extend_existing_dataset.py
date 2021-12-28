@@ -66,7 +66,7 @@ def extend_existing_dataset(
         If given paths are invalid or clips could not be produced
     """
     assert os.path.isdir(output_folder), "Missing existing dataset clips folder"
-    logging.info(f"Coverting {audio_path}...")
+    logging.info(f"Converting {audio_path}...")
     converted_audio = convert_audio(audio_path)
 
     forced_alignment_path = os.path.join(output_folder, ALIGNMENT_FILE)
