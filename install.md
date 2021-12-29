@@ -12,8 +12,12 @@ Download and Run the latest executable from [Releases](https://github.com/BenAAn
 ### Manual Install (Linux/ Windows)
 1. Clone this repository
 2. Install [Python](https://www.python.org/) (version 3.6)
-3. Run `pip install -r requirements.txt`
-4. Run `python main.py`
+3. Windows only: Install Visual Studio 2019 with the following components:
+    - MSVC toolset C++ 2019 v142 (x86,x64) latest
+    - Visual C++ 2019 Redistributable Update
+    - Windows 10 SDK (10.0.17763.0)
+4. Run `pip install -r requirements.txt`
+5. Run `python main.py`
 
 ### Docker
 1. Clone this repository
