@@ -39,6 +39,7 @@ def install_ffmpeg_windows():
     ffmpeg_folder = [f for f in os.listdir() if f.startswith("ffmpeg-")][0]
     os.rename(ffmpeg_folder, "ffmpeg")
     os.remove("ffmpeg.zip")
+    os.environ["PATH"] += os.pathsep + os.path.abspath("ffmpeg\\bin")
 
 
 def install_ffmpeg_linux():
