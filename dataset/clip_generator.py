@@ -224,8 +224,8 @@ def generate_clips_from_subtitles(
 
             try:
                 transcript = transcription_model.transcribe(clip_path)
-            except:
-                logging.info(f"Could not transcribe {clip_path}")
+            except Exception as e:
+                logging.info(f"Could not transcribe {clip_path}: {e}")
                 transcript = None
 
             if transcript:
