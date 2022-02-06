@@ -50,7 +50,7 @@
     <input type="submit" class="btn btn-primary">
 </form>
 <script>
-let text = {% if text %}{% if text is string %}"{{ text }}"{% else %}{{ text|safe }}{% endif %}{% else %}""{% endif %};
+let text = {% if text %}{% if text is string %}"{{ text|safe }}"{% else %}{{ text|safe }}{% endif %}{% else %}""{% endif %};
 </script>
 <script src="{{ url_for('static', filename='advanced.js') }}"></script>
 <script src="{{ url_for('static', filename='synthesis.js') }}"></script>
