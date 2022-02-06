@@ -20,7 +20,7 @@ from dataset import AUDIO_FOLDER, UNLABELLED_FOLDER, METADATA_FILE, INFO_FILE, C
 from dataset.create_dataset import create_dataset
 from dataset.utils import add_suffix
 from dataset.extend_existing_dataset import extend_existing_dataset
-from dataset.analysis import get_total_audio_duration, validate_dataset
+from dataset.analysis import get_total_audio_duration, validate_dataset, update_dataset_info
 from dataset.transcribe import Silero, DeepSpeech, SILERO_LANGUAGES
 from training.train import train, TRAINING_PATH, DEFAULT_ALPHABET
 from training.utils import get_available_memory, get_gpu_memory, get_batch_size, load_symbols, generate_timelapse_gif
@@ -449,6 +449,14 @@ def label_clip():
     dataset = request.values["dataset"]
     clip = request.values["unlabelled_clip"]
     text = request.values["sentence"]
+
+    # Update dataset size
+    update_dataset_info(
+        os.path.join(paths["datasets"], dataset, METADATA_FILE), 
+        os.path.join(paths["datasets"], dataset, INFO_FILE),
+        os.path.join(paths["datasets"], dataset, UNLABELLED_FOLDER, clip),
+        text
+    )
 
     # Add to metadata
     with open(os.path.join(paths["datasets"], dataset, METADATA_FILE), "a") as f:

@@ -108,6 +108,46 @@ def save_dataset_info(metadata_file, folder, output_path, clip_lengths=None):
         json.dump(data, f, indent=4)
 
 
+def update_dataset_info(metadata_file, json_file, clip_path, text):
+    """
+    Extend dataset info JSON with additional clip
+
+    Parameters
+    ----------
+    metadata_file : str
+        Path to metadata file
+    json_file : str
+        Path to the dataset info JSON
+    clip_path : str
+        Path to the audio clip
+    text : str
+        Text in clip
+    """
+    assert os.path.isfile(metadata_file)
+    assert os.path.isfile(json_file)
+    assert os.path.isfile(clip_path)
+
+    with open(json_file) as f:
+        data = json.load(f)
+
+    clip_length = librosa.get_duration(filename=clip_path)
+    words = get_text(metadata_file)
+    clip_words = text.split(" ")
+    all_words = words + clip_words
+
+    data["total_duration"] += clip_length
+    data["total_clips"] += 1
+    data["mean_clip_duration"] == data["total_duration"] / data["total_clips"]
+    data["max_clip_duration"] = max(data["max_clip_duration"], clip_length)
+    data["min_clip_duration"] = min(data["min_clip_duration"], clip_length)
+    data["total_words"] += len(clip_words)
+    data["total_distinct_words"] = len(set(all_words))
+    data["mean_words_per_clip"] = data["total_words"] / data["total_clips"]
+
+    with open(json_file, "w") as f:
+        json.dump(data, f, indent=4)
+
+
 def validate_dataset(folder, metadata_file="metadata.csv", audio_folder="wavs", info_file="info.json"):
     """
     Validate a dataset has all required files.

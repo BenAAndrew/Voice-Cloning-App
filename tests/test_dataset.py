@@ -6,7 +6,7 @@ import json
 import pysrt
 
 from tests.test_synthesis import MIN_SYNTHESIS_SCORE
-from dataset.analysis import get_total_audio_duration, get_clip_lengths, validate_dataset
+from dataset.analysis import get_total_audio_duration, get_clip_lengths, validate_dataset, get_text, update_dataset_info
 from dataset.clip_generator import generate_clips_from_subtitles, clip_combiner
 from dataset.create_dataset import create_dataset
 from dataset.extend_existing_dataset import extend_existing_dataset
@@ -321,6 +321,27 @@ def test_validate_dataset():
     assert not message
 
     shutil.rmtree(output_directory)
+
+
+def test_update_dataset_info():
+    info_path = os.path.join("test_samples", "info.json")
+    shutil.copy(info_path, os.path.join("test_samples", "info-backup.json"))
+    metadata_path = os.path.join("test_samples", "dataset", "metadata.csv")
+    clip_path = os.path.join("test_samples", "dataset", "wavs", "0_2730.wav")
+    text = "some text"
+
+    with open(info_path) as f:
+        info_before = json.load(f)
+    
+    update_dataset_info(metadata_path, info_path, clip_path, text)
+
+    with open(info_path) as f:
+        data = json.load(f)
+        assert data["total_duration"] == info_before["total_duration"] + 2.829931972788
+        assert data["total_clips"] == info_before["total_clips"] + 1
+
+    os.remove(info_path)
+    shutil.copy(os.path.join("test_samples", "info-backup.json"), info_path)
 
 
 # Transcription
