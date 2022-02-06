@@ -169,7 +169,7 @@ class Generator(torch.nn.Module):
             self.ups.append(
                 weight_norm(
                     ConvTranspose1d(
-                        h.upsample_initial_channel // (2 ** i),
+                        h.upsample_initial_channel // (2**i),
                         h.upsample_initial_channel // (2 ** (i + 1)),
                         k,
                         u,
@@ -358,7 +358,7 @@ def discriminator_loss(disc_real_outputs, disc_generated_outputs):
     g_losses = []
     for dr, dg in zip(disc_real_outputs, disc_generated_outputs):
         r_loss = torch.mean((1 - dr) ** 2)
-        g_loss = torch.mean(dg ** 2)
+        g_loss = torch.mean(dg**2)
         loss += r_loss + g_loss
         r_losses.append(r_loss.item())
         g_losses.append(g_loss.item())

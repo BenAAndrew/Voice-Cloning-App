@@ -332,7 +332,7 @@ def test_update_dataset_info():
 
     with open(info_path) as f:
         info_before = json.load(f)
-    
+
     update_dataset_info(metadata_path, info_path, clip_path, text)
 
     with open(info_path) as f:

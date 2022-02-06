@@ -452,10 +452,10 @@ def label_clip():
 
     # Update dataset size
     update_dataset_info(
-        os.path.join(paths["datasets"], dataset, METADATA_FILE), 
+        os.path.join(paths["datasets"], dataset, METADATA_FILE),
         os.path.join(paths["datasets"], dataset, INFO_FILE),
         os.path.join(paths["datasets"], dataset, UNLABELLED_FOLDER, clip),
-        text
+        text,
     )
 
     # Add to metadata
