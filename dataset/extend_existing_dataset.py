@@ -77,6 +77,7 @@ def extend_existing_dataset(
     temp_label_path = label_path.replace(Path(label_path).name, "temp.csv")
     temp_unlabelled_folder = unlabelled_path.replace(Path(unlabelled_path).name, "temp_unlabelled")
     temp_wavs_folder = output_path.replace(Path(output_path).name, "temp_wavs")
+    os.makedirs(unlabelled_path, exist_ok=True)
 
     clip_generator(
         converted_audio,
