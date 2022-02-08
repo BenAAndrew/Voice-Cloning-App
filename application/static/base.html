@@ -5,14 +5,14 @@
         <meta http-equiv="cache-control" content="no-cache, no-store, must-revalidate" />
         <meta http-equiv="pragma" content="no-cache" />
         <meta http-equiv="expires" content="0">
-        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
+        <link rel="stylesheet" href="{{ url_for('static', filename='resources/bootstrap.min.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='resources/fontawesome.css') }}">
         <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
         <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='favicon/favicon-32x32.png') }}">
         <link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='favicon/favicon-16x16.png') }}">
-        <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
-        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+        <script src="{{ url_for('static', filename='resources/jquery-3.3.1.min.js') }}"></script>
+        <script src="{{ url_for('static', filename='resources/popper.min.js') }}"></script>
+        <script src="{{ url_for('static', filename='resources/bootstrap.min.js') }}"></script>
         <script>
         $(document).ready(function(){
             $('[data-toggle="tooltip"]').tooltip();

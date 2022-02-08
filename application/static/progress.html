@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block additional_scripts %}
-<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.1.1/socket.io.min.js"></script>
+<script src="{{ url_for('static', filename='resources/jquery-3.3.1.min.js') }}"></script>
+<script src="{{ url_for('static', filename='resources/socket.io.min.js') }}"></script>
 <script src="{{ url_for('static', filename='application.js') }}"></script>
 {% endblock %}
 {% block content %}
