@@ -29,17 +29,20 @@ def is_ffmpeg_installed():
 
 def install_ffmpeg_windows():
     """Downloads and extracts the FFmpeg library"""
-    r = requests.get(FFMPEG_WINDOWS_URL)
-    with open("ffmpeg.zip", "wb") as f:
-        f.write(r.content)
+    try:
+        r = requests.get(FFMPEG_WINDOWS_URL)
+        with open("ffmpeg.zip", "wb") as f:
+            f.write(r.content)
 
-    with ZipFile("ffmpeg.zip", "r") as zipf:
-        zipf.extractall()
+        with ZipFile("ffmpeg.zip", "r") as zipf:
+            zipf.extractall()
 
-    ffmpeg_folder = [f for f in os.listdir() if f.startswith("ffmpeg-")][0]
-    os.rename(ffmpeg_folder, "ffmpeg")
-    os.remove("ffmpeg.zip")
-    os.environ["PATH"] += os.pathsep + os.path.abspath("ffmpeg\\bin")
+        ffmpeg_folder = [f for f in os.listdir() if f.startswith("ffmpeg-")][0]
+        os.rename(ffmpeg_folder, "ffmpeg")
+        os.remove("ffmpeg.zip")
+        os.environ["PATH"] += os.pathsep + os.path.abspath("ffmpeg\\bin")
+    except requests.exceptions.ConnectionError:
+        raise Exception("Unable to download FFmpeg. Please install manually")
 
 
 def install_ffmpeg_linux():
