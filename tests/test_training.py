@@ -17,7 +17,7 @@ from training.checkpoint import (
 )
 from training.voice_dataset import VoiceDataset
 from training.tacotron2_model import Tacotron2
-from training import DEFAULT_ALPHABET
+from training import DEFAULT_ALPHABET, TRAIN_FILE, VALIDATION_FILE
 from training.train import train, MINIMUM_MEMORY_GB, WEIGHT_DECAY
 from training.validate import validate
 from training.utils import (
@@ -33,6 +33,7 @@ from training.utils import (
     BASE_SYMBOLS,
     train_test_split,
     validate_dataset,
+    create_trainlist_vallist_files
 )
 from training.hifigan.train import train as train_hifigan
 from training.hifigan.utils import get_checkpoint_options, save_checkpoints
@@ -527,3 +528,35 @@ def test_get_batch_size():
     memory = 8
     batch_size = get_batch_size(memory)
     assert batch_size == int(memory * BATCH_SIZE_PER_GB)
+
+# Parameters
+def test_create_trainlist_vallist_files():
+    metadata_path = os.path.join("test_samples", "dataset", "metadata.csv")
+    trainlist_folder = "test-trainlist"
+    os.makedirs(trainlist_folder)
+    train_file = os.path.join(trainlist_folder, TRAIN_FILE)
+    test_file = os.path.join(trainlist_folder, VALIDATION_FILE)
+    train_size = 0.7
+
+    create_trainlist_vallist_files(trainlist_folder, metadata_path, train_size)
+
+    with open(metadata_path) as f:
+        data = f.readlines()
+
+    assert os.path.isfile(train_file)
+    assert os.path.isfile(test_file)
+
+    with open(train_file) as f:
+        train_data = f.readlines()
+        train_size = int(len(data) * train_size)
+        assert len(train_data) == train_size
+        for line in train_data:
+            assert line in data
+
+    with open(test_file) as f:
+        test_data = f.readlines()
+        assert len(test_data) == len(data) - train_size
+        for line in test_data:
+            assert line in data
+
+    shutil.rmtree(trainlist_folder)

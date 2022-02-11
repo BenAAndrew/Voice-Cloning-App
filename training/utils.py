@@ -6,7 +6,7 @@ from PIL import Image
 
 from dataset import CHARACTER_ENCODING
 from dataset.utils import get_invalid_characters
-from training import BASE_SYMBOLS
+from training import BASE_SYMBOLS, SEED, TRAIN_FILE, VALIDATION_FILE
 from training.tacotron2_model.utils import get_mask_from_lengths
 from training.clean_text import clean_text
 
@@ -263,3 +263,29 @@ def generate_timelapse_gif(folder, output_path):
     images = sorted(os.listdir(folder), key=lambda filename: int(filename.split("_")[1].split(".")[0]))
     frames = [Image.open(os.path.join(folder, image)) for image in images]
     frames[0].save(output_path, format="GIF", append_images=frames[1:], save_all=True, duration=200, loop=0)
+
+
+def create_trainlist_vallist_files(folder, metadata_path, train_size=0.8):
+    """
+    Creates trainlist & vallist files for compatibility with other notebooks.
+
+    Parameters
+    ----------
+    folder : str
+        Destination folder
+    metadata_path : str
+        Path to metadata file
+    train_size : float (optional)
+        Percentage of samples to use for training (default is 80%/0.8)
+    """
+    random.seed(SEED)
+    filepaths_and_text = load_metadata(metadata_path)
+    train_files, test_files = train_test_split(filepaths_and_text, train_size)
+
+    with open(os.path.join(folder, TRAIN_FILE), "w") as f:
+        for line in train_files:
+            f.write(f"{line[0]}|{line[1]}\n")
+
+    with open(os.path.join(folder, VALIDATION_FILE), "w") as f:
+        for line in test_files:
+            f.write(f"{line[0]}|{line[1]}\n")

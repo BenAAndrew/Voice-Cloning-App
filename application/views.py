@@ -22,8 +22,16 @@ from dataset.utils import add_suffix
 from dataset.extend_existing_dataset import extend_existing_dataset
 from dataset.analysis import get_total_audio_duration, validate_dataset, update_dataset_info
 from dataset.transcribe import Silero, DeepSpeech, SILERO_LANGUAGES
+from training import TRAIN_FILE, VALIDATION_FILE
 from training.train import train, TRAINING_PATH, DEFAULT_ALPHABET
-from training.utils import get_available_memory, get_gpu_memory, get_batch_size, load_symbols, generate_timelapse_gif
+from training.utils import (
+    get_available_memory,
+    get_gpu_memory,
+    get_batch_size,
+    load_symbols,
+    generate_timelapse_gif,
+    create_trainlist_vallist_files,
+)
 from training.hifigan.train import BATCH_SIZE_PER_GB, CONFIG_FILE
 from training.hifigan.train import train as train_hifigan
 from training.hifigan.utils import get_checkpoint_options
@@ -503,6 +511,7 @@ def download_dataset():
     dataset_name = request.values["dataset"]
     dataset_directory = os.path.join(paths["datasets"], dataset_name)
     data = io.BytesIO()
+    create_trainlist_vallist_files(dataset_directory, os.path.join(dataset_directory, METADATA_FILE))
 
     with zipfile.ZipFile(data, mode="w") as z:
         z.write(os.path.join(dataset_directory, METADATA_FILE), METADATA_FILE)
@@ -512,6 +521,9 @@ def download_dataset():
         audio_directory = os.path.join(dataset_directory, AUDIO_FOLDER)
         for audiofile in os.listdir(audio_directory):
             z.write(os.path.join(audio_directory, audiofile), os.path.join(AUDIO_FOLDER, audiofile))
+
+        z.write(os.path.join(dataset_directory, TRAIN_FILE), TRAIN_FILE)
+        z.write(os.path.join(dataset_directory, VALIDATION_FILE), VALIDATION_FILE)
 
     data.seek(0)
 

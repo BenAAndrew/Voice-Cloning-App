@@ -15,7 +15,7 @@ import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
 
-from training import DEFAULT_ALPHABET
+from training import DEFAULT_ALPHABET, SEED
 from training.clean_text import clean_text
 from training.voice_dataset import VoiceDataset
 from training.checkpoint import load_checkpoint, save_checkpoint, warm_start_model
@@ -37,7 +37,6 @@ from synthesis.synthesize import text_to_sequence, generate_graph
 MINIMUM_MEMORY_GB = 4
 WEIGHT_DECAY = 1e-6
 GRAD_CLIP_THRESH = 1.0
-SEED = 1234
 TRAINING_PATH = os.path.join("data", "training")
 
 
