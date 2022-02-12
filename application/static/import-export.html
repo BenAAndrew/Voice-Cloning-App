@@ -10,8 +10,8 @@
 <h3>Upload dataset</h3>
 <p>Before uploading, check the following:</p>
 <ul>
-    <li>You have a metadata.csv file and wavs folder in the root of the zip</li>
-    <li>Each wav file has a transcription in metadata.csv</li>
+    <li>You have a metadata.csv file or trainlist.txt & vallist.txt files containing transcriptions in the root of the zip</li>
+    <li>You have a wavs folder containing each audio clip</li>
     <li>Each wav file is 1-10 seconds in duration</li>
 </ul>
 <form method="POST" action="/upload-dataset" enctype="multipart/form-data">
