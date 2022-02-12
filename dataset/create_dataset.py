@@ -12,7 +12,7 @@ from training.utils import load_symbols
 from dataset import AUDIO_FOLDER, UNLABELLED_FOLDER, METADATA_FILE, ALIGNMENT_FILE, INFO_FILE, MIN_LENGTH, MAX_LENGTH
 from dataset.audio_processing import convert_audio
 from dataset.clip_generator import clip_generator
-from dataset.analysis import save_dataset_info
+from dataset.analysis import save_dataset_info, get_text
 from dataset.transcribe import Silero
 
 
@@ -89,7 +89,7 @@ def create_dataset(
         raise e
 
     logging.info("Getting dataset info...")
-    save_dataset_info(label_path, output_path, info_path, clip_lengths)
+    save_dataset_info(get_text(label_path), output_path, info_path, clip_lengths)
 
 
 if __name__ == "__main__":

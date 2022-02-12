@@ -24,7 +24,7 @@ from training.utils import (
     get_available_memory,
     get_batch_size,
     get_learning_rate,
-    load_metadata,
+    load_labels_file,
     check_early_stopping,
     calc_avgmax_attention,
     train_test_split,
@@ -41,9 +41,11 @@ TRAINING_PATH = os.path.join("data", "training")
 
 
 def train(
-    metadata_path,
-    dataset_directory,
+    audio_directory,
     output_directory,
+    metadata_path=None,
+    trainlist_path=None,
+    vallist_path=None,
     symbols=DEFAULT_ALPHABET,
     checkpoint_path=None,
     transfer_learning_path=None,
@@ -62,12 +64,16 @@ def train(
 
     Parameters
     ----------
-    metadata_path : str
-        Path to label file
-    dataset_directory : str
+    audio_directory : str
         Path to dataset clips
     output_directory : str
         Path to save checkpoints to
+    metadata_path : str (optional)
+        Path to label file
+    trainlist_path : str (optional)
+        Path to trainlist file
+    vallist_path : str (optional)
+        Path to vallist file
     symbols : list (optional)
         Valid symbols (default is English)
     checkpoint_path : str (optional)
@@ -100,6 +106,9 @@ def train(
     RuntimeError
         If the batch size is too high (causing CUDA out of memory)
     """
+    assert metadata_path or (
+        trainlist_path and vallist_path
+    ), "You must give the path to your metadata file or trainlist/vallist files"
     assert torch.cuda.is_available(), "You do not have Torch with CUDA installed. Please check CUDA & Pytorch install"
     os.makedirs(output_directory, exist_ok=True)
 
@@ -134,11 +143,20 @@ def train(
 
     # Load data
     logging.info("Loading data...")
-    filepaths_and_text = load_metadata(metadata_path)
-    validate_dataset(filepaths_and_text, dataset_directory, symbols)
-    train_files, test_files = train_test_split(filepaths_and_text, train_size)
-    trainset = VoiceDataset(train_files, dataset_directory, symbols)
-    valset = VoiceDataset(test_files, dataset_directory, symbols)
+    if metadata_path:
+        # metadata.csv
+        filepaths_and_text = load_labels_file(metadata_path)
+        random.shuffle(filepaths_and_text)
+        train_files, test_files = train_test_split(filepaths_and_text, train_size)
+    else:
+        # trainlist.txt & vallist.txt
+        train_files = load_labels_file(trainlist_path)
+        test_files = load_labels_file(vallist_path)
+        filepaths_and_text = train_files + test_files
+
+    validate_dataset(filepaths_and_text, audio_directory, symbols)
+    trainset = VoiceDataset(train_files, audio_directory, symbols)
+    valset = VoiceDataset(test_files, audio_directory, symbols)
     collate_fn = TextMelCollate()
 
     # Data loaders
@@ -267,7 +285,7 @@ if __name__ == "__main__":
     """Train a tacotron2 model"""
     parser = argparse.ArgumentParser(description="Train a tacotron2 model")
     parser.add_argument("-m", "--metadata_path", type=str, help="metadata path")
-    parser.add_argument("-d", "--dataset_directory", type=str, help="directory to dataset")
+    parser.add_argument("-a", "--audio_directory", type=str, help="directory to audio")
     parser.add_argument("-o", "--output_directory", type=str, help="directory to save checkpoints")
     parser.add_argument("-c", "--checkpoint_path", required=False, type=str, help="checkpoint path")
     parser.add_argument("-e", "--epochs", default=8000, type=int, help="num epochs")
@@ -284,14 +302,14 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     assert os.path.isfile(args.metadata_path)
-    assert os.path.isdir(args.dataset_directory)
+    assert os.path.isdir(args.audio_directory)
     if args.checkpoint_path:
         assert os.path.isfile(args.checkpoint_path)
 
     train(
-        metadata_path=args.metadata_path,
-        dataset_directory=args.dataset_directory,
+        audio_directory=args.audio_directory,
         output_directory=args.output_directory,
+        metadata_path=args.metadata_path,
         alphabet_path=args.alphabet_path,
         checkpoint_path=args.checkpoint_path,
         epochs=args.epochs,

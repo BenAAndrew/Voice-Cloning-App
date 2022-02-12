@@ -12,7 +12,7 @@ import resampy  # noqa
 from main import socketio
 from dataset import CHARACTER_ENCODING
 from dataset.audio_processing import convert_audio
-from dataset.analysis import save_dataset_info
+from dataset.analysis import save_dataset_info, get_text
 
 
 class SocketIOHandler(logging.Handler):
@@ -182,9 +182,10 @@ def import_dataset(dataset, dataset_directory, audio_folder, logging):
     try:
         with zipfile.ZipFile(dataset, mode="r") as z:
             files_list = z.namelist()
-            assert (
-                "metadata.csv" in files_list
-            ), "Dataset missing metadata.csv. Make sure this file is in the root of the zip file"
+
+            assert ("metadata.csv" in files_list) or (
+                "trainlist.txt" in files_list and "vallist.txt" in files_list
+            ), "Dataset doesn't include metadata.csv or trainlist.txt/vallist.txt. Make sure this is in the root of the zip file"
 
             folders = [x.split("/")[0] for x in files_list if "/" in x]
             assert (
@@ -194,20 +195,37 @@ def import_dataset(dataset, dataset_directory, audio_folder, logging):
             wavs = [x for x in files_list if x.startswith("wavs/") and x.endswith(".wav")]
             assert wavs, "No wavs found in wavs folder"
 
-            metadata = z.read("metadata.csv").decode(CHARACTER_ENCODING, "ignore").replace("\r\n", "\n")
-            num_metadata_rows = len([row for row in metadata.split("\n") if row])
-            assert (
-                len(wavs) == num_metadata_rows
-            ), f"Number of wavs and labels do not match. metadata: {num_metadata_rows}, wavs: {len(wavs)}"
-
             logging.info("Creating directory")
             os.makedirs(dataset_directory, exist_ok=False)
             os.makedirs(audio_folder, exist_ok=False)
 
-            # Save metadata
-            logging.info("Saving files")
-            with open(os.path.join(dataset_directory, "metadata.csv"), "w", encoding=CHARACTER_ENCODING) as f:
-                f.write(metadata)
+            if "metadata.csv" in files_list:
+                metadata = z.read("metadata.csv").decode(CHARACTER_ENCODING, "ignore").replace("\r\n", "\n")
+                num_metadata_rows = len([row for row in metadata.split("\n") if row])
+                assert (
+                    len(wavs) == num_metadata_rows
+                ), f"Number of wavs and labels do not match. metadata: {num_metadata_rows}, wavs: {len(wavs)}"
+
+                # Save metadata
+                logging.info("Saving files")
+                with open(os.path.join(dataset_directory, "metadata.csv"), "w", encoding=CHARACTER_ENCODING) as f:
+                    f.write(metadata)
+            else:
+                trainlist = z.read("trainlist.txt").decode(CHARACTER_ENCODING, "ignore").replace("\r\n", "\n")
+                vallist = z.read("vallist.txt").decode(CHARACTER_ENCODING, "ignore").replace("\r\n", "\n")
+                num_rows = len([row for row in trainlist.split("\n") if row]) + len(
+                    [row for row in vallist.split("\n") if row]
+                )
+                assert (
+                    len(wavs) == num_rows
+                ), f"Number of wavs and labels do not match. trainlist+vallist: {num_rows}, wavs: {len(wavs)}"
+
+                # Save trainlist & vallist
+                logging.info("Saving files")
+                with open(os.path.join(dataset_directory, "trainlist.txt"), "w", encoding=CHARACTER_ENCODING) as f:
+                    f.write(trainlist)
+                with open(os.path.join(dataset_directory, "vallist.txt"), "w", encoding=CHARACTER_ENCODING) as f:
+                    f.write(vallist)
 
             # Save wavs
             total_wavs = len(wavs)
@@ -234,8 +252,14 @@ def import_dataset(dataset, dataset_directory, audio_folder, logging):
 
             # Create info file
             logging.info("Creating info file")
+            words = (
+                get_text(os.path.join(dataset_directory, "metadata.csv"))
+                if "metadata.csv" in files_list
+                else get_text(os.path.join(dataset_directory, "trainlist.txt"))
+                + get_text(os.path.join(dataset_directory, "vallist.txt"))
+            )
             save_dataset_info(
-                os.path.join(dataset_directory, "metadata.csv"),
+                words,
                 os.path.join(dataset_directory, "wavs"),
                 os.path.join(dataset_directory, "info.json"),
                 clip_lengths=clip_lengths,

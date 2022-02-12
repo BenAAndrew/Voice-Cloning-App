@@ -12,7 +12,7 @@ from training import DEFAULT_ALPHABET
 from training.utils import load_symbols
 from dataset.audio_processing import convert_audio
 from dataset.clip_generator import clip_generator
-from dataset.analysis import save_dataset_info
+from dataset.analysis import save_dataset_info, get_text
 from dataset.transcribe import Silero
 from dataset import AUDIO_FOLDER, UNLABELLED_FOLDER, METADATA_FILE, ALIGNMENT_FILE, INFO_FILE, MIN_LENGTH, MAX_LENGTH
 from dataset.utils import add_suffix
@@ -119,7 +119,7 @@ def extend_existing_dataset(
 
     logging.info("Getting dataset info...")
     # Do not pass clip lengths from extend_dataset as we need to get size of entire dataset (not just new clips)
-    save_dataset_info(label_path, output_path, info_path)
+    save_dataset_info(get_text(label_path), output_path, info_path)
 
 
 if __name__ == "__main__":

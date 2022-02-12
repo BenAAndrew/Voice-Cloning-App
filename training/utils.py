@@ -92,24 +92,22 @@ def get_learning_rate(batch_size):
     )
 
 
-def load_metadata(metadata_path):
+def load_labels_file(filepath):
     """
-    Load metadata file and split entries into train and test.
+    Load labels file
 
     Parameters
     ----------
-    metadata_path : str
-        Path to metadata file
+    filepath : str
+        Path to text file
 
     Returns
     -------
     list
         List of samples
     """
-    with open(metadata_path, encoding=CHARACTER_ENCODING) as f:
-        filepaths_and_text = [line.strip().split("|") for line in f]
-    random.shuffle(filepaths_and_text)
-    return filepaths_and_text
+    with open(filepath, encoding=CHARACTER_ENCODING) as f:
+        return [line.strip().split("|") for line in f]
 
 
 def validate_dataset(filepaths_and_text, dataset_directory, symbols):
@@ -279,7 +277,8 @@ def create_trainlist_vallist_files(folder, metadata_path, train_size=0.8):
         Percentage of samples to use for training (default is 80%/0.8)
     """
     random.seed(SEED)
-    filepaths_and_text = load_metadata(metadata_path)
+    filepaths_and_text = load_labels_file(metadata_path)
+    random.shuffle(filepaths_and_text)
     train_files, test_files = train_test_split(filepaths_and_text, train_size)
 
     with open(os.path.join(folder, TRAIN_FILE), "w") as f:

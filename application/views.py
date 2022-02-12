@@ -184,9 +184,7 @@ def create_dataset_post():
 @app.route("/dataset-duration", methods=["GET"])
 def get_dataset_duration():
     dataset = request.values["dataset"]
-    dataset_error = validate_dataset(
-        os.path.join(paths["datasets"], dataset), metadata_file=METADATA_FILE, audio_folder=AUDIO_FOLDER
-    )
+    dataset_error = validate_dataset(os.path.join(paths["datasets"], dataset))
     if not dataset_error:
         return get_total_audio_duration(os.path.join(paths["datasets"], dataset, INFO_FILE))
     else:
@@ -234,6 +232,9 @@ def train_post():
     )
 
     metadata_path = os.path.join(paths["datasets"], dataset_name, METADATA_FILE)
+    use_metadata = os.path.isfile(metadata_path)
+    trainlist_path = os.path.join(paths["datasets"], dataset_name, TRAIN_FILE)
+    vallist_path = os.path.join(paths["datasets"], dataset_name, VALIDATION_FILE)
     audio_folder = os.path.join(paths["datasets"], dataset_name, AUDIO_FOLDER)
     checkpoint_folder = os.path.join(paths["models"], dataset_name)
 
@@ -245,8 +246,10 @@ def train_post():
 
     start_progress_thread(
         train,
-        metadata_path=metadata_path,
-        dataset_directory=audio_folder,
+        metadata_path=metadata_path if use_metadata else None,
+        trainlist_path=trainlist_path if not use_metadata else None,
+        vallist_path=vallist_path if not use_metadata else None,
+        audio_directory=audio_folder,
         output_directory=checkpoint_folder,
         symbols=symbols,
         checkpoint_path=checkpoint_path,

@@ -21,7 +21,7 @@ from training import DEFAULT_ALPHABET, TRAIN_FILE, VALIDATION_FILE
 from training.train import train, MINIMUM_MEMORY_GB, WEIGHT_DECAY
 from training.validate import validate
 from training.utils import (
-    load_metadata,
+    load_labels_file,
     load_symbols,
     get_gpu_memory,
     get_available_memory,
@@ -33,7 +33,7 @@ from training.utils import (
     BASE_SYMBOLS,
     train_test_split,
     validate_dataset,
-    create_trainlist_vallist_files
+    create_trainlist_vallist_files,
 )
 from training.hifigan.train import train as train_hifigan
 from training.hifigan.utils import get_checkpoint_options, save_checkpoints
@@ -120,14 +120,14 @@ def test_train(
     calc_avgmax_attention,
 ):
     metadata_path = os.path.join("test_samples", "dataset", "metadata.csv")
-    dataset_directory = os.path.join("test_samples", "dataset", "wavs")
+    audio_directory = os.path.join("test_samples", "dataset", "wavs")
     output_directory = "checkpoint"
     train_size = 0.67
 
     train(
-        metadata_path,
-        dataset_directory,
-        output_directory,
+        audio_directory=audio_directory,
+        output_directory=output_directory,
+        metadata_path=metadata_path,
         epochs=1,
         batch_size=1,
         early_stopping=False,
@@ -418,15 +418,15 @@ def test_warm_start_model():
             assert torch.equal(model_dict[k], checkpoint_dict[k])
 
 
-# Metadata
-def test_load_metadata():
+# Labels file
+def test_load_labels_file():
     metadata_path = os.path.join("test_samples", "dataset", "metadata.csv")
     data = {
         "0_2730.wav": "the examination and testimony of the experts",
         "2820_5100.wav": "enabled the commission to conclude",
         "5130_7560.wav": "that five shots may have been",
     }
-    filepaths_and_text = load_metadata(metadata_path)
+    filepaths_and_text = load_labels_file(metadata_path)
     assert len(filepaths_and_text) == 3
     for name, text in filepaths_and_text:
         assert data[name] == text
@@ -529,7 +529,8 @@ def test_get_batch_size():
     batch_size = get_batch_size(memory)
     assert batch_size == int(memory * BATCH_SIZE_PER_GB)
 
-# Parameters
+
+# Trainlist/vallist files
 def test_create_trainlist_vallist_files():
     metadata_path = os.path.join("test_samples", "dataset", "metadata.csv")
     trainlist_folder = "test-trainlist"

@@ -4,7 +4,8 @@ import re
 import librosa
 import json
 
-from dataset import CHARACTER_ENCODING
+from dataset import CHARACTER_ENCODING, AUDIO_FOLDER, METADATA_FILE, INFO_FILE
+from training import TRAIN_FILE, VALIDATION_FILE
 
 
 ALLOWED_CHARACTERS_RE = re.compile("[^a-zA-Z ]+")
@@ -71,14 +72,14 @@ def get_total_audio_duration(info_file):
         return json.load(f)
 
 
-def save_dataset_info(metadata_file, folder, output_path, clip_lengths=None):
+def save_dataset_info(words, folder, output_path, clip_lengths=None):
     """
     Save dataset properties to info JSON.
 
     Parameters
     ----------
-    metadata_file : str
-        Path to metadata file
+    words : list
+        List of words in text
     folder : str
         Path to audio folder
     output_path : str
@@ -88,7 +89,6 @@ def save_dataset_info(metadata_file, folder, output_path, clip_lengths=None):
     """
     if not clip_lengths:
         clip_lengths = get_clip_lengths(folder)
-    words = get_text(metadata_file)
     total_duration = sum(clip_lengths)
     total_words = len(words)
     total_clips = len(clip_lengths)
@@ -148,7 +148,7 @@ def update_dataset_info(metadata_file, json_file, clip_path, text):
         json.dump(data, f, indent=4)
 
 
-def validate_dataset(folder, metadata_file="metadata.csv", audio_folder="wavs", info_file="info.json"):
+def validate_dataset(folder):
     """
     Validate a dataset has all required files.
 
@@ -156,24 +156,20 @@ def validate_dataset(folder, metadata_file="metadata.csv", audio_folder="wavs", 
     ----------
     folder : str
         Path to dataset folder
-    metadata_file : str
-        Metadata file name
-    audio_folder : str
-        Audio folder name
-    info_file : str
-        Info file name
 
     Returns
     -------
     str
         Error message or None if no error is produced
     """
-    if not os.path.isfile(os.path.join(folder, metadata_file)):
-        return f"Missing {metadata_file} file"
-    if not os.path.isfile(os.path.join(folder, info_file)):
-        return f"Missing {info_file} file"
-    if not os.path.isdir(os.path.join(folder, audio_folder)):
-        return f"Missing {audio_folder} folder"
+    if not os.path.isfile(os.path.join(folder, METADATA_FILE)) and not (
+        os.path.isfile(os.path.join(folder, TRAIN_FILE)) and os.path.isfile(os.path.join(folder, VALIDATION_FILE))
+    ):
+        return f"Missing {METADATA_FILE} or {TRAIN_FILE}/{VALIDATION_FILE} file"
+    if not os.path.isfile(os.path.join(folder, INFO_FILE)):
+        return f"Missing {INFO_FILE} file"
+    if not os.path.isdir(os.path.join(folder, AUDIO_FOLDER)):
+        return f"Missing {AUDIO_FOLDER} folder"
     return None
 
 
@@ -185,7 +181,7 @@ if __name__ == "__main__":
     parser.add_argument("-o", "--output_path", help="Path to save JSON file", type=str, required=True)
     args = parser.parse_args()
 
-    save_dataset_info(args.metadata, args.wavs, args.output_path)
+    save_dataset_info(get_text(args.metadata), args.wavs, args.output_path)
 
     with open(args.output_path) as f:
         data = json.load(f)
