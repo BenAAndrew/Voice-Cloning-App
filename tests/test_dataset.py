@@ -301,7 +301,7 @@ def test_validate_dataset():
 
     # No files
     message = validate_dataset(output_directory)
-    assert message == "Missing metadata.csv file"
+    assert message == "Missing metadata.csv or trainlist.txt/vallist.txt file"
 
     # No info or wavs
     with open(os.path.join(output_directory, "metadata.csv"), "w") as f:
