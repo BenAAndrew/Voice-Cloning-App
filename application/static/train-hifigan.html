@@ -2,6 +2,8 @@
 {% block content %}
     {% if cuda_enabled %}
     <p>Training a custom vocoder <i>may</i> improve the synthesis quality for a given voice.</p><br>
+<p>If you have trained your model in collab you can also <a href="https://colab.research.google.com/drive/1O_m8mUov5JzdqDz2X2KGuLqTnDLiEgDG?usp=sharing" target="_blank">Train HiFiGan remotely</a> using your uploaded dataset.</p>
+  
     <form method="POST" action="/train-hifigan" enctype="multipart/form-data">
         <div class="form-group">
             <label for="dataset">Dataset path</label>
@@ -92,6 +94,7 @@
         <li>You don't have an NVIDIA GPU</li>
         <li>Your drivers are not up-to-date, must be version 456.38+ (check by running 'nvidia-smi')</li>
         <li>You have done a custom install and accidently installed pytorch CPU only (shows as '1.9.0+cpu' instead of '1.9.0+cu111' in 'pip list')</li>
+        <li>If you cannot train locally (as you don't have a supported GPU) you can also <a href="https://colab.research.google.com/drive/1O_m8mUov5JzdqDz2X2KGuLqTnDLiEgDG?usp=sharing" target="_blank">Train remotely</a></li>
     </ul>
     {% endif %}
 {% endblock %}
