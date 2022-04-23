@@ -24,7 +24,7 @@ jobs:
           command: sudo pip install pytest==6.2.2 gdown==3.13.0 pytest-cov==2.12.1 interrogate==1.4.0
       - run:
           name: Download resources
-          command: gdown http:drive.google.com/uc?id=1CJpYcwoQ9zNA8f9gLpNxEijT9yKTqdcT
+          command: gdown 1CJpYcwoQ9zNA8f9gLpNxEijT9yKTqdcT
       - save_cache:
           key: deps-{{ .Environment.CIRCLE_BRANCH }}-{{ .Environment.CACHE_VERSION }}
           paths:
