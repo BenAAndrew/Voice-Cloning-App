@@ -21,7 +21,7 @@ jobs:
           command: sudo pip install -r requirements-cpu.txt
       - run:
           name: Install additional tools
-          command: sudo pip install pytest==6.2.2 gdown==3.13.0 pytest-cov==2.12.1 interrogate==1.4.0
+          command: sudo pip install pytest==6.2.2 gdown==4.4.0 pytest-cov==2.12.1 interrogate==1.4.0
       - run:
           name: Download resources
           command: gdown https://drive.google.com/uc?id=1CJpYcwoQ9zNA8f9gLpNxEijT9yKTqdcT && unzip test_samples.zip -d test_samples && ls test_samples/
