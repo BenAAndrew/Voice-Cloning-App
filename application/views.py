@@ -470,7 +470,7 @@ def label_clip():
     )
 
     # Add to metadata
-    with open(os.path.join(paths["datasets"], dataset, METADATA_FILE), "a") as f:
+    with open(os.path.join(paths["datasets"], dataset, METADATA_FILE), "a", encoding=CHARACTER_ENCODING) as f:
         f.write(f"{clip}|{text}\n")
 
     # Move clip
