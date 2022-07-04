@@ -6,6 +6,7 @@ RUN apt-get install -y ffmpeg build-essential
 
 # Setup
 WORKDIR /app
+COPY alphabets/ /app/alphabets
 COPY application/ /app/application
 COPY dataset/ /app/dataset
 COPY training/ /app/training
