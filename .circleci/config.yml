@@ -13,7 +13,7 @@ jobs:
           command: sudo chown -R circleci:circleci /usr/local/bin && sudo chown -R circleci:circleci /usr/local/lib/python3.6/site-packages
       - run:
           name: Install os libraries
-          command: sudo apt-get install -y ffmpeg libsndfile1
+          command: sudo apt-get update && sudo apt-get install -y ffmpeg libsndfile1
       - restore_cache:
           key: deps-{{ .Environment.CIRCLE_BRANCH }}-{{ .Environment.CACHE_VERSION }}
       - run:
