@@ -20,3 +20,4 @@ deepspeech==0.9.3
 llvmlite==0.32.1
 pysrt==1.1.2
 nltk==3.6.2
+pytimeparse==1.1.8

@@ -14,7 +14,7 @@ from dataset.forced_alignment.search import FuzzySearch
 from dataset.forced_alignment.audio import DEFAULT_RATE
 from dataset.audio_processing import change_sample_rate, cut_audio, add_silence
 from training import DEFAULT_ALPHABET, PUNCTUATION
-
+from pytimeparse.timeparse import timeparse
 
 def clip_combiner(audio_path, output_path, clips, max_length):
     """
@@ -39,7 +39,7 @@ def clip_combiner(audio_path, output_path, clips, max_length):
 
     def _get_duration(start, end):
         """Gets the duration in seconds between two string timestamps"""
-        return (datetime.strptime(end, "%H:%M:%S.%f") - datetime.strptime(start, "%H:%M:%S.%f")).total_seconds()
+        return (timeparse(end) - timeparse(start))
 
     def _join_text(lines):
         """Joins list of lines with comma seperation"""
