@@ -198,7 +198,7 @@ def train(
         alignment_sequence = text_to_sequence(clean_text(alignment_sentence.strip(), symbols), symbols)
         alignment_folder = os.path.join(TRAINING_PATH, Path(output_directory).stem)
         os.makedirs(alignment_folder, exist_ok=True)
-    
+
     # Tensorboard init
     tensorboard_folder = os.path.join(TENSORBOARD_PATH, Path(output_directory).stem)
     os.makedirs(tensorboard_folder, exist_ok=True)

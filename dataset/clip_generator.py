@@ -16,6 +16,7 @@ from dataset.audio_processing import change_sample_rate, cut_audio, add_silence
 from training import DEFAULT_ALPHABET, PUNCTUATION
 from pytimeparse.timeparse import timeparse
 
+
 def clip_combiner(audio_path, output_path, clips, max_length):
     """
     Combines clips to make them as long as possible without exceeding max length.
@@ -39,7 +40,7 @@ def clip_combiner(audio_path, output_path, clips, max_length):
 
     def _get_duration(start, end):
         """Gets the duration in seconds between two string timestamps"""
-        return (timeparse(end) - timeparse(start))
+        return timeparse(end) - timeparse(start)
 
     def _join_text(lines):
         """Joins list of lines with comma seperation"""
