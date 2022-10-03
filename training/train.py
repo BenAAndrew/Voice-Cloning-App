@@ -14,6 +14,7 @@ logging.getLogger().setLevel(logging.INFO)
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
+from torch.utils.tensorboard import SummaryWriter
 
 from training import DEFAULT_ALPHABET, SEED
 from training.clean_text import clean_text
@@ -38,6 +39,7 @@ MINIMUM_MEMORY_GB = 4
 WEIGHT_DECAY = 1e-6
 GRAD_CLIP_THRESH = 1.0
 TRAINING_PATH = os.path.join("data", "training")
+TENSORBOARD_PATH = os.path.join("data", "tensorboard")
 
 
 def train(
@@ -196,6 +198,12 @@ def train(
         alignment_sequence = text_to_sequence(clean_text(alignment_sentence.strip(), symbols), symbols)
         alignment_folder = os.path.join(TRAINING_PATH, Path(output_directory).stem)
         os.makedirs(alignment_folder, exist_ok=True)
+    
+    # Tensorboard init
+    tensorboard_folder = os.path.join(TENSORBOARD_PATH, Path(output_directory).stem)
+    os.makedirs(tensorboard_folder, exist_ok=True)
+    writer = SummaryWriter(log_dir=tensorboard_folder)
+    logging.info("Writing Tensorboard logs to {}".format(tensorboard_folder))
 
     model.train()
     validation_losses = []
@@ -219,6 +227,7 @@ def train(
             optimizer.step()
 
             duration = time.perf_counter() - start
+            writer.add_scalar("Loss/train", reduced_loss, epoch)
             logging.info(
                 "Status - [Epoch {}: Iteration {}] Train loss {:.5f} Attention score {:.5f} {:.2f}s/it".format(
                     epoch, iteration, reduced_loss, avgmax_attention, duration
@@ -263,8 +272,12 @@ def train(
         # Early Stopping
         if early_stopping and check_early_stopping(validation_losses):
             logging.info("Stopping training early as loss is no longer decreasing")
+            writer.flush()
+            writer.close()
             break
 
+    writer.flush()
+    writer.close()
     logging.info(f"Progress - {epochs}/{epochs}")
     validate(model, val_loader, criterion, iteration)
     save_checkpoint(
