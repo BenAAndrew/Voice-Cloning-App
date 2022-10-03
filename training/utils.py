@@ -281,10 +281,10 @@ def create_trainlist_vallist_files(folder, metadata_path, train_size=0.8):
     random.shuffle(filepaths_and_text)
     train_files, test_files = train_test_split(filepaths_and_text, train_size)
 
-    with open(os.path.join(folder, TRAIN_FILE), "w") as f:
+    with open(os.path.join(folder, TRAIN_FILE), "w", encoding=CHARACTER_ENCODING) as f:
         for line in train_files:
             f.write(f"{line[0]}|{line[1]}\n")
 
-    with open(os.path.join(folder, VALIDATION_FILE), "w") as f:
+    with open(os.path.join(folder, VALIDATION_FILE), "w", encoding=CHARACTER_ENCODING) as f:
         for line in test_files:
             f.write(f"{line[0]}|{line[1]}\n")
