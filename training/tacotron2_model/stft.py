@@ -97,7 +97,7 @@ class STFT(torch.nn.Module):
         real_part = forward_transform[:, :cutoff, :]
         imag_part = forward_transform[:, cutoff:, :]
 
-        magnitude = torch.sqrt(real_part**2 + imag_part**2)
+        magnitude = torch.sqrt(real_part ** 2 + imag_part ** 2)
         phase = torch.autograd.Variable(torch.atan2(imag_part.data, real_part.data))
 
         return magnitude, phase
